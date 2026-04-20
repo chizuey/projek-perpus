@@ -8,7 +8,7 @@
 <link rel="stylesheet" href="stylecara.css">
 </head>
 <body>
-<?php include 'navbar.php'; ?>
+<?php include '../navbar.php'; ?>
 <div class="panduan-tata-cara" ><div class="main" ><div class="hero-section" ><div class="container" ><div class="overlay-border-wrapper" ><div class="overlay-border" ><img class="checklist" src="gambar/cara.png" /></div></div>
 <div class="heading" ><div class="text-wrapper" >Tata Cara</div></div>
 <div class="div-wrapper" ><div class="text" >Perpustakaan POLIJE</div></div></div></div></div>
@@ -70,6 +70,6 @@
 <div class="container-20" ><div class="background-border" ><div class="overlay-shadow" ></div>
 <div class="text-wrapper-12" >8</div></div>
 <div class="container-21" ><p class="text-wrapper-13" > Selanjutnya petugas mengetik barcode buku secara manual ke dalam sistem.</p></div></div></div></div></div></div>
-<?php include 'foot.php'; ?>
+<?php include '../foot.php'; ?>
 </body>
 </html>

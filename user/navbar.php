@@ -39,7 +39,7 @@
             </li>
 
             <li>
-                <a href="koleksi.php" class="nav-link">Koleksi</a>
+                <a href="koleksi/koleksi.php" class="nav-link">Koleksi</a>
             </li>
 
         </ul>

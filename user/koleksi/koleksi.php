@@ -8,7 +8,7 @@
 <link rel="stylesheet" href="style.css">
 </head>
 <body>
-<?php include 'navbar.php'; ?>
+<?php include '../navbar.php'; ?>
 <div class="koleksi" ><img class="rectangle" src="img/rectangle-155.png" />
 <div class="container-16" ><div class="container-17" ><div class="div-wrapper" ><p class="koleksi-perpustakaan" ><span class="span" >Koleksi </span>
 <span class="text-wrapper-7" >Perpustakaan Polije</span></p></div>
@@ -70,6 +70,6 @@
 <div class="card-15" ><div class="background" ><div class="cover-6" ></div></div>
 <div class="container-19" ><div class="div-wrapper" ><div class="text-wrapper-9" >Data Science Handbook</div></div>
 <div class="div-wrapper" ><div class="text-wrapper-10" >Field Cady</div></div></div></div></div></div></div>
-<?php include 'foot.php'; ?>
+<?php include '../foot.php'; ?>
 </body>
 </html>

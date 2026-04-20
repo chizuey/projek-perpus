@@ -24,9 +24,9 @@
        <li><a href="beranda.php">Beranda</a></li>
         <li><a href="profil.php"> Profil</a></li>
          <li><a href="lokasi.php"> Lokasi & Jam Kerja</a></li>
-        <li><a href="#"> Tata Tertib</a></li>
-         <li><a href="#"> Tata Cara</a></li>
-        <li><a href="#"> Koleksi</a></li>
+        <li><a href="tata tertib/tatatertib.php"> Tata Tertib</a></li>
+         <li><a href="tata cara/tatacara.php"> Tata Cara</a></li>
+        <li><a href="koleksi/koleksi.php"> Koleksi</a></li>
       </ul>
     </div>
 
