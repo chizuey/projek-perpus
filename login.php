@@ -30,7 +30,7 @@ body {
     width: 100%;
     align-items: center;
     justify-content: center;
-    padding: 0; /* penting biar ga nambah tinggi */
+    padding: 0; 
 }
 
 .login-card {
