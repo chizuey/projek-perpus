@@ -45,6 +45,18 @@
 
 .popup-body {
     padding: 16px;
+    box-sizing: border-box;
+    width: 100%;
+}
+
+.popup-alert {
+    margin-bottom: 12px;
+    background: #fef2f2;
+    border: 1px solid #fecaca;
+    color: #b91c1c;
+    border-radius: 4px;
+    padding: 10px 12px;
+    font-size: 12px;
 }
 
 .form-group {
@@ -69,6 +81,7 @@
     box-sizing: border-box;
     outline: none;
     background: #fff;
+    font-size: 13px;
 }
 
 .form-row {
@@ -85,6 +98,14 @@
     justify-content: flex-end;
     gap: 10px;
     margin-top: 20px;
+    width: 100%;
+    box-sizing: border-box;
+}
+
+.btn-batal,
+.btn-simpan {
+    position: static;
+    float: none;
 }
 
 .btn-batal {
