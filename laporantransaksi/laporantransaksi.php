@@ -1,4 +1,9 @@
 <?php
+/*
+|--------------------------------------------------------------------------
+| KONFIGURASI AWAL
+|--------------------------------------------------------------------------
+*/
 require_once __DIR__ . '/../vendor/autoload.php';
 
 use Dompdf\Dompdf;
@@ -6,6 +11,11 @@ use Dompdf\Options;
 
 session_start();
 
+/*
+|--------------------------------------------------------------------------
+| DATA AWAL LAPORAN
+|--------------------------------------------------------------------------
+*/
 if (!isset($_SESSION['laporantransaksi'])) {
     $_SESSION['laporantransaksi'] = [
         ['id' => 1, 'tanggal' => '2024-03-29', 'peminjam' => 'Budi', 'judul_buku' => 'Atomic Habits', 'tgl_pinjam' => '2024-03-28', 'tgl_jatuh_tempo' => '2024-04-02', 'tgl_kembali' => '2024-04-02', 'status' => 'Dikembalikan'],
@@ -23,6 +33,11 @@ if (!isset($_SESSION['laporantransaksi'])) {
     ];
 }
 
+/*
+|--------------------------------------------------------------------------
+| HELPER FUNCTIONS
+|--------------------------------------------------------------------------
+*/
 function escape($value)
 {
     return htmlspecialchars((string) $value, ENT_QUOTES, 'UTF-8');
@@ -73,6 +88,11 @@ function getStatusClass($status)
     return 'status-default';
 }
 
+/*
+|--------------------------------------------------------------------------
+| EXPORT PDF
+|--------------------------------------------------------------------------
+*/
 function getPdfStyles()
 {
     $pdfCssPath = __DIR__ . '/laporantransaksipdf.css';
@@ -201,6 +221,11 @@ function exportLaporanPdf($laporan, $statusFilter, $startDate, $endDate, $keywor
     exit;
 }
 
+/*
+|--------------------------------------------------------------------------
+| PROSES HAPUS DATA
+|--------------------------------------------------------------------------
+*/
 if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['delete_selected'])) {
     $selectedIds = array_map('intval', $_POST['selected_ids'] ?? []);
 
@@ -219,6 +244,11 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['delete_selected'])) {
     exit;
 }
 
+/*
+|--------------------------------------------------------------------------
+| FILTER DATA DAN PAGINATION
+|--------------------------------------------------------------------------
+*/
 $statusFilter = $_GET['status'] ?? 'Semua';
 $startDate = array_key_exists('start_date', $_GET) ? $_GET['start_date'] : '2024-01-01';
 $endDate = array_key_exists('end_date', $_GET) ? $_GET['end_date'] : '2024-03-31';
@@ -293,6 +323,11 @@ $offset = ($page - 1) * $perPage;
 $dataTampil = array_slice($laporan, $offset, $perPage);
 $returnQuery = buatQuery([], ['action']);
 ?>
+<!--
+|--------------------------------------------------------------------------
+| TEMPLATE HALAMAN LAPORAN TRANSAKSI
+|--------------------------------------------------------------------------
+-->
 <!DOCTYPE html>
 <html lang="id">
 <head>
@@ -483,6 +518,11 @@ $returnQuery = buatQuery([], ['action']);
         </section>
     </div>
 
+    <!--
+    |--------------------------------------------------------------------------
+    | JAVASCRIPT INTERAKSI HALAMAN
+    |--------------------------------------------------------------------------
+    -->
     <script>
         const formFilter = document.getElementById('filter-form');
         const statusFilterElement = document.getElementById('status-filter');
