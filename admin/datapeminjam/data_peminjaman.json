@@ -1,5 +1,14 @@
 [
     {
+        "id": "pjm_69e6340c476761.87638094",
+        "nim": "123456",
+        "nama": "Fajar",
+        "buku": "Algoritma",
+        "tanggal_pinjam": "2026-02-04",
+        "tanggal_kembali": "2026-08-04",
+        "returned_at": null
+    },
+    {
         "id": "pjm_69e5f4a32d3f94.13774005",
         "nim": "123446",
         "nama": "Dea",
