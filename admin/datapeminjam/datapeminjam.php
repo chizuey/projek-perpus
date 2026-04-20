@@ -138,12 +138,23 @@ function loadPeminjaman($file)
 | HELPER UMUM
 |--------------------------------------------------------------------------
 */
-function redirectTo($params = [])
-{
+function getCurrentMenuPeminjaman() {
+    return $_GET['menu'] ?? 'peminjaman';
+}
+
+function redirectTo($params = []) {
     $url = basename($_SERVER['PHP_SELF']);
+
+    $baseParams = [
+        'menu' => getCurrentMenuPeminjaman(),
+    ];
+
+    $params = array_merge($baseParams, $params);
+
     if (!empty($params)) {
         $url .= '?' . http_build_query($params);
     }
+
     header('Location: ' . $url);
     exit;
 }
@@ -197,12 +208,16 @@ function hitungMetaPeminjaman($item)
 | HELPER PAGINATION
 |--------------------------------------------------------------------------
 */
-function buildPageUrl($page, $search)
-{
-    $params = ['page' => $page];
+function buildPageUrl($page, $search) {
+    $params = [
+        'menu' => getCurrentMenuPeminjaman(),
+        'page' => $page,
+    ];
+
     if ($search !== '') {
         $params['q'] = $search;
     }
+
     return '?' . http_build_query($params);
 }
 
@@ -387,6 +402,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
 
         array_unshift($dataPeminjaman, $newData);
         savePeminjaman($dataFile, $dataPeminjaman);
+        
         redirectTo();
     } else {
         $openPopup = true;
@@ -402,20 +418,30 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
     | - kembali ke halaman sesuai page dan search
     */
     if ($action === 'kembalikan_peminjaman') {
-        $id = $_POST['id'] ?? '';
-        $searchFromPost = trim($_POST['q'] ?? '');
-        $pageFromPost = max(1, (int) ($_POST['page'] ?? 1));
+    $id = $_POST['id'] ?? '';
+    $searchFromPost = trim($_POST['q'] ?? '');
+    $pageFromPost = max(1, (int) ($_POST['page'] ?? 1));
 
-        unset($item);
-
-        savePeminjaman($dataFile, $dataPeminjaman);
-
-        $redirectParams = ['page' => $pageFromPost];
-        if ($searchFromPost !== '') {
-            $redirectParams['q'] = $searchFromPost;
+    foreach ($dataPeminjaman as &$item) {
+        if (($item['id'] ?? '') === $id && empty($item['returned_at'])) {
+            $item['returned_at'] = date('Y-m-d');
+            break;
         }
+    }
+    unset($item);
 
-        redirectTo($redirectParams);
+    savePeminjaman($dataFile, $dataPeminjaman);
+
+    $redirectParams = [
+        'menu' => 'peminjaman',
+        'page' => $pageFromPost
+    ];
+
+    if ($searchFromPost !== '') {
+        $redirectParams['q'] = $searchFromPost;
+    }
+
+    redirectTo($redirectParams);
     }
 }
 
@@ -480,6 +506,7 @@ $paginationItems = getPaginationItems($currentPage, $totalPages);
             </button>
 
             <form method="get" class="search-form">
+                <input type="hidden" name="menu" value="<?= htmlspecialchars($_GET['menu'] ?? 'peminjaman'); ?>">
                 <div class="search-box">
                     <input
                         type="text"

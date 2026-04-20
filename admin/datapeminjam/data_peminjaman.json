@@ -6,7 +6,7 @@
         "buku": "Algoritma",
         "tanggal_pinjam": "2026-02-04",
         "tanggal_kembali": "2026-08-04",
-        "returned_at": null
+        "returned_at": "2026-04-20"
     },
     {
         "id": "pjm_69e5f4a32d3f94.13774005",
@@ -15,7 +15,7 @@
         "buku": "Manajemen Keuangan",
         "tanggal_pinjam": "2026-04-13",
         "tanggal_kembali": "2026-04-21",
-        "returned_at": null
+        "returned_at": "2026-04-20"
     },
     {
         "id": "pjm_69e5f4828ecba9.34999632",
@@ -60,7 +60,7 @@
         "buku": "UI\/UX",
         "tanggal_pinjam": "2026-03-23",
         "tanggal_kembali": "2026-04-01",
-        "returned_at": null
+        "returned_at": "2026-04-20"
     },
     {
         "id": "pjm_69e5dc3089b106.15492014",
