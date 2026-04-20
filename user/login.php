@@ -198,7 +198,7 @@ body {
         <div class="login-card">
 
             <div class="header-logo">
-                <img src="user/gambar/logo-polije.png" alt="logo"/>
+                <img src="gambar/logo-polije.png" alt="logo"/>
                 <span class="brand-name-login">Perpustakaan Polije</span>
             </div>
 

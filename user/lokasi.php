@@ -14,7 +14,7 @@
     <div class="hero-section-lokasi">
         <div class="hero-content-lokasi">
             <div class="hero-icon-lokasi">
-                <img src="user/gambar/info.png" alt="Icon Profil">
+                <img src="gambar/info.png" alt="Icon Profil">
             </div>
             <h1 class="hero-title-lokasi">Lokasi & Jam Kerja</h1>
             <p class="hero-subtitle-lokasi">Perpustakaan POLIJE</p>

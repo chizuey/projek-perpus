@@ -2,17 +2,17 @@
   <div class="footer-container">
     <div class="footer-section identity">
       <div class="footer-logo">
-        <img src="user/gambar/logo-polije.png" alt="Logo Polije">
+        <img src="gambar/logo-polije.png" alt="Logo Polije">
         <span class="brand-text">PERPUSTAKAAN POLIJE</span>
       </div>
       <div class="contact-info">
         <p>Jl. Mastrip PO BOX 164 Jember</p>
         <div class="contact-item">
-          <img src="user/gambar/email.png" alt="Email Icon">
+          <img src="gambar/email.png" alt="Email Icon">
           <span>Email: perpus@polije.ac.id</span>
         </div>
         <div class="contact-item">
-          <img src="user/gambar/telpon.png" alt="Phone Icon">
+          <img src="gambar/telpon.png" alt="Phone Icon">
           <span>Telp: (0331) 333532</span>
         </div>
       </div>
@@ -33,9 +33,9 @@
     <div class="footer-section social">
       <h3 class="footer-title">Media Sosial</h3>
       <div class="social-container">
-        <li><a href="#" class="social-link"><img src="user/gambar/ig.png"> Instagram</a>
-        <li><a href="#" class="social-link"><img src="user/gambar/fb.png"> Facebook</a>
-        <li><a href="#" class="social-link"><img src="user/gambar/mail.png"> Email</a>
+        <li><a href="#" class="social-link"><img src="gambar/ig.png"> Instagram</a>
+        <li><a href="#" class="social-link"><img src="gambar/fb.png"> Facebook</a>
+        <li><a href="#" class="social-link"><img src="gambar/mail.png"> Email</a>
       </div>
     </div>
   </div>
