@@ -13,7 +13,7 @@
     <div class="hero-section-profil">
         <div class="hero-content-profil">
             <div class="hero-icon-profil">
-                <img src="user/gambar/prof.png" alt="Icon Profil">
+                <img src="gambar/prof.png" alt="Icon Profil">
             </div>
             <h1 class="hero-title-profil">Profil</h1>
             <p class="hero-subtitle-profil">Perpustakaan POLIJE</p>
