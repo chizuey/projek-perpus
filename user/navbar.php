@@ -3,7 +3,7 @@
 
         <!-- LOGO -->
         <div class="logo-section">
-           <img src="gambar/logo-polije.png" alt="Logo" class="logo-gambar">
+           <img src="user/gambar/logo-polije.png" alt="Logo" class="logo-gambar">
             <span class="brand-name">Perpustakaan Polije</span>
         </div>
 

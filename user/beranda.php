@@ -30,7 +30,7 @@ dan pengetahuan tanpa batas.
         </div>
 
         <div class="hero-image">
-            <img src="gambar/bg-bku.png" alt="">
+            <img src="user/gambar/bg-bku.png" alt="">
         </div>
     </div>
 </section>
@@ -78,17 +78,17 @@ secara digital.</p>
     <div class="book-grid">
 
         <!-- 6 ITEM -->
-        <div class="book-card"><div class="book-cover"><img src="gambar/buku.png"></div><div class="book-info"><h4>The Quiet</h4><p>Erika</p></div></div>
+        <div class="book-card"><div class="book-cover"><img src="user/gambar/buku.png"></div><div class="book-info"><h4>The Quiet</h4><p>Erika</p></div></div>
 
-        <div class="book-card"><div class="book-cover"><img src="gambar/buku.png"></div><div class="book-info"><h4>Filosofi Teras</h4><p>Henry</p></div></div>
+        <div class="book-card"><div class="book-cover"><img src="user/gambar/buku.png"></div><div class="book-info"><h4>Filosofi Teras</h4><p>Henry</p></div></div>
 
-        <div class="book-card"><div class="book-cover"><img src="gambar/buku.png"></div><div class="book-info"><h4>Bumi Manusia</h4><p>Pramoedya</p></div></div>
+        <div class="book-card"><div class="book-cover"><img src="user/gambar/buku.png"></div><div class="book-info"><h4>Bumi Manusia</h4><p>Pramoedya</p></div></div>
 
-        <div class="book-card"><div class="book-cover"><img src="gambar/buku.png"></div><div class="book-info"><h4>Atomic Habits</h4><p>James</p></div></div>
+        <div class="book-card"><div class="book-cover"><img src="user/gambar/buku.png"></div><div class="book-info"><h4>Atomic Habits</h4><p>James</p></div></div>
 
-        <div class="book-card"><div class="book-cover"><img src="gambar/buku.png"></div><div class="book-info"><h4>Laskar Pelangi</h4><p>Andrea Hirata</p></div></div>
+        <div class="book-card"><div class="book-cover"><img src="user/gambar/buku.png"></div><div class="book-info"><h4>Laskar Pelangi</h4><p>Andrea Hirata</p></div></div>
 
-        <div class="book-card"><div class="book-cover"><img src="gambar/buku.png"></div><div class="book-info"><h4>Pulang</h4><p>Tere Liye</p></div></div>
+        <div class="book-card"><div class="book-cover"><img src="user/gambar/buku.png"></div><div class="book-info"><h4>Pulang</h4><p>Tere Liye</p></div></div>
 
     </div>
 </section>
@@ -103,17 +103,17 @@ secara digital.</p>
     <div class="book-grid">
 
         <!-- 6 ITEM -->
-        <div class="book-card"><div class="book-cover"><img src="gambar/buku.png"></div><div class="book-info"><h4>Negeri Bedebah</h4><p>Tere Liye</p></div></div>
+        <div class="book-card"><div class="book-cover"><img src="user/gambar/buku.png"></div><div class="book-info"><h4>Negeri Bedebah</h4><p>Tere Liye</p></div></div>
 
-        <div class="book-card"><div class="book-cover"><img src="gambar/buku.png"></div><div class="book-info"><h4>Pulang</h4><p>Tere Liye</p></div></div>
+        <div class="book-card"><div class="book-cover"><img src="user/gambar/buku.png"></div><div class="book-info"><h4>Pulang</h4><p>Tere Liye</p></div></div>
 
-        <div class="book-card"><div class="book-cover"><img src="gambar/buku.png"></div><div class="book-info"><h4>Seni Bodo Amat</h4><p>Mark Manson</p></div></div>
+        <div class="book-card"><div class="book-cover"><img src="user/gambar/buku.png"></div><div class="book-info"><h4>Seni Bodo Amat</h4><p>Mark Manson</p></div></div>
 
-        <div class="book-card"><div class="book-cover"><img src="gambar/buku.png"></div><div class="book-info"><h4>NKCTHI</h4><p>Marchella</p></div></div>
+        <div class="book-card"><div class="book-cover"><img src="user/gambar/buku.png"></div><div class="book-info"><h4>NKCTHI</h4><p>Marchella</p></div></div>
 
-        <div class="book-card"><div class="book-cover"><img src="gambar/buku.png"></div><div class="book-info"><h4>Rich Dad Poor Dad</h4><p>Kiyosaki</p></div></div>
+        <div class="book-card"><div class="book-cover"><img src="user/gambar/buku.png"></div><div class="book-info"><h4>Rich Dad Poor Dad</h4><p>Kiyosaki</p></div></div>
 
-        <div class="book-card"><div class="book-cover"><img src="gambar/buku.png"></div><div class="book-info"><h4>Think Big</h4><p>Ben Carson</p></div></div>
+        <div class="book-card"><div class="book-cover"><img src="user/gambar/buku.png"></div><div class="book-info"><h4>Think Big</h4><p>Ben Carson</p></div></div>
 
     </div>
 </section>
