@@ -52,9 +52,17 @@ function formatTanggal($tanggal)
     return date('d M Y', strtotime($tanggal));
 }
 
+function getCurrentMenuLaporan()
+{
+    return $_GET['menu'] ?? 'laporan';
+}
+
 function buatQuery(array $tambahan = [], array $hapus = [])
 {
-    $query = $_GET;
+    $query = array_merge(
+        ['menu' => getCurrentMenuLaporan()],
+        $_GET
+    );
 
     foreach ($hapus as $key) {
         unset($query[$key]);
@@ -69,6 +77,27 @@ function buatQuery(array $tambahan = [], array $hapus = [])
     }
 
     return http_build_query($query);
+}
+
+function buildExportUrl(array $tambahan = [], array $hapus = [])
+{
+    $query = $_GET;
+
+    unset($query['menu']);
+
+    foreach ($hapus as $key) {
+        unset($query[$key]);
+    }
+
+    foreach ($tambahan as $key => $value) {
+        if ($value === null || $value === '') {
+            unset($query[$key]);
+        } else {
+            $query[$key] = $value;
+        }
+    }
+
+    return 'laporantransaksi/laporantransaksi.php?' . http_build_query($query);
 }
 
 function getStatusClass($status)
@@ -128,78 +157,78 @@ function buildExportHtml($laporan, $statusFilter, $startDate, $endDate, $keyword
 
     ob_start();
     ?>
-    <!DOCTYPE html>
-    <html lang="id">
-    <head>
-        <meta charset="UTF-8">
-        <meta name="viewport" content="width=device-width, initial-scale=1.0">
-        <title>Laporan Transaksi</title>
-        <style><?= $styles ?></style>
-    </head>
-    <body>
-        <div class="report-wrapper">
-            <h1 class="report-title">Laporan Transaksi</h1>
+<!DOCTYPE html>
+<html lang="id">
+<head>
+    <meta charset="UTF-8">
+    <style>
+        <?= $styles ?>
+    </style>
+</head>
+<body>
+    <div class="report-wrapper">
+        <h1 class="report-title">Laporan Transaksi</h1>
 
-            <ul class="filter-list">
-                <?php foreach ($filters as $filter): ?>
-                    <li><?= escape($filter) ?></li>
-                <?php endforeach; ?>
-            </ul>
-            
-            <table class="report-table">
-                <thead>
+        <ul class="filter-list">
+            <?php foreach ($filters as $filter): ?>
+                <li><?= escape($filter) ?></li>
+            <?php endforeach; ?>
+        </ul>
+
+        <table class="report-table">
+            <thead>
+                <tr>
+                    <th>Tanggal</th>
+                    <th>Peminjam</th>
+                    <th>Judul Buku</th>
+                    <th>Tgl. Pinjam</th>
+                    <th>Tgl. Jatuh Tempo</th>
+                    <th>Tgl. Kembali</th>
+                    <th>Status</th>
+                </tr>
+            </thead>
+            <tbody>
+                <?php if (empty($laporan)): ?>
                     <tr>
-                        <th>Tanggal</th>
-                        <th>Peminjam</th>
-                        <th>Judul Buku</th>
-                        <th>Tgl. Pinjam</th>
-                        <th>Tgl. Jatuh Tempo</th>
-                        <th>Tgl. Kembali</th>
-                        <th>Status</th>
+                        <td colspan="7" class="empty-state">Data laporan tidak ditemukan.</td>
                     </tr>
-                </thead>
-                <tbody>
-                    <?php if (empty($laporan)): ?>
+                <?php else: ?>
+                    <?php foreach ($laporan as $row): ?>
+                        <?php
+                        $badgeClass = 'badge-default';
+                        if ($row['status'] === 'Dikembalikan') {
+                            $badgeClass = 'badge-green';
+                        } elseif ($row['status'] === 'Terlambat') {
+                            $badgeClass = 'badge-orange';
+                        } elseif ($row['status'] === 'Belum Kembali') {
+                            $badgeClass = 'badge-red';
+                        }
+                        ?>
                         <tr>
-                            <td colspan="7" class="empty-state">Data laporan tidak ditemukan.</td>
+                            <td><?= escape(formatTanggal($row['tanggal'])) ?></td>
+                            <td><?= escape($row['peminjam']) ?></td>
+                            <td><?= escape($row['judul_buku']) ?></td>
+                            <td><?= escape(formatTanggal($row['tgl_pinjam'])) ?></td>
+                            <td><?= escape(formatTanggal($row['tgl_jatuh_tempo'])) ?></td>
+                            <td><?= escape(formatTanggal($row['tgl_kembali'])) ?></td>
+                            <td><span class="badge <?= $badgeClass ?>"><?= escape($row['status']) ?></span></td>
                         </tr>
-                    <?php else: ?>
-                        <?php foreach ($laporan as $row): ?>
-                            <?php
-                            $badgeClass = 'badge-default';
-                            if ($row['status'] === 'Dikembalikan') {
-                                $badgeClass = 'badge-green';
-                            } elseif ($row['status'] === 'Terlambat') {
-                                $badgeClass = 'badge-orange';
-                            } elseif ($row['status'] === 'Belum Kembali') {
-                                $badgeClass = 'badge-red';
-                            }
-                            ?>
-                            <tr>
-                                <td><?= escape(formatTanggal($row['tanggal'])) ?></td>
-                                <td><?= escape($row['peminjam']) ?></td>
-                                <td><?= escape($row['judul_buku']) ?></td>
-                                <td><?= escape(formatTanggal($row['tgl_pinjam'])) ?></td>
-                                <td><?= escape(formatTanggal($row['tgl_jatuh_tempo'])) ?></td>
-                                <td><?= escape(formatTanggal($row['tgl_kembali'])) ?></td>
-                                <td><span class="badge <?= $badgeClass ?>"><?= escape($row['status']) ?></span></td>
-                            </tr>
-                        <?php endforeach; ?>
-                    <?php endif; ?>
-                </tbody>
-            </table>
-        </div>
+                    <?php endforeach; ?>
+                <?php endif; ?>
+            </tbody>
+        </table>
+    </div>
 
-        <?php if ($autoPrint): ?>
-            <script>
-                window.addEventListener('load', function () {
-                    window.print();
-                });
-            </script>
-        <?php endif; ?>
-    </body>
-    </html>
-    <?php
+    <?php if ($autoPrint): ?>
+        <script>
+            window.addEventListener('load', function () {
+                window.print();
+            });
+        </script>
+    <?php endif; ?>
+</body>
+</html>
+<?php
 
     return ob_get_clean();
 }
@@ -344,6 +373,8 @@ $returnQuery = buatQuery([], ['action']);
 
         <section class="toolbar">
             <form method="GET" class="filter-form" id="filter-form">
+                <input type="hidden" name="menu" value="<?= escape($_GET['menu'] ?? 'laporan') ?>">
+                <input type="hidden" name="page" value="1">
                 <div class="field-group status-filter">
                     <span class="field-label">Tampilkan:</span>
                     <select name="status" id="status-filter">
@@ -374,7 +405,7 @@ $returnQuery = buatQuery([], ['action']);
                 <button type="submit" class="hidden-submit" aria-hidden="true" tabindex="-1">Terapkan</button>
             </form>
 
-            <a href="?<?= escape(buatQuery(['action' => 'export', 'page' => 1])) ?>" class="export-button">
+            <a href="<?= escape(buildExportUrl(['action' => 'export', 'page' => 1])) ?>" class="export-button">
     <svg viewBox="0 0 24 24" aria-hidden="true">
         <path d="M7 3.5H14L18.5 8V20.5H7V3.5Z" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linejoin="round"></path>
         <path d="M14 3.5V8H18.5" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linejoin="round"></path>
@@ -386,59 +417,59 @@ $returnQuery = buatQuery([], ['action']);
         </section>
 
         <section class="dashboard-cards">
-            <article class="card card-blue">
-                <div class="card-top">
-                    <span class="card-icon">
-                        <svg viewBox="0 0 24 24" aria-hidden="true">
-                            <rect x="4" y="7" width="16" height="10" rx="2" fill="none" stroke="currentColor" stroke-width="1.8"></rect>
-                            <path d="M7 10H17" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round"></path>
-                        </svg>
-                    </span>
-                    <span class="card-label">Peminjaman</span>
-                </div>
-                <div class="card-value"><?= $totalPeminjaman ?></div>
-            </article>
+    <article class="card card-blue">
+        <div class="card-top">
+            <span class="card-icon">
+                <svg viewBox="0 0 24 24" aria-hidden="true">
+                    <rect x="4" y="7" width="16" height="10" rx="2" fill="none" stroke="currentColor" stroke-width="1.8"></rect>
+                    <path d="M7 10H17" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round"></path>
+                </svg>
+            </span>
+            <span class="card-label">Peminjaman</span>
+        </div>
+        <div class="card-value"><?= $totalPeminjaman ?></div>
+    </article>
 
-            <article class="card card-green">
-                <div class="card-top">
-                    <span class="card-icon">
-                        <svg viewBox="0 0 24 24" aria-hidden="true">
-                            <rect x="4" y="4" width="16" height="16" rx="3" fill="none" stroke="currentColor" stroke-width="1.8"></rect>
-                            <path d="M8 12L11 15L16 9" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"></path>
-                        </svg>
-                    </span>
-                    <span class="card-label">Dikembalikan</span>
-                </div>
-                <div class="card-value"><?= $totalDikembalikan ?></div>
-            </article>
+    <article class="card card-green">
+        <div class="card-top">
+            <span class="card-icon">
+                <svg viewBox="0 0 24 24" aria-hidden="true">
+                    <rect x="4" y="4" width="16" height="16" rx="3" fill="none" stroke="currentColor" stroke-width="1.8"></rect>
+                    <path d="M8 12L11 15L16 9" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"></path>
+                </svg>
+            </span>
+            <span class="card-label">Dikembalikan</span>
+        </div>
+        <div class="card-value"><?= $totalDikembalikan ?></div>
+    </article>
 
-            <article class="card card-yellow">
-                <div class="card-top">
-                    <span class="card-icon">
-                        <svg viewBox="0 0 24 24" aria-hidden="true">
-                            <circle cx="12" cy="12" r="8" fill="none" stroke="currentColor" stroke-width="1.8"></circle>
-                            <path d="M12 8V12L14.5 13.5" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"></path>
-                        </svg>
-                    </span>
-                    <span class="card-label">Terlambat</span>
-                </div>
-                <div class="card-value"><?= $totalTerlambat ?></div>
-            </article>
+    <article class="card card-yellow">
+        <div class="card-top">
+            <span class="card-icon">
+                <svg viewBox="0 0 24 24" aria-hidden="true">
+                    <circle cx="12" cy="12" r="8" fill="none" stroke="currentColor" stroke-width="1.8"></circle>
+                    <path d="M12 8V12L14.5 13.5" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"></path>
+                </svg>
+            </span>
+            <span class="card-label">Terlambat</span>
+        </div>
+        <div class="card-value"><?= $totalTerlambat ?></div>
+    </article>
 
-            <article class="card card-red">
-                <div class="card-top">
-                    <span class="card-icon">
-                        <svg viewBox="0 0 24 24" aria-hidden="true">
-                            <circle cx="12" cy="12" r="8" fill="none" stroke="currentColor" stroke-width="1.8"></circle>
-                            <path d="M12 8V12" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round"></path>
-                            <circle cx="12" cy="15.5" r="1" fill="currentColor"></circle>
-                        </svg>
-                    </span>
-                    <span class="card-label">Belum Kembali</span>
-                </div>
-                <div class="card-value"><?= $totalBelumKembali ?></div>
-            </article>
-        </section>
+    <article class="card card-red">
+        <div class="card-top">
+            <span class="card-icon">
+                <svg viewBox="0 0 24 24" aria-hidden="true">
+                    <circle cx="12" cy="12" r="8" fill="none" stroke="currentColor" stroke-width="1.8"></circle>
+                    <path d="M12 8V12" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round"></path>
+                    <circle cx="12" cy="15.5" r="1" fill="currentColor"></circle>
+                </svg>
+            </span>
+            <span class="card-label">Belum Kembali</span>
+        </div>
+        <div class="card-value"><?= $totalBelumKembali ?></div>
+    </article>
+</section>
 
         <section class="table-card">
             <form method="POST">
@@ -582,5 +613,3 @@ $returnQuery = buatQuery([], ['action']);
             return confirm('Hapus laporan yang dipilih?');
         }
     </script>
-</body>
-</html>
