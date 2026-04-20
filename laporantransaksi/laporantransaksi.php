@@ -10,7 +10,7 @@ if (!isset($_SESSION['laporantransaksi'])) {
     $_SESSION['laporantransaksi'] = [
         ['id' => 1, 'tanggal' => '2024-03-29', 'peminjam' => 'Budi', 'judul_buku' => 'Atomic Habits', 'tgl_pinjam' => '2024-03-28', 'tgl_jatuh_tempo' => '2024-04-02', 'tgl_kembali' => '2024-04-02', 'status' => 'Dikembalikan'],
         ['id' => 2, 'tanggal' => '2024-03-27', 'peminjam' => 'Fita', 'judul_buku' => 'Bumi Manusia', 'tgl_pinjam' => '2024-03-27', 'tgl_jatuh_tempo' => '2024-04-03', 'tgl_kembali' => '', 'status' => 'Terlambat'],
-        ['id' => 3, 'tanggal' => '2024-03-27', 'peminjam' => 'Ayu', 'judul_buku' => 'Filosofi Teras', 'tgl_pinjam' => '2024-03-27', 'tgl_jatuh_tempo' => '2024-04-01', 'tgl_kembali' => '2024-04-01', 'status' => 'Belum Kembali'],
+        ['id' => 3, 'tanggal' => '2024-03-27', 'peminjam' => 'Ayu', 'judul_buku' => 'Filosofi Teras', 'tgl_pinjam' => '2024-03-27', 'tgl_jatuh_tempo' => '2024-04-01', 'tgl_kembali' => '', 'status' => 'Belum Kembali'],
         ['id' => 4, 'tanggal' => '2024-03-26', 'peminjam' => 'Cahyo', 'judul_buku' => 'Orang-Orang Biasa', 'tgl_pinjam' => '2024-03-26', 'tgl_jatuh_tempo' => '2024-04-01', 'tgl_kembali' => '2024-04-01', 'status' => 'Dikembalikan'],
         ['id' => 5, 'tanggal' => '2024-03-25', 'peminjam' => 'Nanda', 'judul_buku' => 'Laut Bercerita', 'tgl_pinjam' => '2024-03-25', 'tgl_jatuh_tempo' => '2024-03-30', 'tgl_kembali' => '', 'status' => 'Terlambat'],
         ['id' => 6, 'tanggal' => '2024-03-24', 'peminjam' => 'Rina', 'judul_buku' => 'Negeri 5 Menara', 'tgl_pinjam' => '2024-03-24', 'tgl_jatuh_tempo' => '2024-03-31', 'tgl_kembali' => '', 'status' => 'Belum Kembali'],
