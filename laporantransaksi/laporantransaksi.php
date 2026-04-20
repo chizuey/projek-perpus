@@ -125,11 +125,7 @@ function buildExportHtml($laporan, $statusFilter, $startDate, $endDate, $keyword
                     <li><?= escape($filter) ?></li>
                 <?php endforeach; ?>
             </ul>
-
-            <?php if ($showPrintNote): ?>
-                <div class="print-note">Library PDF belum terpasang. Halaman ini otomatis membuka dialog print agar bisa disimpan sebagai PDF.</div>
-            <?php endif; ?>
-
+            
             <table class="report-table">
                 <thead>
                     <tr>
