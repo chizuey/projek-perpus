@@ -66,10 +66,12 @@ button:focus-visible {
     width: 100%;
     max-width: 1440px;
     height: 72px;
-    display: flex;
-    align-items: center;
-    justify-content: space-between;
+    margin: 0 auto;
     padding: 0 40px;
+
+    display: grid;
+    grid-template-columns: auto 1fr auto; /* kiri - tengah fleksibel - kanan */
+    align-items: center;
 }
 
 .logo-section {
@@ -96,7 +98,8 @@ button:focus-visible {
     display: flex;
     align-items: center;
     gap: 32px;
-    margin: 0 auto;
+
+    justify-content: center; /* tengah secara isi */
 }
 
 .nav-link {
@@ -188,6 +191,13 @@ button:focus-visible {
     background: #f0f4f8;
     color: #0050ad;
     transform: scale(1.05);
+}
+.logo-section {
+    justify-self: start;
+}
+
+.profile-section {
+    justify-self: end;
 }
 
 .footer {

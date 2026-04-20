@@ -30,7 +30,7 @@ dan pengetahuan tanpa batas.
         </div>
 
         <div class="hero-image">
-            <img src="gambar/bg-buku.png" alt="">
+            <img src="gambar/bg-bku.png" alt="">
         </div>
     </div>
 </section>
