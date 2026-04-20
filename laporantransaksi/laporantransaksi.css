@@ -357,8 +357,8 @@ tbody tr:last-child td {
     background: #ef4444;
 }
 
-.status-blue {
-    background: #0f56b8;
+.status-orange {
+    background: #c76a05;
 }
 
 .status-default {

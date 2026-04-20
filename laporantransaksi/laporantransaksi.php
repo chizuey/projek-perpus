@@ -6,8 +6,8 @@ use Dompdf\Options;
 
 session_start();
 
-if (!isset($_SESSION['laporan_transaksi'])) {
-    $_SESSION['laporan_transaksi'] = [
+if (!isset($_SESSION['laporantransaksi'])) {
+    $_SESSION['laporantransaksi'] = [
         ['id' => 1, 'tanggal' => '2024-03-29', 'peminjam' => 'Budi', 'judul_buku' => 'Atomic Habits', 'tgl_pinjam' => '2024-03-28', 'tgl_jatuh_tempo' => '2024-04-02', 'tgl_kembali' => '2024-04-02', 'status' => 'Dikembalikan'],
         ['id' => 2, 'tanggal' => '2024-03-27', 'peminjam' => 'Fita', 'judul_buku' => 'Bumi Manusia', 'tgl_pinjam' => '2024-03-27', 'tgl_jatuh_tempo' => '2024-04-03', 'tgl_kembali' => '', 'status' => 'Terlambat'],
         ['id' => 3, 'tanggal' => '2024-03-27', 'peminjam' => 'Ayu', 'judul_buku' => 'Filosofi Teras', 'tgl_pinjam' => '2024-03-27', 'tgl_jatuh_tempo' => '2024-04-01', 'tgl_kembali' => '2024-04-01', 'status' => 'Belum Kembali'],
@@ -63,11 +63,11 @@ function getStatusClass($status)
     }
 
     if ($status === 'Terlambat') {
-        return 'status-red';
+        return 'status-orange';
     }
 
     if ($status === 'Belum Kembali') {
-        return 'status-blue';
+        return 'status-red';
     }
 
     return 'status-default';
@@ -75,7 +75,7 @@ function getStatusClass($status)
 
 function getPdfStyles()
 {
-    $pdfCssPath = __DIR__ . '/laporan_transaksi_pdf.css';
+    $pdfCssPath = __DIR__ . '/laporantransaksipdf.css';
 
     if (file_exists($pdfCssPath)) {
         return file_get_contents($pdfCssPath);
@@ -150,9 +150,9 @@ function buildExportHtml($laporan, $statusFilter, $startDate, $endDate, $keyword
                             if ($row['status'] === 'Dikembalikan') {
                                 $badgeClass = 'badge-green';
                             } elseif ($row['status'] === 'Terlambat') {
-                                $badgeClass = 'badge-red';
+                                $badgeClass = 'badge-orange';
                             } elseif ($row['status'] === 'Belum Kembali') {
-                                $badgeClass = 'badge-blue';
+                                $badgeClass = 'badge-red';
                             }
                             ?>
                             <tr>
@@ -197,7 +197,7 @@ function exportLaporanPdf($laporan, $statusFilter, $startDate, $endDate, $keywor
     $dompdf->setPaper('A4', 'landscape');
     $dompdf->loadHtml($html, 'UTF-8');
     $dompdf->render();
-    $dompdf->stream('laporan_transaksi.pdf', ['Attachment' => true]);
+    $dompdf->stream('laporantransaksi.pdf', ['Attachment' => true]);
     exit;
 }
 
@@ -205,8 +205,8 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['delete_selected'])) {
     $selectedIds = array_map('intval', $_POST['selected_ids'] ?? []);
 
     if (!empty($selectedIds)) {
-        $_SESSION['laporan_transaksi'] = array_values(array_filter(
-            $_SESSION['laporan_transaksi'],
+        $_SESSION['laporantransaksi'] = array_values(array_filter(
+            $_SESSION['laporantransaksi'],
             function ($item) use ($selectedIds) {
                 return !in_array($item['id'], $selectedIds, true);
             }
@@ -226,7 +226,7 @@ $keyword = trim($_GET['keyword'] ?? '');
 $page = max(1, (int) ($_GET['page'] ?? 1));
 $perPage = 5;
 
-$semuaLaporan = $_SESSION['laporan_transaksi'];
+$semuaLaporan = $_SESSION['laporantransaksi'];
 
 /*
 |--------------------------------------------------------------------------
