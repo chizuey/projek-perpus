@@ -232,16 +232,30 @@ $perPage = 5;
 
 $semuaLaporan = $_SESSION['laporan_transaksi'];
 
-$laporan = array_values(array_filter($semuaLaporan, function ($item) use ($statusFilter, $startDate, $endDate, $keyword) {
-    if ($statusFilter !== 'Semua' && $item['status'] !== $statusFilter) {
-        return false;
-    }
-
+/*
+|--------------------------------------------------------------------------
+| Data dashboard: hanya ikut filter tanggal
+|--------------------------------------------------------------------------
+*/
+$laporanDashboard = array_values(array_filter($semuaLaporan, function ($item) use ($startDate, $endDate) {
     if ($startDate !== '' && strtotime($item['tanggal']) < strtotime($startDate)) {
         return false;
     }
 
     if ($endDate !== '' && strtotime($item['tanggal']) > strtotime($endDate)) {
+        return false;
+    }
+
+    return true;
+}));
+
+/*
+|--------------------------------------------------------------------------
+| Data tabel: ikut filter tanggal + status + keyword
+|--------------------------------------------------------------------------
+*/
+$laporan = array_values(array_filter($laporanDashboard, function ($item) use ($statusFilter, $keyword) {
+    if ($statusFilter !== 'Semua' && $item['status'] !== $statusFilter) {
         return false;
     }
 
@@ -261,11 +275,21 @@ if (isset($_GET['action']) && $_GET['action'] === 'export') {
     exportLaporanPdf($laporan, $statusFilter, $startDate, $endDate, $keyword);
 }
 
-$totalPeminjaman = count($semuaLaporan);
-$totalDikembalikan = count(array_filter($semuaLaporan, fn($item) => $item['status'] === 'Dikembalikan'));
-$totalTerlambat = count(array_filter($semuaLaporan, fn($item) => $item['status'] === 'Terlambat'));
-$totalBelumKembali = count(array_filter($semuaLaporan, fn($item) => $item['status'] === 'Belum Kembali'));
+/*
+|--------------------------------------------------------------------------
+| Dashboard dihitung dari data yang sudah terfilter tanggal
+|--------------------------------------------------------------------------
+*/
+$totalPeminjaman = count($laporanDashboard);
+$totalDikembalikan = count(array_filter($laporanDashboard, fn($item) => $item['status'] === 'Dikembalikan'));
+$totalTerlambat = count(array_filter($laporanDashboard, fn($item) => $item['status'] === 'Terlambat'));
+$totalBelumKembali = count(array_filter($laporanDashboard, fn($item) => $item['status'] === 'Belum Kembali'));
 
+/*
+|--------------------------------------------------------------------------
+| Pagination tetap pakai data tabel
+|--------------------------------------------------------------------------
+*/
 $totalData = count($laporan);
 $totalHalaman = max(1, (int) ceil($totalData / $perPage));
 $page = min($page, $totalHalaman);
