@@ -325,17 +325,14 @@ $returnQuery = buatQuery([], ['action']);
             </form>
 
             <a href="?<?= escape(buatQuery(['action' => 'export', 'page' => 1])) ?>" class="export-button">
-                <svg viewBox="0 0 24 24" aria-hidden="true">
-                    <path d="M7 3.5H14L18.5 8V20.5H7V3.5Z" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linejoin="round"></path>
-                    <path d="M14 3.5V8H18.5" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linejoin="round"></path>
-                    <path d="M12 10.5V16.5" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linecap="round"></path>
-                    <path d="M9.5 14L12 16.5L14.5 14" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round"></path>
-                </svg>
-                <span>Export Laporan</span>
-                <svg class="export-chevron" viewBox="0 0 20 20" aria-hidden="true">
-                    <path d="M5 7L10 12L15 7" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"></path>
-                </svg>
-            </a>
+    <svg viewBox="0 0 24 24" aria-hidden="true">
+        <path d="M7 3.5H14L18.5 8V20.5H7V3.5Z" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linejoin="round"></path>
+        <path d="M14 3.5V8H18.5" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linejoin="round"></path>
+        <path d="M12 10.5V16.5" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linecap="round"></path>
+        <path d="M9.5 14L12 16.5L14.5 14" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round"></path>
+    </svg>
+    <span>Export Laporan</span>
+</a>
         </section>
 
         <section class="dashboard-cards">
