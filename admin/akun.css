@@ -1,0 +1,169 @@
+/* ===== MAIN CONTENT ===== */
+    .main-content {
+      margin-left: 200px;
+      padding-top: 64px;
+      min-height: 100vh;
+      background-color: #e8eaf0;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      padding-bottom: 2rem;
+    }
+
+    /* ===== PROFILE CARD ===== */
+    .profile-card {
+      background-color: #fff;
+      border-radius: 16px;
+      box-shadow: 0 4px 20px rgba(0,0,0,0.08);
+      padding: 2rem 2.5rem 2rem 2.5rem;
+      width: 100%;
+      max-width: 520px;
+      margin-top: 2rem;
+    }
+    .profile-card-title {
+      font-family: 'Inter-Bold', Helvetica, sans-serif;
+      font-size: 1.1rem;
+      color: #1a1a1a;
+      margin-bottom: 1.25rem;
+    }
+
+    /* Identity row */
+    .identity-row {
+      display: flex;
+      gap: 1.5rem;
+      align-items: flex-start;
+      margin-bottom: 1.75rem;
+    }
+    .avatar-box {
+      width: 100px;
+      height: 110px;
+      border: 2px solid #d0d0d0;
+      border-radius: 8px;
+      overflow: hidden;
+      flex-shrink: 0;
+      background: #f0f0f0;
+      display: flex; align-items: center; justify-content: center;
+    }
+    .avatar-box img {
+      width: 100%;
+      height: 100%;
+      object-fit: cover;
+    }
+    .avatar-placeholder {
+      font-size: 3rem;
+      color: #aaa;
+    }
+    .identity-info {
+      display: flex;
+      flex-direction: column;
+      gap: 0.6rem;
+      padding-top: 0.25rem;
+    }
+    .identity-row-item {
+      display: flex;
+      align-items: center;
+      gap: 1rem;
+    }
+    .identity-key {
+      font-family: 'Inter-Regular', Helvetica, sans-serif;
+      font-size: 0.75rem;
+      color: #888;
+      letter-spacing: 0.05em;
+      text-transform: uppercase;
+      width: 60px;
+    }
+    .identity-val {
+      font-family: 'Inter-Bold', Helvetica, sans-serif;
+      font-size: 1.15rem;
+      color: #1a1a1a;
+    }
+    .identity-val-sm {
+      font-family: 'Inter-Regular', Helvetica, sans-serif;
+      font-size: 0.9rem;
+      color: #333;
+    }
+    .badge-jabatan {
+      background-color: #dbe7fb;
+      color: #0050ad;
+      font-family: 'Inter-Medium', Helvetica, sans-serif;
+      font-size: 0.8rem;
+      border-radius: 50px;
+      padding: 0.25rem 0.85rem;
+      display: inline-block;
+    }
+
+    /* Divider */
+    .card-divider {
+      height: 1px;
+      background-color: #ebebeb;
+      margin: 0 -2.5rem 1.5rem -2.5rem;
+    }
+
+    /* Info fields */
+    .info-field {
+      display: flex;
+      align-items: center;
+      gap: 1.25rem;
+      margin-bottom: 0.85rem;
+    }
+    .info-field-label {
+      display: flex;
+      align-items: center;
+      gap: 0.5rem;
+      width: 90px;
+      flex-shrink: 0;
+      font-family: 'Inter-Regular', Helvetica, sans-serif;
+      font-size: 0.85rem;
+      color: #666;
+    }
+    .info-field-label .fi {
+      font-size: 0.85rem;
+      color: #888;
+    }
+    .info-field-value {
+      flex: 1;
+      background-color: #dbe7fb;
+      border-radius: 8px;
+      padding: 0.55rem 1rem;
+      font-family: 'Inter-Regular', Helvetica, sans-serif;
+      font-size: 0.9rem;
+      color: #222;
+    }
+
+    /* Buttons */
+    .btn-edit-profil {
+      width: 100%;
+      height: 46px;
+      background-color: #0050ad;
+      border: none;
+      border-radius: 10px;
+      font-family: 'Inter-Bold', Helvetica, sans-serif;
+      font-size: 0.95rem;
+      color: #fff;
+      cursor: pointer;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      gap: 0.5rem;
+      margin-bottom: 0.65rem;
+      transition: background 0.2s;
+    }
+    .btn-edit-profil:hover { background-color: #003f8a; }
+
+    .btn-logout {
+      width: 100%;
+      height: 46px;
+      background-color: #dbe7fb;
+      border: none;
+      border-radius: 10px;
+      font-family: 'Inter-SemiBold', Helvetica, sans-serif;
+      font-size: 0.95rem;
+      color: #0050ad;
+      cursor: pointer;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      gap: 0.5rem;
+      transition: background 0.2s;
+    }
+    .btn-logout:hover { background-color: #c5d8f8; }

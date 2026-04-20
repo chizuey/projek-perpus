@@ -20,8 +20,6 @@
 
         body {
             background-color: #f7f8fa;
-            /* Kita hapus overflow hidden agar user bisa scroll jika layar kecil, 
-               mengingat form register biasanya lebih panjang dari login */
             overflow-y: auto; 
         }
 
@@ -37,7 +35,7 @@
         .login-card {
             background-color: #ffffff;
             width: 100%;
-            max-width: 450px; /* Sedikit lebih lebar untuk kenyamanan form */
+            max-width: 450px; 
             padding: 28px 26px;
             border-radius: 12px;
             box-shadow: 0 10px 25px rgba(0, 0, 0, 0.05);

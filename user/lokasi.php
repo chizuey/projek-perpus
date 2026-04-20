@@ -30,7 +30,7 @@
                 </iframe>
             </div>
             <div class="map-label">
-                <img src="gambar/lakasi.png" alt="Pin">
+                <img src="user/gambar/lakasi.png" alt="Pin">
                 <h2>Google Map</h2>
             </div>
         </div>
