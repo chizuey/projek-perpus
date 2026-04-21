@@ -22,7 +22,7 @@
 <div class="container-21" ><p class="text-wrapper-8" >Mahasiswa mencari buku yang ingin dipinjam di rak perpustakaan.</p></div></div>
 <div class="container-22" ><div class="background-border" ><div class="overlay-shadow" ></div>
 <div class="text-15" >3</div></div>
-<div class="container-23" ><p class="setelah-buku" ><br/> Setelah buku ditemukan, mahasiswa menuju ke meja petugas untuk melakukan peminjaman.</p></div></div>
+<div class="container-23" ><p class="setelah-buku" >Setelah buku ditemukan, mahasiswa menuju ke meja petugas untuk melakukan peminjaman.</p></div></div>
 <div class="container-24" ><div class="background-border" ><div class="overlay-shadow" ></div>
 <div class="text-16" >4</div></div>
 <div class="container-25" ><p class="text-wrapper-9" >Petugas kemudian mengisi data buku pada kartu peminjam.</p></div></div>

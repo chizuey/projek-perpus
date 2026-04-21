@@ -49,7 +49,7 @@
 <div class="section-3" ><div class="background" ><div class="background-3" ><div class="div-wrapper-3" ><div class="img-wrapper" ><img class="vector-4" src="../gambar/awas.png" /></div></div></div>
 <div class="div-wrapper-3" ><div class="text-33" >III. PELANGGARAN DAN SANKSI</div></div></div>
 <div class="container-18" ><div class="margin" ><div class="background-border-2" ><div class="group-wrapper" ><div class="group" ><img class="vector-5" src="../gambar/svg.png" />
-<img class="vector-6" src="../gambar/vector-4.svg" /></div></div>
+<img class="vector-6" src="../gambar/info.png" /></div></div>
 <div class="container-24" ><p class="text-34" >Anggota/pengunjung perpustakaan yang terbukti melanggar peraturan dan tata tertib yang berlaku akan<br/>di kenakan sanksi berupa teguran lisan, Teguran tertulis, skorsing peminjaman, di keluarkan dari<br/>keanggotaan perpustakaan.<br/>Berikut ini jenis pelanggaran :</p></div></div></div>
 <div class="container-19" ><div class="background-border" ><div class="overlay-shadow" ></div>
 <div class="text-14" >1</div></div>
