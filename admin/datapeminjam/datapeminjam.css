@@ -5,6 +5,18 @@ body {
     color: #1f2937;
 }
 
+:root {
+    --sidebar-width: 100px;
+    --topbar-height: 50px;
+}
+
+.main-content {
+    margin-left: var(--sidebar-width);
+    margin-top: var(--topbar-height);
+    /* padding: 20px; */
+}
+
+
 .datapeminjam-wrapper {
     padding: 24px 18px 18px 18px;
 }

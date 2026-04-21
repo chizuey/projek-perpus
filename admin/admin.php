@@ -4,7 +4,7 @@ $menu = $_GET['menu'] ?? 'akun';
 $allowedMenus = [
     'akun' => [
         'file' => 'akun.php',
-        'styles' => ['akun.css'],
+        'styles' => ['css/akun.css'],
     ],
     'peminjaman' => [
         'file' => 'datapeminjam/datapeminjam.php',
@@ -19,6 +19,18 @@ $allowedMenus = [
             'laporantransaksi/laporantransaksi.css',
         ],
     ],
+    'tambahbuku' => [
+        'file' => 'tambah.php',
+        'styles' => [
+            'css/tambah.css'
+        ]
+    ],
+    'dashboard' => [
+        'file' => 'dash.php',
+        'styles' => [
+            'css/dash.css'
+        ]
+    ]
 ];
 
 if (!isset($allowedMenus[$menu])) {
@@ -35,8 +47,8 @@ $currentStyles = $allowedMenus[$menu]['styles'];
     <meta name="viewport" content="width=device-width, initial-scale=1"/>
     <meta charset="utf-8" />
 
-    <link rel="stylesheet" href="tambah.css">
-    <link rel="stylesheet" href="sidetop.css">
+    <!-- <link rel="stylesheet" href="css/tambah.css"> -->
+    <link rel="stylesheet" href="css/sidetop.css">
 
     <?php foreach ($currentStyles as $style): ?>
         <link rel="stylesheet" href="<?= htmlspecialchars($style, ENT_QUOTES, 'UTF-8'); ?>">
@@ -44,6 +56,12 @@ $currentStyles = $allowedMenus[$menu]['styles'];
 
     <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css">
     <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.3/font/bootstrap-icons.min.css">
+    
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
+
+<!-- ICON -->
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap-icons/font/bootstrap-icons.css" rel="stylesheet">
+
 </head>
 <body>
 

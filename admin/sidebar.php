@@ -14,12 +14,12 @@
     </div>
 
     <nav class="sidebar-nav">
-      <a href="#" class="sidebar-item active">
+      <a href="admin.php?menu=dashboard" class="sidebar-item active">
         <!-- <i class="bi bi-speedometer2"></i>  -->
         Dashboard
       </a>
       <div style="height:0.5rem;"></div>
-      <a href="#" class="sidebar-subitem">
+      <a href="admin.php?menu=peminjaman" class="sidebar-subitem">
         <!-- <i class="bi bi-arrow-left-right"></i> -->
           <i class="bi bi-check-circle"></i>PEMINJAMAN
       </a>

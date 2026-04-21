@@ -491,6 +491,7 @@ $paginationItems = getPaginationItems($currentPage, $totalPages);
 </head>
 <body>
 
+<div class="main-content">
 <div class="datapeminjam-wrapper">
     <div class="datapeminjam-header">
         <div class="title-group">
@@ -625,6 +626,7 @@ $paginationItems = getPaginationItems($currentPage, $totalPages);
             <?php endif; ?>
         </div>
     </div>
+</div>
 </div>
 
 <?php include 'popuppeminjaman.php'; ?>

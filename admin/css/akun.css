@@ -1,14 +1,24 @@
 /* ===== MAIN CONTENT ===== */
     .main-content {
-      margin-left: 200px;
-      padding-top: 64px;
-      min-height: 100vh;
+      /* margin-left: 160px;
+      padding-top: 64px; */
+      /* min-height: 100vh; */
       background-color: #e8eaf0;
       display: flex;
       align-items: center;
       justify-content: center;
       padding-bottom: 2rem;
     }
+    :root {
+    --sidebar-width: 160px;
+    --topbar-height: 30px;
+}
+
+.main-content {
+    margin-left: var(--sidebar-width);
+    margin-top: var(--topbar-height);
+    /* padding: 20px; */
+}
 
     /* ===== PROFILE CARD ===== */
     .profile-card {
