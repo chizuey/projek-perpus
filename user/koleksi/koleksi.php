@@ -5,24 +5,24 @@
 <meta name="viewport" content="width=device-width, initial-scale=1"/>
 <meta charset="utf-8" />
 <link rel="stylesheet" href="stylekoleksi.css">
-<link rel="stylesheet" href="style.css">
+<link rel="stylesheet" href="../style.css">
 </head>
 <body>
 <?php include '../navbar.php'; ?>
-<div class="koleksi" ><img class="rectangle" src="img/rectangle-155.png" />
+<div class="koleksi" ><img class="rectangle" src="../gambar/rectangle-155.png" />
 <div class="container-16" ><div class="container-17" ><div class="div-wrapper" ><p class="koleksi-perpustakaan" ><span class="span" >Koleksi </span>
 <span class="text-wrapper-7" >Perpustakaan Polije</span></p></div>
-<div class="container-7" ><div class="background-border-wrapper" ><div class="background-border" ><img class="container-8" src="img/container-2.svg" />
+<div class="container-7" ><div class="background-border-wrapper" ><div class="background-border" ><img class="container-8" src="../gambar/container.png" />
 <div class="div-wrapper-2" ><div class="text-11" >Cari judul buku...</div></div></div></div>
 <div class="div-3" ><div class="div-wrapper-2" ><div class="text-12" >Filter:</div></div>
 <div class="background-border-2" ><div class="div-wrapper-2" ><div class="text-13" >Jenis</div></div>
-<div class="iconify-icon-wrapper" ><div class="div-wrapper-2" ><div class="SVG" ><img class="vector-3" src="img/vector-5.svg" /></div></div></div></div>
+<div class="iconify-icon-wrapper" ><div class="div-wrapper-2" ><div class="SVG" ><img class="vector-3" src="../gambar/vector-5.svg" /></div></div></div></div>
 <div class="background-border-2" ><div class="div-wrapper-2" ><div class="text-wrapper-8" >Kategori</div></div>
-<div class="iconify-icon-wrapper" ><div class="div-wrapper-2" ><div class="SVG" ><img class="vector-3" src="img/vector.svg" /></div></div></div></div>
+<div class="iconify-icon-wrapper" ><div class="div-wrapper-2" ><div class="SVG" ><img class="vector-3" src="../gambar/vector.svg" /></div></div></div></div>
 <div class="background-border-2" ><div class="div-wrapper-2" ><div class="text-14" >Tahun</div></div>
-<div class="iconify-icon-wrapper" ><div class="div-wrapper-2" ><div class="SVG" ><img class="vector-3" src="img/vector-3.svg" /></div></div></div></div>
+<div class="iconify-icon-wrapper" ><div class="div-wrapper-2" ><div class="SVG" ><img class="vector-3" src="../gambar/vector-3.svg" /></div></div></div></div>
 <div class="background-border-2" ><div class="div-wrapper-2" ><div class="text-15" >Status</div></div>
-<div class="iconify-icon-wrapper" ><div class="div-wrapper-2" ><div class="SVG" ><img class="vector-3" src="img/vector-9.svg" /></div></div></div></div>
+<div class="iconify-icon-wrapper" ><div class="div-wrapper-2" ><div class="SVG" ><img class="vector-3" src="../gambar/vector-9.svg" /></div></div></div></div>
 <div class="background-border-3" ><div class="text-16" >Reset</div></div></div></div></div>
 <div class="container-18" ><div class="card" ><div class="background" ><div class="atomic-habits" ></div></div>
 <div class="container-19" ><div class="div-wrapper" ><div class="text-wrapper-9" >Atomic Habits</div></div>
