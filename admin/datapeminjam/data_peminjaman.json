@@ -1,29 +1,29 @@
 [
     {
-        "id": "pjm_69e7352c24de89.37181449",
-        "nim": "huug",
-        "nama": "Farez",
-        "buku": "Pemrograman Java",
-        "tanggal_pinjam": "2026-04-21",
-        "tanggal_kembali": "2026-04-28",
+        "id": "pjm_69e736e6c0f913.10844797",
+        "nim": "123456",
+        "nama": "Fajar",
+        "buku": "Pemrograman Web",
+        "tanggal_pinjam": "2026-04-18",
+        "tanggal_kembali": "2026-04-27",
         "returned_at": null
     },
     {
-        "id": "pjm_69e726d1e09fb7.28297529",
-        "nim": "123446",
-        "nama": "Farez",
-        "buku": "Sistem Informasi",
-        "tanggal_pinjam": "2026-04-10",
-        "tanggal_kembali": "2026-04-20",
+        "id": "pjm_69e736e6c16161.73431507",
+        "nim": "123458",
+        "nama": "Budi",
+        "buku": "Jaringan Komputer",
+        "tanggal_pinjam": "2026-04-09",
+        "tanggal_kembali": "2026-04-19",
         "returned_at": null
     },
     {
-        "id": "pjm_69e5dd02c6d7e7.70974813",
-        "nim": "123442",
-        "nama": "Ivan",
-        "buku": "Pemrograman Java",
-        "tanggal_pinjam": "2026-03-23",
-        "tanggal_kembali": "2026-04-23",
+        "id": "pjm_69e736e6c161e4.94815722",
+        "nim": "123461",
+        "nama": "Eko",
+        "buku": "Teknik Elektro",
+        "tanggal_pinjam": "2026-04-07",
+        "tanggal_kembali": "2026-04-18",
         "returned_at": null
     }
 ]
