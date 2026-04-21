@@ -10,14 +10,16 @@ use Dompdf\Dompdf;
 use Dompdf\Options;
 
 session_start();
+$laporanFile = __DIR__ . '/data_laporan_transaksi.json';
 
 /*
 |--------------------------------------------------------------------------
 | DATA AWAL LAPORAN
 |--------------------------------------------------------------------------
 */
-if (!isset($_SESSION['laporantransaksi'])) {
-    $_SESSION['laporantransaksi'] = [
+function defaultLaporanTransaksi()
+{
+    return [
         ['id' => 1, 'tanggal' => '2024-03-29', 'peminjam' => 'Budi', 'judul_buku' => 'Atomic Habits', 'tgl_pinjam' => '2024-03-28', 'tgl_jatuh_tempo' => '2024-04-02', 'tgl_kembali' => '2024-04-02', 'status' => 'Dikembalikan'],
         ['id' => 2, 'tanggal' => '2024-03-27', 'peminjam' => 'Fita', 'judul_buku' => 'Bumi Manusia', 'tgl_pinjam' => '2024-03-27', 'tgl_jatuh_tempo' => '2024-04-03', 'tgl_kembali' => '', 'status' => 'Terlambat'],
         ['id' => 3, 'tanggal' => '2024-03-27', 'peminjam' => 'Ayu', 'judul_buku' => 'Filosofi Teras', 'tgl_pinjam' => '2024-03-27', 'tgl_jatuh_tempo' => '2024-04-01', 'tgl_kembali' => '', 'status' => 'Belum Kembali'],
@@ -31,6 +33,50 @@ if (!isset($_SESSION['laporantransaksi'])) {
         ['id' => 11, 'tanggal' => '2024-03-12', 'peminjam' => 'Yoga', 'judul_buku' => 'Cantik Itu Luka', 'tgl_pinjam' => '2024-03-12', 'tgl_jatuh_tempo' => '2024-03-19', 'tgl_kembali' => '', 'status' => 'Belum Kembali'],
         ['id' => 12, 'tanggal' => '2024-03-10', 'peminjam' => 'Mira', 'judul_buku' => 'Bumi', 'tgl_pinjam' => '2024-03-10', 'tgl_jatuh_tempo' => '2024-03-17', 'tgl_kembali' => '2024-03-16', 'status' => 'Dikembalikan'],
     ];
+}
+
+function loadLaporanTransaksi($file)
+{
+    if (!file_exists($file)) {
+        $default = defaultLaporanTransaksi();
+        file_put_contents($file, json_encode($default, JSON_PRETTY_PRINT | JSON_UNESCAPED_UNICODE), LOCK_EX);
+        return $default;
+    }
+
+    $json = file_get_contents($file);
+    $data = json_decode($json, true);
+
+    if (!is_array($data)) {
+        $default = defaultLaporanTransaksi();
+        file_put_contents($file, json_encode($default, JSON_PRETTY_PRINT | JSON_UNESCAPED_UNICODE), LOCK_EX);
+        return $default;
+    }
+
+    return $data;
+}
+
+function saveLaporanTransaksi($file, $data)
+{
+    file_put_contents(
+        $file,
+        json_encode(array_values($data), JSON_PRETTY_PRINT | JSON_UNESCAPED_UNICODE),
+        LOCK_EX
+    );
+}
+
+function refreshStatusLaporan(array $item)
+{
+    if (!empty($item['tgl_kembali'])) {
+        $item['status'] = 'Dikembalikan';
+        return $item;
+    }
+
+    $jatuhTempo = $item['tgl_jatuh_tempo'] ?? '';
+    $item['status'] = ($jatuhTempo !== '' && strtotime(date('Y-m-d')) > strtotime($jatuhTempo))
+        ? 'Terlambat'
+        : 'Belum Kembali';
+
+    return $item;
 }
 
 /*
@@ -257,14 +303,17 @@ function exportLaporanPdf($laporan, $statusFilter, $startDate, $endDate, $keywor
 */
 if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['delete_selected'])) {
     $selectedIds = array_map('intval', $_POST['selected_ids'] ?? []);
+    $laporanData = loadLaporanTransaksi($laporanFile);
 
     if (!empty($selectedIds)) {
-        $_SESSION['laporantransaksi'] = array_values(array_filter(
-            $_SESSION['laporantransaksi'],
+        $laporanData = array_values(array_filter(
+            $laporanData,
             function ($item) use ($selectedIds) {
-                return !in_array($item['id'], $selectedIds, true);
+                return !in_array((int) ($item['id'] ?? 0), $selectedIds, true);
             }
         ));
+
+        saveLaporanTransaksi($laporanFile, $laporanData);
     }
 
     $returnQuery = trim($_POST['return_query'] ?? '');
@@ -279,13 +328,14 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['delete_selected'])) {
 |--------------------------------------------------------------------------
 */
 $statusFilter = $_GET['status'] ?? 'Semua';
-$startDate = array_key_exists('start_date', $_GET) ? $_GET['start_date'] : '2024-01-01';
-$endDate = array_key_exists('end_date', $_GET) ? $_GET['end_date'] : '2024-03-31';
+$startDate = array_key_exists('start_date', $_GET) ? $_GET['start_date'] : '';
+$endDate = array_key_exists('end_date', $_GET) ? $_GET['end_date'] : '';
 $keyword = trim($_GET['keyword'] ?? '');
 $page = max(1, (int) ($_GET['page'] ?? 1));
 $perPage = 5;
 
-$semuaLaporan = $_SESSION['laporantransaksi'];
+$semuaLaporan = array_map('refreshStatusLaporan', loadLaporanTransaksi($laporanFile));
+saveLaporanTransaksi($laporanFile, $semuaLaporan);
 
 /*
 |--------------------------------------------------------------------------

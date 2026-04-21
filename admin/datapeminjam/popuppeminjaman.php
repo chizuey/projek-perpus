@@ -1,88 +1,90 @@
-<div id="popupPeminjaman" class="popup-overlay <?php echo $openPopup ? 'active' : ''; ?>">
+<div class="popup-overlay <?= $openPopup ? 'active' : '' ?>" id="popupPeminjaman">
     <div class="popup-box">
         <div class="popup-header">
-            <span>Tambah Peminjam</span>
-            <button type="button" id="closePopupPeminjaman" class="popup-close">&times;</button>
+            <span>Tambah Peminjaman</span>
+            <button type="button" class="popup-close" id="closePopupBtn">&times;</button>
         </div>
 
-        <!--
-        |--------------------------------------------------------------------------
-        | FORM TAMBAH PEMINJAMAN
-        |--------------------------------------------------------------------------
-        | action = add_peminjaman
-        -->
-        <form class="popup-body" method="post" action="">
-            <input type="hidden" name="action" value="add_peminjaman">
+        <form method="post">
+            <div class="popup-body">
+                <?php if (!empty($errors)): ?>
+                    <div class="popup-alert">
+                        <?= htmlspecialchars(implode(' ', $errors)) ?>
+                    </div>
+                <?php endif; ?>
 
-            <!--
-            |--------------------------------------------------------------------------
-            | TAMPILKAN ERROR VALIDASI
-            |--------------------------------------------------------------------------
-            -->
-            <?php if (!empty($errors)): ?>
-                <div class="popup-alert">
-                    <?php foreach ($errors as $error): ?>
-                        <div><?php echo htmlspecialchars($error); ?></div>
-                    <?php endforeach; ?>
+                <input type="hidden" name="action" value="add_peminjaman">
+
+                <div class="form-group">
+                    <label for="popup_nim">NIM</label>
+                    <input
+                        type="text"
+                        id="popup_nim"
+                        name="nim"
+                        value="<?= htmlspecialchars($oldInput['nim'] ?? '') ?>"
+                    >
                 </div>
-            <?php endif; ?>
 
-            <div class="form-group">
-                <label for="popup_nim">NIM</label>
-                <input type="text" id="popup_nim" name="nim" value="<?php echo htmlspecialchars($oldInput['nim']); ?>">
-            </div>
+                <div class="form-group">
+                    <label for="popup_nama">Nama</label>
+                    <input
+                        type="text"
+                        id="popup_nama"
+                        name="nama"
+                        value="<?= htmlspecialchars($oldInput['nama'] ?? '') ?>"
+                    >
+                </div>
 
-            <div class="form-group">
-                <label for="popup_nama">Nama</label>
-                <input type="text" id="popup_nama" name="nama" value="<?php echo htmlspecialchars($oldInput['nama']); ?>">
-            </div>
+                <div class="form-group">
+                    <label for="popup_buku">Buku</label>
+                    <select id="popup_buku" name="buku">
+                        <option value="">Pilih Buku</option>
+                        <?php foreach ($opsiBuku as $opsi): ?>
+                            <?php
+                                $judul = $opsi['judul'] ?? '';
+                                $stokTotal = (int) ($opsi['stok'] ?? 0);
+                                $selected = (($oldInput['buku'] ?? '') === $judul) ? 'selected' : '';
+                            ?>
+                            <option value="<?= htmlspecialchars($judul) ?>" <?= $selected ?>>
+                                <?= htmlspecialchars($judul) ?> (Stok: <?= $stokTotal ?>)
+                            </option>
+                        <?php endforeach; ?>
+                    </select>
+                </div>
 
-            <!--
-            |--------------------------------------------------------------------------
-            | PILIH BUKU DARI DAFTAR BUKU
-            |--------------------------------------------------------------------------
-            | sumber data: getDaftarBuku()
-            -->
-            <div class="form-group">
-                <label for="popup_buku">Buku</label>
-                <select id="popup_buku" name="buku">
-                    <option value=""></option>
-                    <?php foreach (getDaftarBuku() as $bukuOption => $stokTotal): ?>
-                        <option
-                            value="<?php echo htmlspecialchars($bukuOption); ?>"
-                            <?php echo $oldInput['buku'] === $bukuOption ? 'selected' : ''; ?>
+                <?php
+                $tglPinjamValue = !empty($oldInput['tgl_pinjam']) ? $oldInput['tgl_pinjam'] : date('Y-m-d');
+                $tglKembaliValue = !empty($oldInput['tgl_kembali']) ? $oldInput['tgl_kembali'] : date('Y-m-d', strtotime('+7 days'));
+                ?>
+
+                <div class="form-row">
+                    <div class="form-date">
+                        <label for="popup_tgl_pinjam_view">Tanggal Pinjam</label>
+                        <input
+                            type="text"
+                            id="popup_tgl_pinjam_view"
+                            value="<?= htmlspecialchars(date('d-m-Y', strtotime($tglPinjamValue))) ?>"
+                            readonly
                         >
-                            <?php echo htmlspecialchars($bukuOption); ?>
-                        </option>
-                    <?php endforeach; ?>
-                </select>
-            </div>
+                        <input type="hidden" name="tgl_pinjam" value="<?= htmlspecialchars($tglPinjamValue) ?>">
+                    </div>
 
-            <!--
-            |--------------------------------------------------------------------------
-            | INPUT TANGGAL PINJAM DAN TANGGAL KEMBALI
-            |--------------------------------------------------------------------------
-            -->
-            <div class="form-row">
-                <div class="form-date">
-                    <label for="popup_tgl_pinjam">Tanggal Pinjam</label>
-                    <input type="date" id="popup_tgl_pinjam" name="tgl_pinjam" value="<?php echo htmlspecialchars($oldInput['tgl_pinjam']); ?>">
+                    <div class="form-date">
+                        <label for="popup_tgl_kembali_view">Tanggal Kembali</label>
+                        <input
+                            type="text"
+                            id="popup_tgl_kembali_view"
+                            value="<?= htmlspecialchars(date('d-m-Y', strtotime($tglKembaliValue))) ?>"
+                            readonly
+                        >
+                        <input type="hidden" name="tgl_kembali" value="<?= htmlspecialchars($tglKembaliValue) ?>">
+                    </div>
                 </div>
 
-                <div class="form-date">
-                    <label for="popup_tgl_kembali">Tanggal Kembali</label>
-                    <input type="date" id="popup_tgl_kembali" name="tgl_kembali" value="<?php echo htmlspecialchars($oldInput['tgl_kembali']); ?>">
+                <div class="popup-footer">
+                    <button type="button" class="btn-batal" id="cancelPopupBtn">Batal</button>
+                    <button type="submit" class="btn-simpan">Simpan</button>
                 </div>
-            </div>
-
-            <!--
-            |--------------------------------------------------------------------------
-            | TOMBOL AKSI POPUP
-            |--------------------------------------------------------------------------
-            -->
-            <div class="popup-footer">
-                <button type="button" id="batalPopupPeminjaman" class="btn-batal">Batal</button>
-                <button type="submit" class="btn-simpan">Simpan</button>
             </div>
         </form>
     </div>

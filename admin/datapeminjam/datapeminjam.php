@@ -5,6 +5,7 @@
 |--------------------------------------------------------------------------
 */
 $dataFile = __DIR__ . '/data_peminjaman.json';
+$laporanFile = __DIR__ . '/../laporantransaksi/data_laporan_transaksi.json';
 $openPopup = false;
 $errors = [];
 $oldInput = [
@@ -131,6 +132,104 @@ function loadPeminjaman($file)
     }
 
     return $data;
+}
+
+function loadLaporanTransaksi($file)
+{
+    if (!file_exists($file)) {
+        return [];
+    }
+
+    $json = file_get_contents($file);
+    $data = json_decode($json, true);
+
+    return is_array($data) ? $data : [];
+}
+
+function saveLaporanTransaksi($file, $data)
+{
+    file_put_contents(
+        $file,
+        json_encode(array_values($data), JSON_PRETTY_PRINT | JSON_UNESCAPED_UNICODE),
+        LOCK_EX
+    );
+}
+
+function nextLaporanId(array $data)
+{
+    $max = 0;
+
+    foreach ($data as $item) {
+        $max = max($max, (int) ($item['id'] ?? 0));
+    }
+
+    return $max + 1;
+}
+
+function buildStatusLaporan($jatuhTempo, $tglKembali = '')
+{
+    if (!empty($tglKembali)) {
+        return 'Dikembalikan';
+    }
+
+    return strtotime(date('Y-m-d')) > strtotime($jatuhTempo)
+        ? 'Terlambat'
+        : 'Belum Kembali';
+}
+
+function cariIndexLaporanBySourceId(array $laporanData, $sourceId)
+{
+    foreach ($laporanData as $index => $item) {
+        if (($item['source_id'] ?? '') === $sourceId) {
+            return $index;
+        }
+    }
+
+    return null;
+}
+
+function buatItemLaporanDariPeminjaman(array $item, $laporanId = null)
+{
+    $tglKembaliReal = !empty($item['returned_at']) ? $item['returned_at'] : '';
+
+    return [
+        'id' => $laporanId,
+        'source_id' => $item['id'],
+        'tanggal' => $item['tanggal_pinjam'],
+        'peminjam' => $item['nama'],
+        'judul_buku' => $item['buku'],
+        'tgl_pinjam' => $item['tanggal_pinjam'],
+        'tgl_jatuh_tempo' => $item['tanggal_kembali'],
+        'tgl_kembali' => $tglKembaliReal,
+        'status' => buildStatusLaporan($item['tanggal_kembali'], $tglKembaliReal),
+    ];
+}
+
+function sinkronkanPeminjamanKeLaporan(array $dataPeminjaman, array $laporanData)
+{
+    $changed = false;
+
+    foreach ($dataPeminjaman as $item) {
+        $index = cariIndexLaporanBySourceId($laporanData, $item['id']);
+        $laporanItem = buatItemLaporanDariPeminjaman($item);
+
+        if ($index === null) {
+            $laporanItem['id'] = nextLaporanId($laporanData);
+            array_unshift($laporanData, $laporanItem);
+            $changed = true;
+            continue;
+        }
+
+        $existingId = $laporanData[$index]['id'] ?? nextLaporanId($laporanData);
+        $laporanItem['id'] = $existingId;
+
+        if ($laporanData[$index] != $laporanItem) {
+            $laporanData[$index] = $laporanItem;
+            $changed = true;
+        }
+    }
+
+    return [$laporanData, $changed];
 }
 
 /*
@@ -331,7 +430,21 @@ function getSisaStokBuku($data, $buku)
 | LOAD DATA PEMINJAMAN
 |--------------------------------------------------------------------------
 */
-$dataPeminjaman = loadPeminjaman($dataFile);
+$dataPeminjamanSemua = loadPeminjaman($dataFile);
+$laporanTransaksi = loadLaporanTransaksi($laporanFile);
+
+[$laporanTransaksi, $laporanChanged] = sinkronkanPeminjamanKeLaporan($dataPeminjamanSemua, $laporanTransaksi);
+
+$dataPeminjaman = array_values(array_filter($dataPeminjamanSemua, 'isPinjamanAktif'));
+$peminjamanChanged = count($dataPeminjaman) !== count($dataPeminjamanSemua);
+
+if ($laporanChanged) {
+    saveLaporanTransaksi($laporanFile, $laporanTransaksi);
+}
+
+if ($peminjamanChanged) {
+    savePeminjaman($dataFile, $dataPeminjaman);
+}
 
 /*
 |--------------------------------------------------------------------------
@@ -354,23 +467,21 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
     $nim = trim($_POST['nim'] ?? '');
     $nama = trim($_POST['nama'] ?? '');
     $buku = trim($_POST['buku'] ?? '');
-    $tglPinjam = trim($_POST['tgl_pinjam'] ?? '');
-    $tglKembali = trim($_POST['tgl_kembali'] ?? '');
+
+    // otomatis tanggal
+    $tglPinjam = date('Y-m-d');
+    $tglKembali = date('Y-m-d', strtotime('+7 days'));
 
     $oldInput = [
-        'nim' => $nim,
-        'nama' => $nama,
-        'buku' => $buku,
-        'tgl_pinjam' => $tglPinjam,
-        'tgl_kembali' => $tglKembali
+    'nim' => $nim,
+    'nama' => $nama,
+    'buku' => $buku,
+    'tgl_pinjam' => $tglPinjam,
+    'tgl_kembali' => $tglKembali
     ];
 
-    if ($nim === '' || $nama === '' || $buku === '' || $tglPinjam === '' || $tglKembali === '') {
-        $errors[] = 'Semua field wajib diisi.';
-    }
-
-    if ($tglPinjam !== '' && $tglKembali !== '' && strtotime($tglKembali) < strtotime($tglPinjam)) {
-        $errors[] = 'Tanggal kembali tidak boleh lebih kecil dari tanggal pinjam.';
+    if ($nim === '' || $nama === '' || $buku === '') {
+    $errors[] = 'Semua field wajib diisi.';
     }
 
     if ($nim !== '') {
@@ -390,23 +501,28 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
     }
 
     if (empty($errors)) {
-        $newData = [
-            'id' => createId(),
-            'nim' => $nim,
-            'nama' => $nama,
-            'buku' => $buku,
-            'tanggal_pinjam' => $tglPinjam,
-            'tanggal_kembali' => $tglKembali,
-            'returned_at' => null
-        ];
+    $newData = [
+        'id' => createId(),
+        'nim' => $nim,
+        'nama' => $nama,
+        'buku' => $buku,
+        'tanggal_pinjam' => $tglPinjam,
+        'tanggal_kembali' => $tglKembali,
+        'returned_at' => null
+    ];
 
-        array_unshift($dataPeminjaman, $newData);
-        savePeminjaman($dataFile, $dataPeminjaman);
-        
-        redirectTo();
-    } else {
-        $openPopup = true;
-    }
+    array_unshift($dataPeminjaman, $newData);
+    savePeminjaman($dataFile, $dataPeminjaman);
+
+    $laporanTransaksi = loadLaporanTransaksi($laporanFile);
+    $laporanBaru = buatItemLaporanDariPeminjaman($newData, nextLaporanId($laporanTransaksi));
+    array_unshift($laporanTransaksi, $laporanBaru);
+    saveLaporanTransaksi($laporanFile, $laporanTransaksi);
+
+    redirectTo();
+} else {
+    $openPopup = true;
+}
 }
 
     /*
@@ -422,15 +538,37 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
     $searchFromPost = trim($_POST['q'] ?? '');
     $pageFromPost = max(1, (int) ($_POST['page'] ?? 1));
 
-    foreach ($dataPeminjaman as &$item) {
-        if (($item['id'] ?? '') === $id && empty($item['returned_at'])) {
-            $item['returned_at'] = date('Y-m-d');
-            break;
+    $laporanTransaksi = loadLaporanTransaksi($laporanFile);
+
+    foreach ($dataPeminjaman as $index => $item) {
+        if (($item['id'] ?? '') !== $id) {
+            continue;
         }
+
+        $item['returned_at'] = date('Y-m-d');
+
+        $laporanIndex = cariIndexLaporanBySourceId($laporanTransaksi, $item['id']);
+        $laporanItem = buatItemLaporanDariPeminjaman(
+            $item,
+            $laporanIndex !== null
+                ? ($laporanTransaksi[$laporanIndex]['id'] ?? nextLaporanId($laporanTransaksi))
+                : nextLaporanId($laporanTransaksi)
+        );
+
+        if ($laporanIndex === null) {
+            array_unshift($laporanTransaksi, $laporanItem);
+        } else {
+            $laporanTransaksi[$laporanIndex] = $laporanItem;
+        }
+
+        unset($dataPeminjaman[$index]);
+        break;
     }
-    unset($item);
+
+    $dataPeminjaman = array_values($dataPeminjaman);
 
     savePeminjaman($dataFile, $dataPeminjaman);
+    saveLaporanTransaksi($laporanFile, $laporanTransaksi);
 
     $redirectParams = [
         'menu' => 'peminjaman',
@@ -442,7 +580,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
     }
 
     redirectTo($redirectParams);
-    }
+}
 }
 
 /*
@@ -569,22 +707,18 @@ $paginationItems = getPaginationItems($currentPage, $totalPages);
                             </td>
                             <td>
                                 <?php if (empty($item['returned_at'])): ?>
-                                    <form method="post" class="aksi-form">
-                                        <input type="hidden" name="action" value="kembalikan_peminjaman">
-                                        <input type="hidden" name="id" value="<?php echo htmlspecialchars($item['id']); ?>">
-                                        <input type="hidden" name="q" value="<?php echo htmlspecialchars($search); ?>">
-                                        <input type="hidden" name="page" value="<?php echo $currentPage; ?>">
-
-                                        <button
-                                            type="submit"
-                                            class="aksi-btn <?php echo $meta['status'] === 'Terlambat' ? 'aksi-terlambat' : 'aksi-kembalikan'; ?>"
-                                        >
-                                            Kembalikan
-                                        </button>
-                                    </form>
-                                <?php else: ?>
-                                    <button type="button" class="aksi-btn aksi-disabled">-</button>
-                                <?php endif; ?>
+                                <button
+                                    type="button"
+                                    class="btn-kembalikan js-open-return-modal"
+                                    data-id="<?= htmlspecialchars($item['id']) ?>"
+                                    data-nama="<?= htmlspecialchars($item['nama']) ?>"
+                                    data-buku="<?= htmlspecialchars($item['buku']) ?>"
+                                >
+                                    Kembalikan
+                                </button>
+                            <?php else: ?>
+                                <button type="button" class="aksi-btn aksi-disabled">-</button>
+                            <?php endif; ?>
                             </td>
                         </tr>
                     <?php endforeach; ?>
@@ -595,6 +729,89 @@ $paginationItems = getPaginationItems($currentPage, $totalPages);
                 <?php endif; ?>
             </tbody>
         </table>
+        <!-- Pop Up Konfirmasi Pengembalian -->
+         <div class="return-confirm-overlay" id="returnConfirmOverlay">
+    <div class="return-confirm-box">
+        <div class="return-confirm-header">
+            <h3>Konfirmasi Pengembalian</h3>
+            <button type="button" class="return-confirm-close" id="returnConfirmClose" aria-label="Tutup">
+                &times;
+            </button>
+        </div>
+
+        <form method="post" class="return-confirm-form">
+            <div class="return-confirm-body">
+                <p class="return-confirm-text">Yakin ingin mengembalikan data ini?</p>
+
+                <div class="return-confirm-detail">
+                    <div><strong>Nama:</strong> <span id="returnConfirmNama">-</span></div>
+                    <div><strong>Buku:</strong> <span id="returnConfirmBuku">-</span></div>
+                </div>
+
+                <input type="hidden" name="action" value="kembalikan_peminjaman">
+                <input type="hidden" name="id" id="returnConfirmId">
+                <input type="hidden" name="q" value="<?= htmlspecialchars($search ?? '') ?>">
+                <input type="hidden" name="page" value="<?= (int) ($currentPage ?? 1) ?>">
+            </div>
+
+            <div class="return-confirm-actions">
+                <button type="button" class="btn-return-batal" id="returnConfirmCancel">Batal</button>
+                <button type="submit" class="btn-return-submit">Kembalikan</button>
+            </div>
+        </form>
+    </div>
+</div>
+
+                    <script>
+document.addEventListener('DOMContentLoaded', function () {
+    const overlay = document.getElementById('returnConfirmOverlay');
+    const closeBtn = document.getElementById('returnConfirmClose');
+    const cancelBtn = document.getElementById('returnConfirmCancel');
+    const idInput = document.getElementById('returnConfirmId');
+    const namaText = document.getElementById('returnConfirmNama');
+    const bukuText = document.getElementById('returnConfirmBuku');
+    const openButtons = document.querySelectorAll('.js-open-return-modal');
+
+    function openModal(id, nama, buku) {
+        idInput.value = id || '';
+        namaText.textContent = nama || '-';
+        bukuText.textContent = buku || '-';
+        overlay.classList.add('show');
+        document.body.classList.add('modal-open');
+    }
+
+    function closeModal() {
+        overlay.classList.remove('show');
+        document.body.classList.remove('modal-open');
+    }
+
+    openButtons.forEach(function (button) {
+        button.addEventListener('click', function () {
+            openModal(
+                this.dataset.id,
+                this.dataset.nama,
+                this.dataset.buku
+            );
+        });
+    });
+
+    closeBtn.addEventListener('click', closeModal);
+    cancelBtn.addEventListener('click', closeModal);
+
+    overlay.addEventListener('click', function (e) {
+        if (e.target === overlay) {
+            closeModal();
+        }
+    });
+
+    document.addEventListener('keydown', function (e) {
+        if (e.key === 'Escape' && overlay.classList.contains('show')) {
+            closeModal();
+        }
+    });
+});
+</script>
+
     </div>
 
     <div class="datapeminjam-footer">

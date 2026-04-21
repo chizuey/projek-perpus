@@ -16,81 +16,55 @@
 }
 
 .popup-box {
-    width: 420px;
-    background: #ffffff;
-    border-radius: 6px;
-    overflow: hidden;
-    box-shadow: 0 20px 40px rgba(0, 0, 0, 0.18);
-}
-
-.popup-header {
-    display: flex;
-    justify-content: space-between;
-    align-items: center;
-    padding: 14px 16px;
-    border-bottom: 1px solid #e5e7eb;
-    font-size: 14px;
-    font-weight: 600;
-    color: #1e293b;
-}
-
-.popup-close {
-    background: transparent;
-    border: none;
-    font-size: 22px;
-    color: #94a3b8;
-    cursor: pointer;
-    line-height: 1;
-}
-
-.popup-body {
-    padding: 16px;
-    box-sizing: border-box;
-    width: 100%;
-}
-
-.popup-alert {
-    margin-bottom: 12px;
-    background: #fef2f2;
-    border: 1px solid #fecaca;
-    color: #b91c1c;
-    border-radius: 4px;
-    padding: 10px 12px;
-    font-size: 12px;
-}
-
-.form-group {
-    margin-bottom: 12px;
-}
-
-.form-group label,
-.form-date label {
-    display: block;
-    margin-bottom: 6px;
-    font-size: 13px;
-    color: #334155;
-}
-
-.form-group input,
-.form-group select,
-.form-date input {
-    width: 100%;
-    padding: 8px 10px;
-    border: 1px solid #dbe2ea;
-    border-radius: 4px;
-    box-sizing: border-box;
-    outline: none;
-    background: #fff;
-    font-size: 13px;
+  width: 560px;
+  max-width: calc(100vw - 32px);
+  background: #ffffff;
+  border-radius: 6px;
+  overflow: hidden;
+  box-shadow: 0 20px 40px rgba(0, 0, 0, 0.18);
 }
 
 .form-row {
-    display: flex;
-    gap: 12px;
+  display: flex;
+  gap: 16px;
+  flex-wrap: wrap;
 }
 
 .form-date {
-    flex: 1;
+  flex: 1 1 220px;
+}
+
+.form-date input {
+  width: 100%;
+  min-height: 44px;
+  padding: 8px 10px;
+  border: 1px solid #dbe2ea;
+  border-radius: 4px;
+  box-sizing: border-box;
+  outline: none;
+  background: #fff;
+  font-size: 13px;
+}
+
+.form-date input[readonly] {
+  background: #f8fafc;
+  color: #334155;
+  cursor: default;
+}
+
+@media (max-width: 640px) {
+  .popup-box {
+    width: calc(100vw - 24px);
+  }
+
+  .form-row {
+    flex-direction: column;
+    gap: 12px;
+  }
+
+  .form-date {
+    flex: 1 1 auto;
+  }
 }
 
 .popup-footer {
