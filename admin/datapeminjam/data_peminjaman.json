@@ -1,5 +1,14 @@
 [
     {
+        "id": "pjm_69e71de6b56dc7.63108903",
+        "nim": "hdh",
+        "nama": "jss",
+        "buku": "Sistem Informasi",
+        "tanggal_pinjam": "2026-04-21",
+        "tanggal_kembali": "2026-04-23",
+        "returned_at": null
+    },
+    {
         "id": "pjm_69e6340c476761.87638094",
         "nim": "123456",
         "nama": "Fajar",

@@ -10,7 +10,7 @@ if (isset($_POST['email']) && isset($_POST['password'])) {
 
         $_SESSION['login'] = true;
 
-        header("Location: beranda.php");
+        header("Location: user/beranda.php");
         exit;
 
     } else {
