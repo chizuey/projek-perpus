@@ -73,8 +73,8 @@
         "judul_buku": "Pemrograman Web",
         "tgl_pinjam": "2026-04-18",
         "tgl_jatuh_tempo": "2026-04-27",
-        "tgl_kembali": "",
-        "status": "Belum Kembali"
+        "tgl_kembali": "2026-04-21",
+        "status": "Dikembalikan"
     },
     {
         "id": 19,

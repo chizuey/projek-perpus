@@ -1,14 +1,5 @@
 [
     {
-        "id": "pjm_69e736e6c0f913.10844797",
-        "nim": "123456",
-        "nama": "Fajar",
-        "buku": "Pemrograman Web",
-        "tanggal_pinjam": "2026-04-18",
-        "tanggal_kembali": "2026-04-27",
-        "returned_at": null
-    },
-    {
         "id": "pjm_69e736e6c16161.73431507",
         "nim": "123458",
         "nama": "Budi",

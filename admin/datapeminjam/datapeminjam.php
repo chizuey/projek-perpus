@@ -624,8 +624,8 @@ $paginationItems = getPaginationItems($currentPage, $totalPages);
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Data Peminjam</title>
-    <link rel="stylesheet" href="datapeminjam.css">
-    <link rel="stylesheet" href="popuppeminjaman.css">
+    <link rel="stylesheet" href="datapeminjam/datapeminjam.css">
+    <link rel="stylesheet" href="datapeminjam/popuppeminjaman.css">
 </head>
 <body>
 
@@ -854,30 +854,46 @@ const popupPeminjaman = document.getElementById('popupPeminjaman');
 const closePopupPeminjaman = document.getElementById('closePopupPeminjaman');
 const batalPopupPeminjaman = document.getElementById('batalPopupPeminjaman');
 
+function bukaPopupPeminjaman() {
+  if (popupPeminjaman) {
+    popupPeminjaman.classList.add('active');
+  }
+}
+
+function tutupPopupPeminjaman() {
+  if (popupPeminjaman) {
+    popupPeminjaman.classList.remove('active');
+  }
+}
+
 if (openPopupPeminjaman) {
-    openPopupPeminjaman.addEventListener('click', function () {
-        popupPeminjaman.classList.add('active');
-    });
+  openPopupPeminjaman.addEventListener('click', function () {
+    bukaPopupPeminjaman();
+  });
 }
 
 if (closePopupPeminjaman) {
-    closePopupPeminjaman.addEventListener('click', function () {
-        popupPeminjaman.classList.remove('active');
-    });
+  closePopupPeminjaman.addEventListener('click', function (e) {
+    e.preventDefault();
+    e.stopPropagation();
+    tutupPopupPeminjaman();
+  });
 }
 
 if (batalPopupPeminjaman) {
-    batalPopupPeminjaman.addEventListener('click', function () {
-        popupPeminjaman.classList.remove('active');
-    });
+  batalPopupPeminjaman.addEventListener('click', function (e) {
+    e.preventDefault();
+    e.stopPropagation();
+    tutupPopupPeminjaman();
+  });
 }
 
 if (popupPeminjaman) {
-    popupPeminjaman.addEventListener('click', function (e) {
-        if (e.target === popupPeminjaman) {
-            popupPeminjaman.classList.remove('active');
-        }
-    });
+  popupPeminjaman.addEventListener('click', function (e) {
+    if (e.target === popupPeminjaman) {
+      tutupPopupPeminjaman();
+    }
+  });
 }
 </script>
 
