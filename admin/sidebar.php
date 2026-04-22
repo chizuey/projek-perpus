@@ -23,7 +23,7 @@
         <!-- <i class="bi bi-arrow-left-right"></i> -->
           <i class="bi bi-check-circle"></i>PEMINJAMAN
       </a>
-      <a href="admin.php?menu=" class="sidebar-subitem">
+      <a href="#" class="sidebar-subitem">
         <i class="bi bi-book"></i> DATA BUKU
       </a>
       <a href="admin.php?menu=laporan" class="sidebar-subitem">

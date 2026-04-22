@@ -166,6 +166,7 @@ function buildExportHtml($laporan, $statusFilter, $startDate, $endDate, $keyword
     </style>
 </head>
 <body>
+    <div class="main-content"></div>
     <div class="report-wrapper">
         <h1 class="report-title">Laporan Transaksi</h1>
 
@@ -225,6 +226,7 @@ function buildExportHtml($laporan, $statusFilter, $startDate, $endDate, $keyword
                 window.print();
             });
         </script>
+        </div>
     <?php endif; ?>
 </body>
 </html>
