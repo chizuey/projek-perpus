@@ -18,8 +18,8 @@
         "judul_buku": "Teknik Elektro",
         "tgl_pinjam": "2026-04-07",
         "tgl_jatuh_tempo": "2026-04-18",
-        "tgl_kembali": "",
-        "status": "Terlambat"
+        "tgl_kembali": "2026-04-22",
+        "status": "Dikembalikan"
     },
     {
         "id": 24,
@@ -51,8 +51,8 @@
         "judul_buku": "Jaringan Komputer",
         "tgl_pinjam": "2026-04-09",
         "tgl_jatuh_tempo": "2026-04-19",
-        "tgl_kembali": "",
-        "status": "Terlambat"
+        "tgl_kembali": "2026-04-22",
+        "status": "Dikembalikan"
     },
     {
         "id": 21,
