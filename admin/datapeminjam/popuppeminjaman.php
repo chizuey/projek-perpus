@@ -2,7 +2,7 @@
     <div class="popup-box">
         <div class="popup-header">
             <span>Tambah Peminjaman</span>
-            <button type="button" class="popup-close" id="closePopupBtn">&times;</button>
+            <button type="button" class="popup-close" id="closePopupPeminjaman">&times;</button>
         </div>
 
         <form method="post">
@@ -82,7 +82,7 @@
                 </div>
 
                 <div class="popup-footer">
-                    <button type="button" class="btn-batal" id="cancelPopupBtn">Batal</button>
+                    <button type="button" class="btn-batal" id="batalPopupPeminjaman">Batal</button>
                     <button type="submit" class="btn-simpan">Simpan</button>
                 </div>
             </div>
