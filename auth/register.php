@@ -169,7 +169,7 @@
         <div class="login-card">
 
             <div class="header-logo">
-                <img src="logo_polije.png" alt="logo"/>
+                 <img src="../user/gambar/logo-polije.png" alt="logo">
                 <span class="brand-name-login">Perpustakaan Polije</span>
             </div>
 

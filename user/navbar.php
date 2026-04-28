@@ -23,6 +23,10 @@ $base = ($caller_dir_name === 'user') ? '' : '../';
         <!-- MENU (TENGAH) -->
         <ul class="nav-menu">
 
+         <li>
+        <a href="<?php echo $base; ?>beranda.php" class="nav-link">Beranda</a>
+    </li>
+
             <li class="dropdown">
                 <a class="nav-link">
                     Tentang Kami
