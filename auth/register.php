@@ -178,11 +178,11 @@
                 <p>Lengkapi data diri Anda untuk mendapatkan akses ke layanan perpustakaan digital kami.</p>
             </div>
 
-            <form action="proses-register.php" method="POST" class="login-form">
+            <form action="proses_register.php" method="POST" class="login-form">
 
                 <div class="input-group">
                     <label for="nama">Nama Lengkap</label>
-                    <input type="text" id="nama" name="nama" placeholder="Masukkan nama lengkap" required>
+                    <input type="text" id="nama" name="nama_lengkap" placeholder="Masukkan nama lengkap" required>
                 </div>
 
                 <div class="input-group">
@@ -200,7 +200,7 @@
                     <input type="password" id="konfirmasi_password" name="konfirmasi_password" placeholder="Ulangi kata sandi" required>
                 </div>
 
-                <button type="submit" class="btn-login">Daftar Sekarang</button>
+                <button type="submit" name="register" class="btn-login">Daftar Sekarang</button>
 
             </form>
 
