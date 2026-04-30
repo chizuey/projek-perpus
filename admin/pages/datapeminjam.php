@@ -774,10 +774,7 @@ $opsiBuku = getOpsiBuku($dataPeminjaman);
                     <div class="search-box">
                         <input type="text" name="q" placeholder="Cari Peminjaman..." value="<?= e($search); ?>">
                         <button type="submit" class="search-submit" aria-label="Cari">
-                            <svg viewBox="0 0 24 24" fill="none" aria-hidden="true">
-                                <circle cx="11" cy="11" r="6.5" stroke="currentColor" stroke-width="2"></circle>
-                                <path d="M16 16L21 21" stroke="currentColor" stroke-width="2" stroke-linecap="round"></path>
-                            </svg>
+                            <i class="bi bi-search"></i>
                         </button>
                     </div>
                 </form>

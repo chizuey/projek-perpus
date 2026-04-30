@@ -495,11 +495,10 @@ $returnQuery = buatQuery([], ['action']);
                 </div>
 
                 <div class="search-box">
-                    <svg class="search-icon" viewBox="0 0 24 24" aria-hidden="true">
-                        <circle cx="11" cy="11" r="6.5" fill="none" stroke="currentColor" stroke-width="1.8"></circle>
-                        <path d="M16 16L20 20" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round"></path>
-                    </svg>
                     <input type="text" name="keyword" placeholder="Cari peminjam / buku..." value="<?= escape($keyword) ?>">
+                    <button type="submit" class="search-submit" aria-label="Cari laporan">
+                        <i class="bi bi-search"></i>
+                    </button>
                 </div>
 
                 <button type="submit" class="hidden-submit" aria-hidden="true" tabindex="-1">Terapkan</button>
