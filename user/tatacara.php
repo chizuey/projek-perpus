@@ -4,13 +4,8 @@
 <head>
 <meta name="viewport" content="width=device-width, initial-scale=1"/>
 <meta charset="utf-8" />
-<<<<<<< HEAD:user/tata cara/tatacara.php
- <link rel="stylesheet" href="../style.css?v=4">
-<link rel="stylesheet" href="stylecara.css">
-=======
  <link rel="stylesheet" href="../public/css/style.css?v=4">
 <link rel="stylesheet" href="../public/css/stylecara.css">
->>>>>>> ff2bdb53194e374cceaf1c93bc01df73773d5a09:user/tatacara.php
 </head>
 <body>
 <?php include 'navbar.php'; ?>

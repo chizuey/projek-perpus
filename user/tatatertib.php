@@ -4,13 +4,8 @@
 <head>
 <meta name="viewport" content="width=device-width, initial-scale=1"/>
 <meta charset="utf-8" />
-<<<<<<< HEAD:user/tata tertib/tatatertib.php
- <link rel="stylesheet" href="../style.css?v=1">
-<link rel="stylesheet" href="styletertib.css">
-=======
  <link rel="stylesheet" href="../public/css/style.css?v=1">
 <link rel="stylesheet" href="../public/css/styletertib.css">
->>>>>>> ff2bdb53194e374cceaf1c93bc01df73773d5a09:user/tatatertib.php
 </head>
 <body>
 <?php include 'navbar.php'; ?>
