@@ -50,13 +50,13 @@ $base = ($caller_dir_name === 'user') ? '' : '../';
                 </a>
 
                 <ul class="dropdown-menu">
-                    <li><a href="<?php echo $base; ?>tata tertib/tatatertib.php">Tata Tertib</a></li>
-                    <li><a href="<?php echo $base; ?>tata cara/tatacara.php">Tata Cara</a></li>
+                    <li><a href="<?php echo $base; ?>tatatertib.php">Tata Tertib</a></li>
+                    <li><a href="<?php echo $base; ?>tatacara.php">Tata Cara</a></li>
                 </ul>
             </li>
 
             <li>
-                <a href="<?php echo $base; ?>koleksi/koleksi.php" class="nav-link">Koleksi</a>
+                <a href="<?php echo $base; ?>koleksi.php" class="nav-link">Koleksi</a>
             </li>
 
         </ul>

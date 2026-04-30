@@ -4,11 +4,16 @@
 <head>
 <meta name="viewport" content="width=device-width, initial-scale=1"/>
 <meta charset="utf-8" />
+<<<<<<< HEAD:user/tata cara/tatacara.php
  <link rel="stylesheet" href="../style.css?v=4">
 <link rel="stylesheet" href="stylecara.css">
+=======
+ <link rel="stylesheet" href="../public/css/style.css?v=4">
+<link rel="stylesheet" href="../public/css/stylecara.css">
+>>>>>>> ff2bdb53194e374cceaf1c93bc01df73773d5a09:user/tatacara.php
 </head>
 <body>
-<?php include '../navbar.php'; ?>
+<?php include 'navbar.php'; ?>
 <div class="panduan-tata-cara" ><div class="main" ><div class="hero-section" ><div class="container" ><div class="overlay-border-wrapper" ><div class="overlay-border" ><img class="checklist" src="../gambar/cara.png" /></div></div>
 <div class="heading" ><div class="text-wrapper" >Tata Cara</div></div>
 <div class="div-wrapper" ><div class="text" >Perpustakaan POLIJE</div></div></div></div></div>
@@ -70,6 +75,6 @@
 <div class="container-20" ><div class="background-border" ><div class="overlay-shadow" ></div>
 <div class="text-wrapper-12" >8</div></div>
 <div class="container-21" ><p class="text-wrapper-13" > Selanjutnya petugas mengetik barcode buku secara manual ke dalam sistem.</p></div></div></div></div></div></div>
-<?php include '../foot.php'; ?>
+<?php include 'foot.php'; ?>
 </body>
 </html>
