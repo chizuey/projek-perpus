@@ -15,11 +15,9 @@
         <div style="height:0.5rem;"></div>
 
         <a href="?menu=peminjaman" class="sidebar-subitem <?= ($currentMenu === 'peminjaman') ? 'active' : ''; ?>">
-<<<<<<< HEAD
+
             <i class="bi bi-check-circle "></i> PEMINJAMAN
-=======
             <i class="bi bi-check-circle"></i> PEMINJAMAN
->>>>>>> c92a359b6d8a33b0205f4799b2a5403a55c80220
         </a>
 
         <a href="?menu=tambahbuku" class="sidebar-subitem <?= ($currentMenu === 'tambahbuku') ? 'active' : ''; ?>">
