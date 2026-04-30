@@ -241,8 +241,38 @@ body {
 }
 
 .data-count {
+    display: flex;
+    align-items: center;
+    flex-wrap: wrap;
+    gap: 12px;
     font-size: 12px;
     color: #94a3b8;
+}
+
+.per-page-form {
+    margin: 0;
+}
+
+.per-page-form label {
+    display: inline-flex;
+    align-items: center;
+    gap: 6px;
+    margin: 0;
+    color: #7890aa;
+    font-size: 12px;
+}
+
+.per-page-form select {
+    width: 58px;
+    height: 30px;
+    border: 1px solid #d9e2ec;
+    border-radius: 6px;
+    background: #ffffff;
+    color: #334155;
+    font-size: 12px;
+    font-weight: 700;
+    padding: 0 8px;
+    outline: none;
 }
 
 .pagination {

@@ -113,9 +113,20 @@ function ensureDataBukuHasBorrowedTitles(array $dataBuku, array $dataPeminjaman)
     return $dataBuku;
 }
 
-function buildBukuUrl(int $page, string $search, string $kategori): string
+function getBukuPerPageOptions(): array
 {
-    $params = ['menu' => 'databuku', 'page' => $page];
+    return [5, 7, 10, 15, 20];
+}
+
+function normalizeBukuPerPage($value, int $default = 7): int
+{
+    $value = (int) $value;
+    return in_array($value, getBukuPerPageOptions(), true) ? $value : $default;
+}
+
+function buildBukuUrl(int $page, string $search, string $kategori, int $perPage): string
+{
+    $params = ['menu' => 'databuku', 'page' => $page, 'per_page' => $perPage];
 
     if ($search !== '') {
         $params['q'] = $search;
@@ -139,6 +150,7 @@ if ($dataBukuLengkap !== $dataBuku) {
 
 $search = trim($_GET['q'] ?? '');
 $kategoriFilter = $_GET['kategori'] ?? 'Semua';
+$perPage = normalizeBukuPerPage($_GET['per_page'] ?? 7);
 
 if (($_SERVER['REQUEST_METHOD'] ?? 'GET') === 'POST' && ($_POST['action'] ?? '') === 'edit_buku') {
     $id = (int) ($_POST['id'] ?? 0);
@@ -161,7 +173,12 @@ if (($_SERVER['REQUEST_METHOD'] ?? 'GET') === 'POST' && ($_POST['action'] ?? '')
         break;
     }
 
-    $redirectUrl = buildBukuUrl(max(1, (int) ($_POST['page'] ?? 1)), trim($_POST['q'] ?? ''), $_POST['kategori_filter'] ?? 'Semua');
+    $redirectUrl = buildBukuUrl(
+        max(1, (int) ($_POST['page'] ?? 1)),
+        trim($_POST['q'] ?? ''),
+        $_POST['kategori_filter'] ?? 'Semua',
+        normalizeBukuPerPage($_POST['per_page'] ?? $perPage)
+    );
     echo '<script>window.location.href = ' . json_encode($redirectUrl) . ';</script>';
     exit;
 }
@@ -183,7 +200,6 @@ $filteredData = array_values(array_filter($dataBuku, function (array $item) use 
         || stripos((string) ($item['penerbit'] ?? ''), $search) !== false;
 }));
 
-$perPage = 7;
 $totalData = count($filteredData);
 $totalPages = max(1, (int) ceil($totalData / $perPage));
 $currentPage = min(max(1, (int) ($_GET['page'] ?? 1)), $totalPages);
@@ -207,6 +223,7 @@ $endDisplay = $totalData > 0 ? min($offset + $perPage, $totalData) : 0;
         <form method="get" class="databuku-search">
             <input type="hidden" name="menu" value="databuku">
             <input type="hidden" name="kategori" value="<?= eBuku($kategoriFilter); ?>">
+            <input type="hidden" name="per_page" value="<?= (int) $perPage; ?>">
             <input type="text" name="q" placeholder="Cari Buku..." value="<?= eBuku($search); ?>">
             <button type="submit" aria-label="Cari buku">
                 <i class="bi bi-search"></i>
@@ -216,6 +233,7 @@ $endDisplay = $totalData > 0 ? min($offset + $perPage, $totalData) : 0;
         <form method="get" class="databuku-filter" id="filterBukuForm">
             <input type="hidden" name="menu" value="databuku">
             <input type="hidden" name="q" value="<?= eBuku($search); ?>">
+            <input type="hidden" name="per_page" value="<?= (int) $perPage; ?>">
             <select name="kategori" aria-label="Filter kategori buku">
                 <option value="Semua" <?= $kategoriFilter === 'Semua' ? 'selected' : ''; ?>>Filter</option>
                 <?php foreach ($kategoriOptions as $kategori): ?>
@@ -290,21 +308,38 @@ $endDisplay = $totalData > 0 ? min($offset + $perPage, $totalData) : 0;
     </div>
 
     <div class="databuku-footer">
-        <span>Menampilkan <?= (int) $startDisplay; ?>-<?= (int) $endDisplay; ?> dari <?= (int) $totalData; ?> data</span>
+        <div class="table-footer-info">
+            <span>Menampilkan <?= (int) $startDisplay; ?>-<?= (int) $endDisplay; ?> dari <?= (int) $totalData; ?> data</span>
+            <form method="get" class="per-page-form">
+                <input type="hidden" name="menu" value="databuku">
+                <input type="hidden" name="page" value="1">
+                <input type="hidden" name="q" value="<?= eBuku($search); ?>">
+                <input type="hidden" name="kategori" value="<?= eBuku($kategoriFilter); ?>">
+                <label>
+                    <span>Tampilkan</span>
+                    <select name="per_page" onchange="this.form.submit()">
+                        <?php foreach (getBukuPerPageOptions() as $option): ?>
+                            <option value="<?= (int) $option; ?>" <?= $perPage === $option ? 'selected' : ''; ?>><?= (int) $option; ?></option>
+                        <?php endforeach; ?>
+                    </select>
+                    <span>data</span>
+                </label>
+            </form>
+        </div>
         <div class="databuku-pagination">
-            <a class="page-arrow <?= $currentPage <= 1 ? 'disabled' : ''; ?>" href="<?= $currentPage <= 1 ? '#' : eBuku(buildBukuUrl($currentPage - 1, $search, $kategoriFilter)); ?>">
+            <a class="page-arrow <?= $currentPage <= 1 ? 'disabled' : ''; ?>" href="<?= $currentPage <= 1 ? '#' : eBuku(buildBukuUrl($currentPage - 1, $search, $kategoriFilter, $perPage)); ?>">
                 <i class="bi bi-chevron-left"></i>
             </a>
 
             <?php for ($i = 1; $i <= $totalPages; $i++): ?>
                 <?php if ($i <= 2 || $i === $totalPages || abs($i - $currentPage) <= 1): ?>
-                    <a class="page-number <?= $i === $currentPage ? 'active' : ''; ?>" href="<?= eBuku(buildBukuUrl($i, $search, $kategoriFilter)); ?>"><?= (int) $i; ?></a>
+                    <a class="page-number <?= $i === $currentPage ? 'active' : ''; ?>" href="<?= eBuku(buildBukuUrl($i, $search, $kategoriFilter, $perPage)); ?>"><?= (int) $i; ?></a>
                 <?php elseif ($i === 3): ?>
                     <span class="page-dots">...</span>
                 <?php endif; ?>
             <?php endfor; ?>
 
-            <a class="page-arrow <?= $currentPage >= $totalPages ? 'disabled' : ''; ?>" href="<?= $currentPage >= $totalPages ? '#' : eBuku(buildBukuUrl($currentPage + 1, $search, $kategoriFilter)); ?>">
+            <a class="page-arrow <?= $currentPage >= $totalPages ? 'disabled' : ''; ?>" href="<?= $currentPage >= $totalPages ? '#' : eBuku(buildBukuUrl($currentPage + 1, $search, $kategoriFilter, $perPage)); ?>">
                 <i class="bi bi-chevron-right"></i>
             </a>
         </div>
@@ -342,6 +377,7 @@ $endDisplay = $totalData > 0 ? min($offset + $perPage, $totalData) : 0;
             <input type="hidden" name="page" value="<?= (int) $currentPage; ?>">
             <input type="hidden" name="q" value="<?= eBuku($search); ?>">
             <input type="hidden" name="kategori_filter" value="<?= eBuku($kategoriFilter); ?>">
+            <input type="hidden" name="per_page" value="<?= (int) $perPage; ?>">
 
             <label>Judul Buku</label>
             <input type="text" name="judul" id="editJudul" required>

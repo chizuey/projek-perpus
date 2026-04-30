@@ -158,6 +158,17 @@ function buildExportUrl(array $tambahan = [], array $hapus = [])
     return '?' . http_build_query($query);
 }
 
+function getLaporanPerPageOptions(): array
+{
+    return [5, 7, 10, 15, 20];
+}
+
+function normalizeLaporanPerPage($value, int $default = 5): int
+{
+    $value = (int) $value;
+    return in_array($value, getLaporanPerPageOptions(), true) ? $value : $default;
+}
+
 function getStatusClass($status)
 {
     if ($status === 'Dikembalikan') {
@@ -349,7 +360,7 @@ $startDate = array_key_exists('start_date', $_GET) ? $_GET['start_date'] : '';
 $endDate = array_key_exists('end_date', $_GET) ? $_GET['end_date'] : '';
 $keyword = trim($_GET['keyword'] ?? '');
 $page = max(1, (int) ($_GET['page'] ?? 1));
-$perPage = 5;
+$perPage = normalizeLaporanPerPage($_GET['per_page'] ?? 5);
 
 $semuaLaporan = array_map('refreshStatusLaporan', loadLaporanTransaksi($laporanFile));
 saveLaporanTransaksi($laporanFile, $semuaLaporan);
@@ -442,6 +453,7 @@ $returnQuery = buatQuery([], ['action']);
             <form method="GET" class="filter-form" id="filter-form">
                 <input type="hidden" name="menu" value="<?= escape($_GET['menu'] ?? 'laporan') ?>">
                 <input type="hidden" name="page" value="1">
+                <input type="hidden" name="per_page" value="<?= (int) $perPage ?>">
                 <div class="field-group status-filter">
                     <span class="field-label">Tampilkan:</span>
                     <select name="status" id="status-filter">
@@ -549,7 +561,7 @@ $returnQuery = buatQuery([], ['action']);
                     <span class="action-muted">Pilih:</span>
                     <button type="button" class="action-link" id="select-all-trigger">Semua</button>
                     <span class="action-divider">|</span>
-                    <button type="submit" name="delete_selected" class="action-link delete-link" onclick="return confirmDelete()">Hapus Dipilih</button>
+                    <button type="button" class="action-link delete-link" id="openDeleteConfirm">Hapus Dipilih</button>
                 </div>
 
                 <div class="table-responsive">
@@ -590,9 +602,51 @@ $returnQuery = buatQuery([], ['action']);
                         </tbody>
                     </table>
                 </div>
+
+                <div class="delete-confirm-overlay" id="deleteConfirmOverlay" aria-hidden="true">
+                    <div class="delete-confirm-box">
+                        <div class="delete-confirm-header">
+                            <h3>Konfirmasi Hapus</h3>
+                            <button type="button" class="delete-confirm-close" id="deleteConfirmClose" aria-label="Tutup">&times;</button>
+                        </div>
+
+                        <div class="delete-confirm-body">
+                            <p class="delete-confirm-text">Yakin ingin menghapus data laporan yang dipilih?</p>
+                            <div class="delete-confirm-detail">
+                                <div><strong>Jumlah data:</strong> <span id="deleteConfirmCount">0</span></div>
+                                <div><strong>Menu:</strong> Laporan Peminjaman Buku</div>
+                            </div>
+                        </div>
+
+                        <div class="delete-confirm-actions">
+                            <button type="button" class="btn-delete-batal" id="deleteConfirmCancel">Batal</button>
+                            <button type="submit" name="delete_selected" class="btn-delete-submit">Hapus</button>
+                        </div>
+                    </div>
+                </div>
             </form>
 
             <div class="pagination-wrap">
+                <div class="table-footer-info">
+                    <span>Menampilkan <?= (int) ($totalData > 0 ? $offset + 1 : 0) ?>-<?= (int) ($totalData > 0 ? min($offset + $perPage, $totalData) : 0) ?> dari <?= (int) $totalData ?> data</span>
+                    <form method="get" class="per-page-form">
+                        <input type="hidden" name="menu" value="<?= escape($_GET['menu'] ?? 'laporan') ?>">
+                        <input type="hidden" name="page" value="1">
+                        <input type="hidden" name="status" value="<?= escape($statusFilter) ?>">
+                        <input type="hidden" name="start_date" value="<?= escape($startDate) ?>">
+                        <input type="hidden" name="end_date" value="<?= escape($endDate) ?>">
+                        <input type="hidden" name="keyword" value="<?= escape($keyword) ?>">
+                        <label>
+                            <span>Tampilkan</span>
+                            <select name="per_page" onchange="this.form.submit()">
+                                <?php foreach (getLaporanPerPageOptions() as $option): ?>
+                                    <option value="<?= (int) $option ?>" <?= $perPage === $option ? 'selected' : '' ?>><?= (int) $option ?></option>
+                                <?php endforeach; ?>
+                            </select>
+                            <span>data</span>
+                        </label>
+                    </form>
+                </div>
                 <div class="pagination">
                     <?php $prevDisabled = $page <= 1; ?>
                     <a class="page-arrow <?= $prevDisabled ? 'disabled' : '' ?>" href="<?= $prevDisabled ? '#' : '?' . escape(buatQuery(['page' => $page - 1], ['action'])) ?>" aria-label="Halaman sebelumnya">
@@ -629,6 +683,11 @@ $returnQuery = buatQuery([], ['action']);
         const selectAll = document.getElementById('select-all');
         const selectAllTrigger = document.getElementById('select-all-trigger');
         const rowCheckboxes = document.querySelectorAll('.row-checkbox');
+        const openDeleteConfirm = document.getElementById('openDeleteConfirm');
+        const deleteConfirmOverlay = document.getElementById('deleteConfirmOverlay');
+        const deleteConfirmClose = document.getElementById('deleteConfirmClose');
+        const deleteConfirmCancel = document.getElementById('deleteConfirmCancel');
+        const deleteConfirmCount = document.getElementById('deleteConfirmCount');
 
         [statusFilterElement, startDate, endDate].forEach(function (element) {
             if (!element) {
@@ -671,12 +730,57 @@ $returnQuery = buatQuery([], ['action']);
             });
         });
 
-        function confirmDelete() {
+        function openDeleteModal() {
             const totalChecked = document.querySelectorAll('.row-checkbox:checked').length;
             if (totalChecked === 0) {
                 alert('Pilih data yang ingin dihapus terlebih dahulu.');
-                return false;
+                return;
             }
-            return confirm('Hapus laporan yang dipilih?');
+
+            if (deleteConfirmCount) {
+                deleteConfirmCount.textContent = totalChecked;
+            }
+
+            if (deleteConfirmOverlay) {
+                deleteConfirmOverlay.classList.add('show');
+                deleteConfirmOverlay.setAttribute('aria-hidden', 'false');
+                document.body.classList.add('modal-open');
+            }
         }
+
+        function closeDeleteModal() {
+            if (!deleteConfirmOverlay) {
+                return;
+            }
+
+            deleteConfirmOverlay.classList.remove('show');
+            deleteConfirmOverlay.setAttribute('aria-hidden', 'true');
+            document.body.classList.remove('modal-open');
+        }
+
+        if (openDeleteConfirm) {
+            openDeleteConfirm.addEventListener('click', openDeleteModal);
+        }
+
+        if (deleteConfirmClose) {
+            deleteConfirmClose.addEventListener('click', closeDeleteModal);
+        }
+
+        if (deleteConfirmCancel) {
+            deleteConfirmCancel.addEventListener('click', closeDeleteModal);
+        }
+
+        if (deleteConfirmOverlay) {
+            deleteConfirmOverlay.addEventListener('click', function (event) {
+                if (event.target === deleteConfirmOverlay) {
+                    closeDeleteModal();
+                }
+            });
+        }
+
+        document.addEventListener('keydown', function (event) {
+            if (event.key === 'Escape' && deleteConfirmOverlay && deleteConfirmOverlay.classList.contains('show')) {
+                closeDeleteModal();
+            }
+        });
     </script>

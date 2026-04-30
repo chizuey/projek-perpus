@@ -442,11 +442,23 @@ function hitungMetaPeminjaman(array $item): array
 | PAGINATION
 |--------------------------------------------------------------------------
 */
-function buildPageUrl(int $page, string $search): string
+function getPeminjamanPerPageOptions(): array
+{
+    return [5, 7, 10, 15, 20];
+}
+
+function normalizePeminjamanPerPage($value, int $default = 7): int
+{
+    $value = (int) $value;
+    return in_array($value, getPeminjamanPerPageOptions(), true) ? $value : $default;
+}
+
+function buildPageUrl(int $page, string $search, int $perPage): string
 {
     $params = [
         'menu' => getCurrentMenuPeminjaman(),
         'page' => $page,
+        'per_page' => $perPage,
     ];
 
     if ($search !== '') {
@@ -559,7 +571,7 @@ if ($requestMethod === 'POST') {
             );
             saveLaporanTransaksi($laporanFile, $laporanTransaksi);
 
-            redirectTo();
+            redirectTo(['per_page' => normalizePeminjamanPerPage($_POST['per_page'] ?? 7)]);
         }
 
         $openPopup = true;
@@ -569,6 +581,7 @@ if ($requestMethod === 'POST') {
         $id = $_POST['id'] ?? '';
         $searchFromPost = trim($_POST['q'] ?? '');
         $pageFromPost = max(1, (int) ($_POST['page'] ?? 1));
+        $perPageFromPost = normalizePeminjamanPerPage($_POST['per_page'] ?? 7);
         $laporanTransaksi = loadLaporanTransaksi($laporanFile);
         $dataBerubah = false;
 
@@ -602,7 +615,7 @@ if ($requestMethod === 'POST') {
             saveLaporanTransaksi($laporanFile, $laporanTransaksi);
         }
 
-        $redirectParams = ['menu' => 'peminjaman', 'page' => $pageFromPost];
+        $redirectParams = ['menu' => 'peminjaman', 'page' => $pageFromPost, 'per_page' => $perPageFromPost];
 
         if ($searchFromPost !== '') {
             $redirectParams['q'] = $searchFromPost;
@@ -618,6 +631,7 @@ if ($requestMethod === 'POST') {
 |--------------------------------------------------------------------------
 */
 $search = trim($_GET['q'] ?? '');
+$perPage = normalizePeminjamanPerPage($_GET['per_page'] ?? 7);
 $filteredData = array_values(array_filter($dataPeminjaman, function (array $item) use ($search): bool {
     if ($search === '') {
         return true;
@@ -628,7 +642,6 @@ $filteredData = array_values(array_filter($dataPeminjaman, function (array $item
         || stripos((string) ($item['buku'] ?? ''), $search) !== false;
 }));
 
-$perPage = 7;
 $totalData = count($filteredData);
 $totalPages = max(1, (int) ceil($totalData / $perPage));
 $currentPage = min(max(1, (int) ($_GET['page'] ?? 1)), $totalPages);
@@ -655,6 +668,7 @@ $opsiBuku = getOpsiBuku($dataPeminjaman);
 
                 <form method="get" class="search-form">
                     <input type="hidden" name="menu" value="<?= e(getCurrentMenuPeminjaman()); ?>">
+                    <input type="hidden" name="per_page" value="<?= (int) $perPage; ?>">
                     <div class="search-box">
                         <input type="text" name="q" placeholder="Cari Peminjaman..." value="<?= e($search); ?>">
                         <button type="submit" class="search-submit" aria-label="Cari">
@@ -753,6 +767,7 @@ $opsiBuku = getOpsiBuku($dataPeminjaman);
                             <input type="hidden" name="id" id="returnConfirmId">
                             <input type="hidden" name="q" value="<?= e($search); ?>">
                             <input type="hidden" name="page" value="<?= (int) $currentPage; ?>">
+                            <input type="hidden" name="per_page" value="<?= (int) $perPage; ?>">
                         </div>
 
                         <div class="return-confirm-actions">
@@ -767,11 +782,25 @@ $opsiBuku = getOpsiBuku($dataPeminjaman);
         <div class="datapeminjam-footer">
             <div class="data-count">
                 Menampilkan <?= (int) $startDisplay; ?>-<?= (int) $endDisplay; ?> dari <?= (int) $totalData; ?> data
+                <form method="get" class="per-page-form">
+                    <input type="hidden" name="menu" value="<?= e(getCurrentMenuPeminjaman()); ?>">
+                    <input type="hidden" name="page" value="1">
+                    <input type="hidden" name="q" value="<?= e($search); ?>">
+                    <label>
+                        <span>Tampilkan</span>
+                        <select name="per_page" onchange="this.form.submit()">
+                            <?php foreach (getPeminjamanPerPageOptions() as $option): ?>
+                                <option value="<?= (int) $option; ?>" <?= $perPage === $option ? 'selected' : ''; ?>><?= (int) $option; ?></option>
+                            <?php endforeach; ?>
+                        </select>
+                        <span>data</span>
+                    </label>
+                </form>
             </div>
 
             <div class="pagination">
                 <?php if ($currentPage > 1): ?>
-                    <a href="<?= e(buildPageUrl($currentPage - 1, $search)); ?>" class="page-btn">&laquo;</a>
+                    <a href="<?= e(buildPageUrl($currentPage - 1, $search, $perPage)); ?>" class="page-btn">&laquo;</a>
                 <?php else: ?>
                     <span class="page-btn disabled">&laquo;</span>
                 <?php endif; ?>
@@ -782,12 +811,12 @@ $opsiBuku = getOpsiBuku($dataPeminjaman);
                     <?php elseif ((int) $pageItem === $currentPage): ?>
                         <span class="page-btn active"><?= (int) $pageItem; ?></span>
                     <?php else: ?>
-                        <a href="<?= e(buildPageUrl((int) $pageItem, $search)); ?>" class="page-btn"><?= (int) $pageItem; ?></a>
+                        <a href="<?= e(buildPageUrl((int) $pageItem, $search, $perPage)); ?>" class="page-btn"><?= (int) $pageItem; ?></a>
                     <?php endif; ?>
                 <?php endforeach; ?>
 
                 <?php if ($currentPage < $totalPages): ?>
-                    <a href="<?= e(buildPageUrl($currentPage + 1, $search)); ?>" class="page-btn">&raquo;</a>
+                    <a href="<?= e(buildPageUrl($currentPage + 1, $search, $perPage)); ?>" class="page-btn">&raquo;</a>
                 <?php else: ?>
                     <span class="page-btn disabled">&raquo;</span>
                 <?php endif; ?>

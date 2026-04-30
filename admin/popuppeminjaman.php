@@ -14,6 +14,7 @@
                 <?php endif; ?>
 
                 <input type="hidden" name="action" value="add_peminjaman">
+                <input type="hidden" name="per_page" value="<?= (int) ($perPage ?? 7); ?>">
 
                 <div class="form-group">
                     <label for="popup_nim">NIM</label>
