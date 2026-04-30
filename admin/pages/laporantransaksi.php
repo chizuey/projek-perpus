@@ -490,7 +490,7 @@ $returnQuery = buatQuery([], ['action']);
 
                 <div class="field-group date-range">
                     <input type="date" name="start_date" value="<?= escape($startDate) ?>" id="start-date">
-                    <span class="separator">â€”</span>
+                    <span class="separator">&ndash;</span>
                     <input type="date" name="end_date" value="<?= escape($endDate) ?>" id="end-date">
                 </div>
 

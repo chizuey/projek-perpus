@@ -135,11 +135,13 @@
 .date-range input {
     min-width: 0;
     flex: 1;
+    font-family: inherit;
     font-weight: 500;
 }
 
 .separator {
     color: var(--text-muted);
+    font-family: inherit;
     font-weight: 500;
 }
 

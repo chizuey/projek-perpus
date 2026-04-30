@@ -5,8 +5,9 @@
         "nama": "Antok",
         "buku": "Pemrograman Java",
         "tanggal_pinjam": "2026-04-30",
-        "tanggal_kembali": "2026-05-07",
-        "returned_at": null
+        "tanggal_kembali": "2026-05-14",
+        "returned_at": null,
+        "extended_at": "2026-04-30"
     },
     {
         "id": "pjm_69f1fead654796.63442227",

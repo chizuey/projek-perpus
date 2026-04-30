@@ -170,7 +170,7 @@ body {
 
 .datapeminjam-table th:nth-child(3),
 .datapeminjam-table td:nth-child(3) {
-    width: 18%;
+    width: 16%;
 }
 
 .datapeminjam-table th:nth-child(4),
@@ -200,7 +200,8 @@ body {
 
 .datapeminjam-table th:nth-child(9),
 .datapeminjam-table td:nth-child(9) {
-    width: 8%;
+    width: 10%;
+    overflow: visible;
 }
 
 .datapeminjam-table td:nth-child(2),
@@ -238,7 +239,15 @@ body {
     background: #ef4444;
 }
 
-.btn-kembalikan {
+.peminjaman-action-group {
+    display: inline-flex;
+    flex-direction: column;
+    align-items: flex-start;
+    gap: 6px;
+}
+
+.btn-kembalikan,
+.btn-perpanjang {
     display: inline-flex;
     align-items: center;
     justify-content: center;
@@ -270,6 +279,44 @@ body {
     outline: none;
     border-color: #93c5fd;
     box-shadow: 0 0 0 3px rgba(59, 130, 246, 0.12);
+}
+
+.btn-perpanjang {
+    border-color: #bfdbfe;
+    background: #eff6ff;
+    color: #0d5db8;
+}
+
+.btn-perpanjang:hover {
+    background: #dbeafe;
+    border-color: #93c5fd;
+    color: #0b4fa0;
+}
+
+.btn-perpanjang:active {
+    background: #bfdbfe;
+}
+
+.btn-perpanjang:focus {
+    outline: none;
+    border-color: #60a5fa;
+    box-shadow: 0 0 0 3px rgba(13, 93, 184, 0.12);
+}
+
+.extend-used-label {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    min-width: 98px;
+    min-height: 28px;
+    padding: 4px 8px;
+    border-radius: 5px;
+    background: #eef2f7;
+    color: #64748b;
+    font-size: 11px;
+    font-weight: 700;
+    line-height: 1.15;
+    text-align: center;
 }
 
 .empty-action {
@@ -580,14 +627,23 @@ body {
     font-weight: 700;
 }
 
-.btn-kembalikan {
+.btn-kembalikan,
+.btn-perpanjang {
     min-width: 94px;
     height: 32px;
     padding: 0 12px;
     border-radius: 5px;
-    color: #111827;
     font-size: 12px;
     font-weight: 500;
+}
+
+.btn-kembalikan {
+    color: #111827;
+}
+
+.extend-used-label {
+    min-width: 94px;
+    font-size: 11px;
 }
 
 .datapeminjam-footer {

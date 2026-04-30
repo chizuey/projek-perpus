@@ -280,6 +280,22 @@ function isPinjamanAktif(array $item): bool
     return empty($item['returned_at']);
 }
 
+// Mengecek apakah transaksi peminjaman masih bisa diperpanjang.
+function canPerpanjangPeminjaman(array $item): bool
+{
+    return isPinjamanAktif($item) && empty($item['extended_at']);
+}
+
+// Menambahkan tujuh hari ke tanggal jatuh tempo peminjaman.
+function tambahTujuhHariPeminjaman(string $tanggal): string
+{
+    try {
+        return (new DateTimeImmutable($tanggal))->modify('+7 days')->format('Y-m-d');
+    } catch (Exception $e) {
+        return date('Y-m-d', strtotime('+7 days'));
+    }
+}
+
 // Menghitung pinjaman aktif berdasarkan NIM.
 function countPinjamanAktifByNim(array $data, string $nim): int
 {
@@ -611,6 +627,56 @@ if ($requestMethod === 'POST') {
         $openPopup = true;
     }
 
+    // Proses perpanjangan peminjaman satu kali per ID transaksi dan sinkronisasi laporan.
+    if ($action === 'perpanjang_peminjaman') {
+        $id = $_POST['id'] ?? '';
+        $searchFromPost = trim($_POST['q'] ?? '');
+        $pageFromPost = max(1, (int) ($_POST['page'] ?? 1));
+        $perPageFromPost = normalizePeminjamanPerPage($_POST['per_page'] ?? 7);
+        $laporanTransaksi = loadLaporanTransaksi($laporanFile);
+        $dataBerubah = false;
+
+        foreach ($dataPeminjaman as $index => $item) {
+            if (($item['id'] ?? '') !== $id || !canPerpanjangPeminjaman($item)) {
+                continue;
+            }
+
+            $item['tanggal_kembali'] = tambahTujuhHariPeminjaman((string) ($item['tanggal_kembali'] ?? todayDate()));
+            $item['extended_at'] = todayDate();
+            $dataPeminjaman[$index] = $item;
+
+            $laporanIndex = cariIndexLaporanBySourceId($laporanTransaksi, $item['id']);
+            $laporanItem = buatItemLaporanDariPeminjaman(
+                $item,
+                $laporanIndex !== null
+                    ? ($laporanTransaksi[$laporanIndex]['id'] ?? nextLaporanId($laporanTransaksi))
+                    : nextLaporanId($laporanTransaksi)
+            );
+
+            if ($laporanIndex === null) {
+                array_unshift($laporanTransaksi, $laporanItem);
+            } else {
+                $laporanTransaksi[$laporanIndex] = $laporanItem;
+            }
+
+            $dataBerubah = true;
+            break;
+        }
+
+        if ($dataBerubah) {
+            savePeminjaman($dataFile, array_values($dataPeminjaman));
+            saveLaporanTransaksi($laporanFile, $laporanTransaksi);
+        }
+
+        $redirectParams = ['menu' => 'peminjaman', 'page' => $pageFromPost, 'per_page' => $perPageFromPost];
+
+        if ($searchFromPost !== '') {
+            $redirectParams['q'] = $searchFromPost;
+        }
+
+        redirectTo($redirectParams);
+    }
+
     // Proses pengembalian buku dan sinkronisasi ke laporan.
     if ($action === 'kembalikan_peminjaman') {
         $id = $_POST['id'] ?? '';
@@ -739,6 +805,8 @@ $opsiBuku = getOpsiBuku($dataPeminjaman);
                         <?php
                         $meta = hitungMetaPeminjaman($item);
                         $statusClass = 'status-dipinjam';
+                        $tanggalKembaliLama = (string) ($item['tanggal_kembali'] ?? '');
+                        $tanggalKembaliBaru = tambahTujuhHariPeminjaman($tanggalKembaliLama);
 
                         if ($meta['status'] === 'Dikembalikan') {
                             $statusClass = 'status-dikembalikan';
@@ -759,15 +827,33 @@ $opsiBuku = getOpsiBuku($dataPeminjaman);
                             </td>
                             <td>
                                 <?php if (empty($item['returned_at'])): ?>
-                                    <button
-                                        type="button"
-                                        class="btn-kembalikan js-open-return-modal"
-                                        data-id="<?= e($item['id'] ?? ''); ?>"
-                                        data-nama="<?= e($item['nama'] ?? ''); ?>"
-                                        data-buku="<?= e($item['buku'] ?? ''); ?>"
-                                    >
-                                        Kembalikan
-                                    </button>
+                                    <div class="peminjaman-action-group">
+                                        <?php if (canPerpanjangPeminjaman($item)): ?>
+                                            <button
+                                                type="button"
+                                                class="btn-perpanjang js-open-extend-modal"
+                                                data-id="<?= e($item['id'] ?? ''); ?>"
+                                                data-nama="<?= e($item['nama'] ?? ''); ?>"
+                                                data-buku="<?= e($item['buku'] ?? ''); ?>"
+                                                data-tanggal-lama="<?= e(formatTanggal($tanggalKembaliLama)); ?>"
+                                                data-tanggal-baru="<?= e(formatTanggal($tanggalKembaliBaru)); ?>"
+                                            >
+                                                Perpanjang
+                                            </button>
+                                        <?php else: ?>
+                                            <span class="extend-used-label">Sudah Diperpanjang</span>
+                                        <?php endif; ?>
+
+                                        <button
+                                            type="button"
+                                            class="btn-kembalikan js-open-return-modal"
+                                            data-id="<?= e($item['id'] ?? ''); ?>"
+                                            data-nama="<?= e($item['nama'] ?? ''); ?>"
+                                            data-buku="<?= e($item['buku'] ?? ''); ?>"
+                                        >
+                                            Kembalikan
+                                        </button>
+                                    </div>
                                 <?php else: ?>
                                     <span class="empty-action">-</span>
                                 <?php endif; ?>
@@ -809,6 +895,40 @@ $opsiBuku = getOpsiBuku($dataPeminjaman);
                         <div class="return-confirm-actions">
                             <button type="button" class="btn-return-batal" id="returnConfirmCancel">Batal</button>
                             <button type="submit" class="btn-return-submit">Kembalikan</button>
+                        </div>
+                    </form>
+                </div>
+            </div>
+
+            <div class="return-confirm-overlay" id="extendConfirmOverlay">
+                <div class="return-confirm-box">
+                    <div class="return-confirm-header">
+                        <h3>Konfirmasi Perpanjangan</h3>
+                        <button type="button" class="return-confirm-close" id="extendConfirmClose" aria-label="Tutup">
+                            &times;
+                        </button>
+                    </div>
+
+                    <form method="post" class="return-confirm-form">
+                        <div class="return-confirm-body">
+                            <p class="return-confirm-text">Yakin ingin memperpanjang peminjaman ini selama 7 hari?</p>
+                            <div class="return-confirm-detail">
+                                <div><strong>Nama:</strong> <span id="extendConfirmNama">-</span></div>
+                                <div><strong>Buku:</strong> <span id="extendConfirmBuku">-</span></div>
+                                <div><strong>Jatuh Tempo Lama:</strong> <span id="extendConfirmTanggalLama">-</span></div>
+                                <div><strong>Jatuh Tempo Baru:</strong> <span id="extendConfirmTanggalBaru">-</span></div>
+                            </div>
+
+                            <input type="hidden" name="action" value="perpanjang_peminjaman">
+                            <input type="hidden" name="id" id="extendConfirmId">
+                            <input type="hidden" name="q" value="<?= e($search); ?>">
+                            <input type="hidden" name="page" value="<?= (int) $currentPage; ?>">
+                            <input type="hidden" name="per_page" value="<?= (int) $perPage; ?>">
+                        </div>
+
+                        <div class="return-confirm-actions">
+                            <button type="button" class="btn-return-batal" id="extendConfirmCancel">Batal</button>
+                            <button type="submit" class="btn-return-submit">Perpanjang</button>
                         </div>
                     </form>
                 </div>
@@ -862,7 +982,7 @@ $opsiBuku = getOpsiBuku($dataPeminjaman);
 
 <?php include __DIR__ . '/../popuppeminjaman.php'; ?>
 
-<!-- Script popup tambah peminjaman dan konfirmasi pengembalian -->
+<!-- Script popup tambah peminjaman, konfirmasi perpanjangan, dan konfirmasi pengembalian -->
 <script>
 document.addEventListener('DOMContentLoaded', function () {
     const returnOverlay = document.getElementById('returnConfirmOverlay');
@@ -872,6 +992,15 @@ document.addEventListener('DOMContentLoaded', function () {
     const returnNamaText = document.getElementById('returnConfirmNama');
     const returnBukuText = document.getElementById('returnConfirmBuku');
     const returnButtons = document.querySelectorAll('.js-open-return-modal');
+    const extendOverlay = document.getElementById('extendConfirmOverlay');
+    const extendCloseBtn = document.getElementById('extendConfirmClose');
+    const extendCancelBtn = document.getElementById('extendConfirmCancel');
+    const extendIdInput = document.getElementById('extendConfirmId');
+    const extendNamaText = document.getElementById('extendConfirmNama');
+    const extendBukuText = document.getElementById('extendConfirmBuku');
+    const extendTanggalLamaText = document.getElementById('extendConfirmTanggalLama');
+    const extendTanggalBaruText = document.getElementById('extendConfirmTanggalBaru');
+    const extendButtons = document.querySelectorAll('.js-open-extend-modal');
 
     // Membuka popup konfirmasi pengembalian buku.
     function openReturnModal(id, nama, buku) {
@@ -896,9 +1025,46 @@ document.addEventListener('DOMContentLoaded', function () {
         document.body.classList.remove('modal-open');
     }
 
+    // Membuka popup konfirmasi perpanjangan buku.
+    function openExtendModal(id, nama, buku, tanggalLama, tanggalBaru) {
+        if (!extendOverlay) {
+            return;
+        }
+
+        extendIdInput.value = id || '';
+        extendNamaText.textContent = nama || '-';
+        extendBukuText.textContent = buku || '-';
+        extendTanggalLamaText.textContent = tanggalLama || '-';
+        extendTanggalBaruText.textContent = tanggalBaru || '-';
+        extendOverlay.classList.add('show');
+        document.body.classList.add('modal-open');
+    }
+
+    // Menutup popup konfirmasi perpanjangan buku.
+    function closeExtendModal() {
+        if (!extendOverlay) {
+            return;
+        }
+
+        extendOverlay.classList.remove('show');
+        document.body.classList.remove('modal-open');
+    }
+
     returnButtons.forEach(function (button) {
         button.addEventListener('click', function () {
             openReturnModal(this.dataset.id, this.dataset.nama, this.dataset.buku);
+        });
+    });
+
+    extendButtons.forEach(function (button) {
+        button.addEventListener('click', function () {
+            openExtendModal(
+                this.dataset.id,
+                this.dataset.nama,
+                this.dataset.buku,
+                this.dataset.tanggalLama,
+                this.dataset.tanggalBaru
+            );
         });
     });
 
@@ -910,6 +1076,14 @@ document.addEventListener('DOMContentLoaded', function () {
         returnCancelBtn.addEventListener('click', closeReturnModal);
     }
 
+    if (extendCloseBtn) {
+        extendCloseBtn.addEventListener('click', closeExtendModal);
+    }
+
+    if (extendCancelBtn) {
+        extendCancelBtn.addEventListener('click', closeExtendModal);
+    }
+
     if (returnOverlay) {
         returnOverlay.addEventListener('click', function (event) {
             if (event.target === returnOverlay) {
@@ -918,9 +1092,21 @@ document.addEventListener('DOMContentLoaded', function () {
         });
     }
 
+    if (extendOverlay) {
+        extendOverlay.addEventListener('click', function (event) {
+            if (event.target === extendOverlay) {
+                closeExtendModal();
+            }
+        });
+    }
+
     document.addEventListener('keydown', function (event) {
         if (event.key === 'Escape' && returnOverlay && returnOverlay.classList.contains('show')) {
             closeReturnModal();
+        }
+
+        if (event.key === 'Escape' && extendOverlay && extendOverlay.classList.contains('show')) {
+            closeExtendModal();
         }
     });
 
