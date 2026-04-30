@@ -17,7 +17,6 @@
         <a href="?menu=peminjaman" class="sidebar-subitem <?= ($currentMenu === 'peminjaman') ? 'active' : ''; ?>">
 
             <i class="bi bi-check-circle "></i> PEMINJAMAN
-            <i class="bi bi-check-circle"></i> PEMINJAMAN
         </a>
 
         <a href="?menu=tambahbuku" class="sidebar-subitem <?= ($currentMenu === 'tambahbuku') ? 'active' : ''; ?>">
