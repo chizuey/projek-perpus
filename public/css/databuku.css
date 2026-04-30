@@ -159,8 +159,9 @@ body {
 
 .databuku-table {
     width: 100%;
-    min-width: 920px;
+    min-width: 980px;
     border-collapse: collapse;
+    table-layout: fixed;
     background: #ffffff;
 }
 
@@ -184,24 +185,65 @@ body {
     color: #111827;
     font-size: 13px;
     vertical-align: middle;
+    overflow: hidden;
+    text-overflow: ellipsis;
 }
 
 .databuku-table tbody tr:last-child td {
     border-bottom: 0;
 }
 
-.databuku-table td:nth-child(2),
+.databuku-table th:nth-child(1),
+.databuku-table td:nth-child(1) {
+    width: 6%;
+}
+
+.databuku-table th:nth-child(2),
+.databuku-table td:nth-child(2) {
+    width: 19%;
+}
+
+.databuku-table th:nth-child(3),
 .databuku-table td:nth-child(3) {
-    max-width: 185px;
+    width: 17%;
+}
+
+.databuku-table th:nth-child(4),
+.databuku-table td:nth-child(4) {
+    width: 15%;
+}
+
+.databuku-table th:nth-child(5),
+.databuku-table td:nth-child(5) {
+    width: 8%;
+}
+
+.databuku-table th:nth-child(6),
+.databuku-table td:nth-child(6) {
+    width: 12%;
+}
+
+.databuku-table th:nth-child(7),
+.databuku-table td:nth-child(7) {
+    width: 8%;
+}
+
+.databuku-table th:nth-child(8),
+.databuku-table td:nth-child(8) {
+    width: 15%;
+}
+
+.databuku-table td:nth-child(2),
+.databuku-table td:nth-child(3),
+.databuku-table td:nth-child(4),
+.databuku-table td:nth-child(6) {
     white-space: normal;
     line-height: 1.15;
 }
 
 .databuku-actions {
-    display: flex;
-    align-items: center;
-    gap: 10px;
     white-space: nowrap;
+    overflow: visible !important;
 }
 
 .btn-table-action {
@@ -216,10 +258,15 @@ body {
     color: #111827;
     font-size: 12px;
     cursor: pointer;
+    margin-right: 8px;
 }
 
 .btn-table-action:hover {
     background: #f8fafc;
+}
+
+.btn-table-action:last-child {
+    margin-right: 0;
 }
 
 .btn-table-action i {

@@ -321,7 +321,9 @@
 
 table {
     width: 100%;
+    min-width: 980px;
     border-collapse: collapse;
+    table-layout: fixed;
 }
 
 thead th {
@@ -341,6 +343,8 @@ tbody td {
     font-size: 14px;
     color: #344054;
     white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis;
 }
 
 tbody tr:last-child td {
@@ -349,6 +353,52 @@ tbody tr:last-child td {
 
 .checkbox-column {
     width: 40px;
+}
+
+thead th:nth-child(1),
+tbody td:nth-child(1) {
+    width: 4%;
+}
+
+thead th:nth-child(2),
+tbody td:nth-child(2) {
+    width: 11%;
+}
+
+thead th:nth-child(3),
+tbody td:nth-child(3) {
+    width: 15%;
+}
+
+thead th:nth-child(4),
+tbody td:nth-child(4) {
+    width: 23%;
+}
+
+thead th:nth-child(5),
+tbody td:nth-child(5) {
+    width: 11%;
+}
+
+thead th:nth-child(6),
+tbody td:nth-child(6) {
+    width: 13%;
+}
+
+thead th:nth-child(7),
+tbody td:nth-child(7) {
+    width: 11%;
+}
+
+thead th:nth-child(8),
+tbody td:nth-child(8) {
+    width: 12%;
+}
+
+tbody td:nth-child(3),
+tbody td:nth-child(4) {
+    white-space: normal;
+    line-height: 1.15;
 }
 
 .empty-state {

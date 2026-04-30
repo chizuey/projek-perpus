@@ -139,74 +139,7 @@ function buildBukuUrl(int $page, string $search, string $kategori, int $perPage)
     return '?' . http_build_query($params);
 }
 
-$dataPeminjamanBuku = loadDataPeminjamanBuku($peminjamanFile);
-$dataBuku = loadDataBuku($dataFile);
-$dataBukuLengkap = ensureDataBukuHasBorrowedTitles($dataBuku, $dataPeminjamanBuku);
-
-if ($dataBukuLengkap !== $dataBuku) {
-    $dataBuku = $dataBukuLengkap;
-    saveDataBuku($dataFile, $dataBuku);
-}
-
-$search = trim($_GET['q'] ?? '');
-$kategoriFilter = $_GET['kategori'] ?? 'Semua';
-$perPage = normalizeBukuPerPage($_GET['per_page'] ?? 7);
-
-if (($_SERVER['REQUEST_METHOD'] ?? 'GET') === 'POST' && ($_POST['action'] ?? '') === 'edit_buku') {
-    $id = (int) ($_POST['id'] ?? 0);
-
-    foreach ($dataBuku as $index => $item) {
-        if ((int) ($item['id'] ?? 0) !== $id) {
-            continue;
-        }
-
-        $dataBuku[$index] = [
-            'id' => $id,
-            'judul' => trim($_POST['judul'] ?? ''),
-            'penulis' => trim($_POST['penulis'] ?? ''),
-            'penerbit' => trim($_POST['penerbit'] ?? ''),
-            'tahun' => (int) ($_POST['tahun'] ?? 0),
-            'kategori' => trim($_POST['kategori'] ?? ''),
-            'stok' => max(0, (int) ($_POST['stok'] ?? 0)),
-        ];
-        saveDataBuku($dataFile, $dataBuku);
-        break;
-    }
-
-    $redirectUrl = buildBukuUrl(
-        max(1, (int) ($_POST['page'] ?? 1)),
-        trim($_POST['q'] ?? ''),
-        $_POST['kategori_filter'] ?? 'Semua',
-        normalizeBukuPerPage($_POST['per_page'] ?? $perPage)
-    );
-    echo '<script>window.location.href = ' . json_encode($redirectUrl) . ';</script>';
-    exit;
-}
-
-$kategoriOptions = array_values(array_unique(array_map(fn($item) => $item['kategori'], $dataBuku)));
-sort($kategoriOptions);
-
-$filteredData = array_values(array_filter($dataBuku, function (array $item) use ($search, $kategoriFilter): bool {
-    if ($kategoriFilter !== 'Semua' && ($item['kategori'] ?? '') !== $kategoriFilter) {
-        return false;
-    }
-
-    if ($search === '') {
-        return true;
-    }
-
-    return stripos((string) ($item['judul'] ?? ''), $search) !== false
-        || stripos((string) ($item['penulis'] ?? ''), $search) !== false
-        || stripos((string) ($item['penerbit'] ?? ''), $search) !== false;
-}));
-
-$totalData = count($filteredData);
-$totalPages = max(1, (int) ceil($totalData / $perPage));
-$currentPage = min(max(1, (int) ($_GET['page'] ?? 1)), $totalPages);
-$offset = ($currentPage - 1) * $perPage;
-$pageData = array_slice($filteredData, $offset, $perPage);
-$startDisplay = $totalData > 0 ? $offset + 1 : 0;
-$endDisplay = $totalData > 0 ? min($offset + $perPage, $totalData) : 0;
+require __DIR__ . '/databuku_crud/read.php';
 ?>
 
 <section class="databuku-page">
@@ -371,7 +304,7 @@ $endDisplay = $totalData > 0 ? min($offset + $perPage, $totalData) : 0;
             <h2>Edit Data Buku</h2>
             <button type="button" class="book-modal-close js-close-book-modal" aria-label="Tutup">&times;</button>
         </div>
-        <form method="post" class="book-edit-form">
+        <form method="post" action="pages/databuku_crud/update.php" class="book-edit-form">
             <input type="hidden" name="action" value="edit_buku">
             <input type="hidden" name="id" id="editId">
             <input type="hidden" name="page" value="<?= (int) $currentPage; ?>">

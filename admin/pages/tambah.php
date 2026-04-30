@@ -1,7 +1,5 @@
 <?php
-$dataBukuFile = __DIR__ . '/data_buku.json';
-$errorsTambahBuku = [];
-$oldTambahBuku = [
+$defaultTambahBuku = [
     'judul' => '',
     'penulis' => '',
     'penerbit' => '',
@@ -12,106 +10,16 @@ $oldTambahBuku = [
     'sinopsis' => '',
     'stok' => 5,
 ];
+$errorsTambahBuku = $_SESSION['tambah_buku_errors'] ?? [];
+$oldTambahBuku = array_merge($defaultTambahBuku, $_SESSION['tambah_buku_old'] ?? []);
+$kategoriList = ['Investasi', 'Sains', 'Sejarah', 'Teknologi', 'Novel', 'Psikologi'];
+
+unset($_SESSION['tambah_buku_errors'], $_SESSION['tambah_buku_old']);
 
 function eTambahBuku($value): string
 {
     return htmlspecialchars((string) $value, ENT_QUOTES, 'UTF-8');
 }
-
-function loadTambahBukuData(string $file): array
-{
-    if (!file_exists($file)) {
-        return [];
-    }
-
-    $data = json_decode(file_get_contents($file), true);
-    return is_array($data) ? $data : [];
-}
-
-function saveTambahBukuData(string $file, array $data): void
-{
-    file_put_contents($file, json_encode(array_values($data), JSON_PRETTY_PRINT | JSON_UNESCAPED_UNICODE), LOCK_EX);
-}
-
-function nextTambahBukuId(array $data): int
-{
-    $maxId = 0;
-
-    foreach ($data as $item) {
-        $maxId = max($maxId, (int) ($item['id'] ?? 0));
-    }
-
-    return $maxId + 1;
-}
-
-if (($_SERVER['REQUEST_METHOD'] ?? 'GET') === 'POST') {
-    $oldTambahBuku = [
-        'judul' => trim($_POST['judul'] ?? ''),
-        'penulis' => trim($_POST['penulis'] ?? ''),
-        'penerbit' => trim($_POST['penerbit'] ?? ''),
-        'tahun' => trim($_POST['tahun'] ?? ''),
-        'tempat_terbit' => trim($_POST['tempat_terbit'] ?? ''),
-        'isbn' => trim($_POST['isbn'] ?? ''),
-        'kategori' => array_values(array_filter((array) ($_POST['kategori'] ?? []))),
-        'sinopsis' => trim($_POST['sinopsis'] ?? ''),
-        'stok' => max(0, (int) ($_POST['stok'] ?? 0)),
-    ];
-
-    if ($oldTambahBuku['judul'] === '') {
-        $errorsTambahBuku[] = 'Judul buku wajib diisi.';
-    }
-
-    if ($oldTambahBuku['penulis'] === '') {
-        $errorsTambahBuku[] = 'Penulis wajib diisi.';
-    }
-
-    if ($oldTambahBuku['penerbit'] === '') {
-        $errorsTambahBuku[] = 'Penerbit wajib diisi.';
-    }
-
-    if ($oldTambahBuku['tahun'] === '' || !ctype_digit($oldTambahBuku['tahun'])) {
-        $errorsTambahBuku[] = 'Tahun terbit wajib berupa angka.';
-    }
-
-    if (empty($oldTambahBuku['kategori'])) {
-        $errorsTambahBuku[] = 'Pilih minimal satu kategori.';
-    }
-
-    if ($oldTambahBuku['stok'] < 1) {
-        $errorsTambahBuku[] = 'Stok buku minimal 1.';
-    }
-
-    $dataBuku = loadTambahBukuData($dataBukuFile);
-
-    foreach ($dataBuku as $item) {
-        if (strcasecmp(trim((string) ($item['judul'] ?? '')), $oldTambahBuku['judul']) === 0) {
-            $errorsTambahBuku[] = 'Judul buku sudah ada di Data Buku.';
-            break;
-        }
-    }
-
-    if (empty($errorsTambahBuku)) {
-        $dataBuku[] = [
-            'id' => nextTambahBukuId($dataBuku),
-            'judul' => $oldTambahBuku['judul'],
-            'penulis' => $oldTambahBuku['penulis'],
-            'penerbit' => $oldTambahBuku['penerbit'],
-            'tahun' => (int) $oldTambahBuku['tahun'],
-            'kategori' => implode(', ', $oldTambahBuku['kategori']),
-            'stok' => $oldTambahBuku['stok'],
-            'tempat_terbit' => $oldTambahBuku['tempat_terbit'],
-            'isbn' => $oldTambahBuku['isbn'],
-            'sinopsis' => $oldTambahBuku['sinopsis'],
-            'cover' => '',
-        ];
-
-        saveTambahBukuData($dataBukuFile, $dataBuku);
-        echo '<script>window.location.href = "?menu=databuku";</script>';
-        exit;
-    }
-}
-
-$kategoriList = ['Investasi', 'Sains', 'Sejarah', 'Teknologi', 'Novel', 'Psikologi'];
 ?>
 
 <div class="breadcrumb-bar">
@@ -128,7 +36,7 @@ $kategoriList = ['Investasi', 'Sains', 'Sejarah', 'Teknologi', 'Novel', 'Psikolo
         </div>
     <?php endif; ?>
 
-    <form method="POST" enctype="multipart/form-data">
+    <form method="POST" action="pages/databuku_crud/create.php" enctype="multipart/form-data">
         <div class="panel-card mb-3">
             <div class="panel-title">Input Data Buku</div>
 
