@@ -4,8 +4,8 @@
 | BACA DATA DARI JSON
 |--------------------------------------------------------------------------
 */
-$peminjamanFile  = __DIR__ . '/datapeminjam/data_peminjaman.json';
-$laporanFile     = __DIR__ . '/laporantransaksi/data_laporan_transaksi.json';
+$peminjamanFile  = __DIR__ . '/../data_peminjaman.json';
+$laporanFile     = __DIR__ . '/../data_laporan_transaksi.json';
 
 $peminjaman = file_exists($peminjamanFile) ? json_decode(file_get_contents($peminjamanFile), true) : [];
 $laporan    = file_exists($laporanFile)    ? json_decode(file_get_contents($laporanFile),    true) : [];

@@ -1,5 +1,7 @@
+/* ================= IMPORT ================= */
 @import url('https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800&display=swap');
 
+/* ================= ROOT ================= */
 :root {
     --brand-primary: #0056b3;
     --brand-dark: #001a35;
@@ -16,41 +18,7 @@
     --transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
 }
 
-* {
-    margin: 0;
-    padding: 0;
-    box-sizing: border-box;
-    -webkit-font-smoothing: antialiased;
-}
-
-html, body {
-    height: 100%;
-    font-family: 'Inter', system-ui, sans-serif;
-    background-color: var(--surface-light);
-    color: var(--text-body);
-    line-height: 1.6;
-    scroll-behavior: smooth;
-}
-
-a {
-    text-decoration: none;
-    color: inherit;
-    transition: var(--transition);
-}
-
-ul { 
-    list-style: none; 
-}
-
-button:focus-visible {
-    outline: 2px solid var(--brand-accent);
-}
-
-.container {
-    max-width: 1200px;
-    margin: 0 auto;
-    padding: 0 24px;
-}
+/* ================= NAVBAR ================= */
 .header-navbar {
     width: 100%;
     background: #fff;
@@ -65,12 +33,11 @@ button:focus-visible {
 .header-navbar .container {
     width: 100%;
     max-width: 1440px;
-    height: 72px;
+    height: 62px;
     margin: 0 auto;
     padding: 0 40px;
-
     display: grid;
-    grid-template-columns: auto 1fr auto; /* kiri - tengah fleksibel - kanan */
+    grid-template-columns: auto 1fr auto;
     align-items: center;
 }
 
@@ -79,6 +46,7 @@ button:focus-visible {
     align-items: center;
     gap: 12px;
 }
+.logo-section { justify-self: start; }
 
 .logo-gambar {
     width: 32px;
@@ -98,8 +66,7 @@ button:focus-visible {
     display: flex;
     align-items: center;
     gap: 32px;
-
-    justify-content: center; /* tengah secara isi */
+    justify-content: center;
 }
 
 .nav-link {
@@ -113,14 +80,9 @@ button:focus-visible {
     padding: 24px 0;
     transition: 0.2s;
 }
+.nav-link:hover { color: #0050ad; }
 
-.nav-link:hover {
-    color: #0050ad;
-}
-
-.dropdown {
-    position: relative;
-}
+.dropdown { position: relative; }
 
 .dropdown-menu {
     position: absolute;
@@ -152,25 +114,20 @@ button:focus-visible {
     font-size: 14px;
     transition: 0.2s;
 }
-
 .dropdown-menu li a:hover {
     background: #eff6ff;
     color: #0050ad;
 }
 
-.chevron {
-    transition: 0.3s;
-}
-
-.dropdown:hover .chevron {
-    transform: rotate(180deg);
-}
+.chevron { transition: 0.3s; }
+.dropdown:hover .chevron { transform: rotate(180deg); }
 
 .profile-section {
     display: flex;
     justify-content: flex-end;
     min-width: 40px;
 }
+.profile-section { justify-self: end; }
 
 .profile-btn {
     width: 42px;
@@ -185,27 +142,20 @@ button:focus-visible {
     transition: 0.2s;
     box-shadow: 0 2px 4px rgba(0,0,0,.05);
 }
-
 .profile-btn:hover {
     border-color: #0050ad;
     background: #f0f4f8;
     color: #0050ad;
     transform: scale(1.05);
 }
-.logo-section {
-    justify-self: start;
-}
 
-.profile-section {
-    justify-self: end;
-}
-
+/* ================= FOOTER ================= */
 .footer {
-    background: #0b2a4a;
+    background: #0e345a;
     color: #cbd5e1;
-    margin-top: 80px;
+    margin-top: 40px;
     font-family: sans-serif;
-    padding: 64px 0 24px 0; 
+    padding: 40px 0 20px 0; 
 }
 
 .footer-container {
@@ -340,7 +290,42 @@ button:focus-visible {
     }
 }
 
-/* === 3. HERO & SEARCH SECTION === */
+/* ================= GLOBAL / RESET ================= */
+* {
+    margin: 0;
+    padding: 0;
+    box-sizing: border-box;
+    -webkit-font-smoothing: antialiased;
+}
+
+html, body {
+    height: 100%;
+    font-family: 'Inter', system-ui, sans-serif;
+    background-color: var(--surface-light);
+    color: var(--text-body);
+    line-height: 1.6;
+    scroll-behavior: smooth;
+}
+
+a {
+    text-decoration: none;
+    color: inherit;
+    transition: var(--transition);
+}
+
+ul { list-style: none; }
+
+button:focus-visible {
+    outline: 2px solid var(--brand-accent);
+}
+
+.container {
+    max-width: 1200px;
+    margin: 0 auto;
+    padding: 0 24px;
+}
+
+/* ================= HERO ================= */
 .hero {
     padding: 50px 0 50px 50px;
     background: linear-gradient(180deg, #E2F7FF 0%, var(--surface-light) 100%);
@@ -399,11 +384,9 @@ button:focus-visible {
     cursor: pointer;
     transition: var(--transition);
 }
-
 .btn-search:hover { background: var(--brand-dark); }
 
-/* === 4. FEATURE CARDS ====*/
-
+/* ================= FEATURES ================= */
 * {
     margin: 0;
     padding: 0;
@@ -478,6 +461,7 @@ body {
     line-height: 1.5;
 }
 
+/* ================= BOOK ================= */
 .book-section {
     max-width: 1440px; 
     margin: 60px auto 0; 
@@ -525,7 +509,7 @@ body {
     border-radius: 8px;
     overflow: hidden;
     transition: 0.3s ease;
-    border: 1px solid #f1f5f9; /* Border halus agar terlihat bersih */
+    border: 1px solid #f1f5f9;
 }
 
 .book-card:hover {
@@ -562,64 +546,6 @@ body {
 .book-info p {
     font-size: 12px;
     color: #64748b;
-}
-
-.footer {
-    background: #0b2a4a;
-    color: #cbd5e1;
-    margin-top: 80px;
-    font-family: sans-serif;
-    padding: 64px 0 24px 0; 
-}
-
-.footer-container {
-    width: 100%;
-    max-width: 1440px; 
-    margin: 0 auto;
-    display: grid;
-    grid-template-columns: 2fr 1fr 1fr; 
-    gap: 40px; 
-    padding: 0 120px; 
-    box-sizing: border-box;
-}
-
-.footer-section.identity {
-    display: flex;
-    flex-direction: column;
-}
-
-.footer-logo {
-    display: flex;
-    align-items: center;
-    gap: 12px;
-    margin-bottom: 20px;
-}
-
-.footer-logo img {
-    width: 40px;
-    height: auto;
-}
-
-.brand-text {
-    color: #fff;
-    font-size: 16px;
-    font-weight: 700;
-    letter-spacing: 0.5px;
-}
-
-.contact-info p, 
-.contact-item {
-    font-size: 14px;
-    line-height: 1.6;
-    margin-bottom: 8px;
-    display: flex;
-    align-items: center;
-    gap: 10px;
-}
-
-.contact-item img {
-    width: 18px;
-    opacity: 0.8;
 }
 /*profile*/
 * {

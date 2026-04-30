@@ -7,7 +7,7 @@
   </div>
 
   <!-- ===================== MAIN CONTENT ===================== -->
-  <main class="main-content">
+  <main class="tambah-content">
     <form method="POST" action="none">
 
         <!-- Panel Utama -->

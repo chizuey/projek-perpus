@@ -3,32 +3,32 @@ $menu = $_GET['menu'] ?? 'akun';
 
 $allowedMenus = [
     'akun' => [
-        'file' => 'akun.php',
-        'styles' => ['css/akun.css'],
+        'file' => 'pages/akun.php',
+        'styles' => ['../public/css/akun.css'],
     ],
     'peminjaman' => [
-        'file' => 'datapeminjam/datapeminjam.php',
+        'file' => 'pages/datapeminjam.php',
         'styles' => [
-            'datapeminjam/datapeminjam.css',
-            'datapeminjam/popuppeminjaman.css',
+            '../public/css/datapeminjam.css',
+            '../public/css/popuppeminjaman.css',
         ],
     ],
     'laporan' => [
-        'file' => 'laporantransaksi/laporantransaksi.php',
+        'file' => 'pages/laporantransaksi.php',
         'styles' => [
-            'laporantransaksi/laporantransaksi.css',
+            '../public/css/laporantransaksi.css',
         ],
     ],
     'tambahbuku' => [
-        'file' => 'tambah.php',
+        'file' => 'pages/tambah.php',
         'styles' => [
-            'css/tambah.css'
+            '../public/css/tambah.css'
         ]
     ],
     'dashboard' => [
-        'file' => 'dash.php',
+        'file' => 'pages/dash.php',
         'styles' => [
-            'css/dash.css'
+            '../public/css/dash.css'
         ]
     ]
 ];
@@ -48,7 +48,7 @@ $currentStyles = $allowedMenus[$menu]['styles'];
     <meta charset="utf-8" />
 
     <!-- <link rel="stylesheet" href="css/tambah.css"> -->
-    <link rel="stylesheet" href="css/sidetop.css">
+    <link rel="stylesheet" href="../public/css/sidetop.css">
 
     <?php foreach ($currentStyles as $style): ?>
         <link rel="stylesheet" href="<?= htmlspecialchars($style, ENT_QUOTES, 'UTF-8'); ?>">

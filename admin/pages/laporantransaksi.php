@@ -9,7 +9,7 @@ require_once __DIR__ . '/../../vendor/autoload.php';
 use Dompdf\Dompdf;
 use Dompdf\Options;
 
-session_start();
+if (session_status() === PHP_SESSION_NONE) session_start();
 $laporanFile = __DIR__ . '/data_laporan_transaksi.json';
 
 /*
