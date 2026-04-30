@@ -1,10 +1,12 @@
 <?php
+// Inisialisasi session admin bila belum aktif.
 if (session_status() === PHP_SESSION_NONE) {
     @session_start();
 }
 
 $menu = $_GET['menu'] ?? 'akun';
 
+// Daftar menu yang boleh dirender oleh router admin.
 $allowedMenus = [
     'akun' => [
         'file' => 'pages/akun.php',
@@ -43,6 +45,7 @@ $allowedMenus = [
     ]
 ];
 
+// Fallback menu jika query menu tidak dikenal.
 if (!isset($allowedMenus[$menu])) {
     $menu = 'akun';
 }
@@ -51,6 +54,7 @@ $currentMenu = $menu;
 $currentFile = $allowedMenus[$menu]['file'];
 $currentStyles = $allowedMenus[$menu]['styles'];
 
+// Membuat URL CSS lokal dengan versi filemtime agar cache browser ikut diperbarui.
 function localCssHref(string $href): string
 {
     $path = realpath(__DIR__ . DIRECTORY_SEPARATOR . str_replace(['/', '\\'], DIRECTORY_SEPARATOR, $href));
@@ -59,6 +63,7 @@ function localCssHref(string $href): string
     return $href . '?v=' . $version;
 }
 
+// Jalur khusus export laporan agar tidak ikut merender layout admin.
 if ($currentMenu === 'laporan' && ($_GET['action'] ?? '') === 'export') {
     include $currentFile;
     exit;
@@ -83,9 +88,11 @@ if ($currentMenu === 'laporan' && ($_GET['action'] ?? '') === 'export') {
 </head>
 <body>
 
+    <!-- Layout navigasi utama admin -->
     <?php include 'sidebar.php'; ?>
     <?php include 'topbar.php'; ?>
 
+    <!-- Konten halaman aktif sesuai menu -->
     <main class="main-content">
         <?php include $currentFile; ?>
     </main>

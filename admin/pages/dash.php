@@ -50,7 +50,7 @@ $logs_recent = array_slice($logs_sorted, 0, 10);
 
 /*
 |--------------------------------------------------------------------------
-| DATA GRAFIK — Peminjaman per bulan (6 bulan terakhir)
+| DATA GRAFIK â€” Peminjaman per bulan (6 bulan terakhir)
 |--------------------------------------------------------------------------
 */
 $bulan_labels = [];
@@ -145,7 +145,7 @@ $admin_jabatan = $_SESSION['jabatan'] ?? 'Admin Perpustakaan';
                                     'Terlambat'    => 'badge-terlambat',
                                     default        => 'badge-pinjam',
                                 };
-                                $idShort = substr($log['source_id'], 0, 14) . '…';
+                                $idShort = substr($log['source_id'], 0, 14) . 'â€¦';
                             ?>
                             <tr>
                                 <td class="id-col" title="<?= htmlspecialchars($log['source_id']) ?>">

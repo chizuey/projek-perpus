@@ -22,31 +22,37 @@ $oldInput = [
 | HELPER UMUM
 |--------------------------------------------------------------------------
 */
+// Escape output agar aman ditampilkan ke HTML.
 function e($value): string
 {
     return htmlspecialchars((string) $value, ENT_QUOTES, 'UTF-8');
 }
 
+// Membuat ID unik untuk transaksi peminjaman.
 function createId(): string
 {
     return uniqid('pjm_', true);
 }
 
+// Mengambil tanggal hari ini dalam format Y-m-d.
 function todayDate(): string
 {
     return date('Y-m-d');
 }
 
+// Menentukan tanggal kembali default tujuh hari setelah peminjaman.
 function defaultTanggalKembali(): string
 {
     return date('Y-m-d', strtotime('+7 days'));
 }
 
+// Mengambil nama menu aktif untuk URL peminjaman.
 function getCurrentMenuPeminjaman(): string
 {
     return $_GET['menu'] ?? 'peminjaman';
 }
 
+// Mengarahkan ulang halaman peminjaman dengan query tertentu.
 function redirectTo(array $params = []): void
 {
     $url = basename($_SERVER['PHP_SELF']);
@@ -60,6 +66,7 @@ function redirectTo(array $params = []): void
     exit;
 }
 
+// Memformat tanggal untuk tampilan tabel.
 function formatTanggal($date): string
 {
     if (empty($date)) {
@@ -76,6 +83,7 @@ function formatTanggal($date): string
 |--------------------------------------------------------------------------
 | Dipakai hanya saat file JSON belum ada atau rusak.
 */
+// Menyediakan data peminjaman awal ketika JSON belum tersedia.
 function seedPeminjaman(): array
 {
     $today = new DateTimeImmutable('today');
@@ -155,6 +163,7 @@ function seedPeminjaman(): array
 | SIMPAN DAN LOAD DATA JSON
 |--------------------------------------------------------------------------
 */
+// Memastikan folder penyimpanan JSON sudah ada.
 function ensureDirectoryExists(string $file): void
 {
     $dir = dirname($file);
@@ -164,6 +173,7 @@ function ensureDirectoryExists(string $file): void
     }
 }
 
+// Membaca file JSON dan memastikan hasilnya array.
 function readJsonArray(string $file, array $fallback = []): array
 {
     if (!file_exists($file)) {
@@ -176,6 +186,7 @@ function readJsonArray(string $file, array $fallback = []): array
     return is_array($data) ? $data : $fallback;
 }
 
+// Menulis array ke file JSON dengan format rapi.
 function writeJsonArray(string $file, array $data): void
 {
     ensureDirectoryExists($file);
@@ -187,6 +198,7 @@ function writeJsonArray(string $file, array $data): void
     );
 }
 
+// Membaca data peminjaman aktif dari JSON.
 function loadPeminjaman(string $file): array
 {
     if (!file_exists($file)) {
@@ -206,16 +218,19 @@ function loadPeminjaman(string $file): array
     return $data;
 }
 
+// Menyimpan data peminjaman ke JSON.
 function savePeminjaman(string $file, array $data): void
 {
     writeJsonArray($file, $data);
 }
 
+// Membaca data laporan transaksi dari JSON.
 function loadLaporanTransaksi(string $file): array
 {
     return readJsonArray($file);
 }
 
+// Menyimpan data laporan transaksi ke JSON.
 function saveLaporanTransaksi(string $file, array $data): void
 {
     writeJsonArray($file, $data);
@@ -226,6 +241,7 @@ function saveLaporanTransaksi(string $file, array $data): void
 | DAFTAR BUKU DAN STOK
 |--------------------------------------------------------------------------
 */
+// Mengambil daftar judul buku dan stok dari Data Buku.
 function getDaftarBuku(): array
 {
     $dataBukuFile = __DIR__ . '/data_buku.json';
@@ -245,22 +261,26 @@ function getDaftarBuku(): array
     return $daftarBuku;
 }
 
+// Memastikan buku yang dipilih ada di Data Buku.
 function isBukuValid(string $buku): bool
 {
     return array_key_exists($buku, getDaftarBuku());
 }
 
+// Mengambil stok total buku berdasarkan judul.
 function getStokBuku(string $buku): int
 {
     $daftarBuku = getDaftarBuku();
     return $daftarBuku[$buku] ?? 0;
 }
 
+// Mengecek apakah transaksi peminjaman masih aktif.
 function isPinjamanAktif(array $item): bool
 {
     return empty($item['returned_at']);
 }
 
+// Menghitung pinjaman aktif berdasarkan NIM.
 function countPinjamanAktifByNim(array $data, string $nim): int
 {
     $total = 0;
@@ -275,6 +295,7 @@ function countPinjamanAktifByNim(array $data, string $nim): int
     return $total;
 }
 
+// Menghitung pinjaman aktif berdasarkan judul buku.
 function countPinjamanAktifByBuku(array $data, string $buku): int
 {
     $total = 0;
@@ -289,6 +310,7 @@ function countPinjamanAktifByBuku(array $data, string $buku): int
     return $total;
 }
 
+// Menghitung sisa stok buku setelah dikurangi pinjaman aktif.
 function getSisaStokBuku(array $data, string $buku): int
 {
     if (!isBukuValid($buku)) {
@@ -298,6 +320,7 @@ function getSisaStokBuku(array $data, string $buku): int
     return max(0, getStokBuku($buku) - countPinjamanAktifByBuku($data, $buku));
 }
 
+// Membuat daftar opsi buku untuk popup peminjaman.
 function getOpsiBuku(array $dataPeminjaman): array
 {
     $opsi = [];
@@ -318,6 +341,7 @@ function getOpsiBuku(array $dataPeminjaman): array
 | LAPORAN TRANSAKSI
 |--------------------------------------------------------------------------
 */
+// Membuat ID berikutnya untuk data laporan.
 function nextLaporanId(array $data): int
 {
     $max = 0;
@@ -329,6 +353,7 @@ function nextLaporanId(array $data): int
     return $max + 1;
 }
 
+// Menentukan status laporan berdasarkan jatuh tempo dan tanggal kembali.
 function buildStatusLaporan(string $jatuhTempo, string $tglKembali = ''): string
 {
     if ($tglKembali !== '') {
@@ -338,6 +363,7 @@ function buildStatusLaporan(string $jatuhTempo, string $tglKembali = ''): string
     return strtotime(todayDate()) > strtotime($jatuhTempo) ? 'Terlambat' : 'Belum Kembali';
 }
 
+// Mencari indeks laporan berdasarkan ID sumber peminjaman.
 function cariIndexLaporanBySourceId(array $laporanData, string $sourceId): ?int
 {
     foreach ($laporanData as $index => $item) {
@@ -349,6 +375,7 @@ function cariIndexLaporanBySourceId(array $laporanData, string $sourceId): ?int
     return null;
 }
 
+// Membentuk data laporan dari data peminjaman.
 function buatItemLaporanDariPeminjaman(array $item, ?int $laporanId = null): array
 {
     $tglKembaliReal = !empty($item['returned_at']) ? $item['returned_at'] : '';
@@ -366,6 +393,7 @@ function buatItemLaporanDariPeminjaman(array $item, ?int $laporanId = null): arr
     ];
 }
 
+// Menyinkronkan data peminjaman ke laporan transaksi.
 function sinkronkanPeminjamanKeLaporan(array $dataPeminjaman, array $laporanData): array
 {
     $changed = false;
@@ -401,6 +429,7 @@ function sinkronkanPeminjamanKeLaporan(array $dataPeminjaman, array $laporanData
 | STATUS, KETERLAMBATAN, DAN DENDA
 |--------------------------------------------------------------------------
 */
+// Menghitung status, keterlambatan, dan denda peminjaman.
 function hitungMetaPeminjaman(array $item): array
 {
     try {
@@ -442,17 +471,20 @@ function hitungMetaPeminjaman(array $item): array
 | PAGINATION
 |--------------------------------------------------------------------------
 */
+// Menyediakan opsi jumlah data peminjaman per halaman.
 function getPeminjamanPerPageOptions(): array
 {
     return [5, 7, 10, 15, 20];
 }
 
+// Memvalidasi jumlah data peminjaman per halaman.
 function normalizePeminjamanPerPage($value, int $default = 7): int
 {
     $value = (int) $value;
     return in_array($value, getPeminjamanPerPageOptions(), true) ? $value : $default;
 }
 
+// Membuat URL pagination peminjaman.
 function buildPageUrl(int $page, string $search, int $perPage): string
 {
     $params = [
@@ -468,6 +500,7 @@ function buildPageUrl(int $page, string $search, int $perPage): string
     return '?' . http_build_query($params);
 }
 
+// Membuat daftar item pagination dengan titik pemisah.
 function getPaginationItems(int $currentPage, int $totalPages): array
 {
     $items = [];
@@ -519,6 +552,7 @@ $requestMethod = $_SERVER['REQUEST_METHOD'] ?? 'GET';
 if ($requestMethod === 'POST') {
     $action = $_POST['action'] ?? '';
 
+    // Proses tambah peminjaman dari popup.
     if ($action === 'add_peminjaman') {
         $nim = trim($_POST['nim'] ?? '');
         $nama = trim($_POST['nama'] ?? '');
@@ -577,6 +611,7 @@ if ($requestMethod === 'POST') {
         $openPopup = true;
     }
 
+    // Proses pengembalian buku dan sinkronisasi ke laporan.
     if ($action === 'kembalikan_peminjaman') {
         $id = $_POST['id'] ?? '';
         $searchFromPost = trim($_POST['q'] ?? '');
@@ -652,6 +687,7 @@ $endDisplay = $totalData > 0 ? min($offset + $perPage, $totalData) : 0;
 $paginationItems = getPaginationItems($currentPage, $totalPages);
 $opsiBuku = getOpsiBuku($dataPeminjaman);
 ?>
+<!-- Tampilan utama menu Peminjaman -->
 <div class="datapeminjam-wrapper">
         <div class="datapeminjam-header">
             <div class="title-group">
@@ -826,6 +862,7 @@ $opsiBuku = getOpsiBuku($dataPeminjaman);
 
 <?php include __DIR__ . '/../popuppeminjaman.php'; ?>
 
+<!-- Script popup tambah peminjaman dan konfirmasi pengembalian -->
 <script>
 document.addEventListener('DOMContentLoaded', function () {
     const returnOverlay = document.getElementById('returnConfirmOverlay');
@@ -836,6 +873,7 @@ document.addEventListener('DOMContentLoaded', function () {
     const returnBukuText = document.getElementById('returnConfirmBuku');
     const returnButtons = document.querySelectorAll('.js-open-return-modal');
 
+    // Membuka popup konfirmasi pengembalian buku.
     function openReturnModal(id, nama, buku) {
         if (!returnOverlay) {
             return;
@@ -848,6 +886,7 @@ document.addEventListener('DOMContentLoaded', function () {
         document.body.classList.add('modal-open');
     }
 
+    // Menutup popup konfirmasi pengembalian buku.
     function closeReturnModal() {
         if (!returnOverlay) {
             return;
@@ -890,6 +929,7 @@ document.addEventListener('DOMContentLoaded', function () {
     const closePopupPeminjaman = document.getElementById('closePopupPeminjaman');
     const batalPopupPeminjaman = document.getElementById('batalPopupPeminjaman');
 
+    // Membuka popup tambah peminjaman baru.
     function bukaPopupPeminjaman() {
         if (popupPeminjaman) {
             popupPeminjaman.classList.add('active');
@@ -897,6 +937,7 @@ document.addEventListener('DOMContentLoaded', function () {
         }
     }
 
+    // Menutup popup tambah peminjaman baru.
     function tutupPopupPeminjaman() {
         if (popupPeminjaman) {
             popupPeminjaman.classList.remove('active');

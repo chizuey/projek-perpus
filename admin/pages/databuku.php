@@ -1,12 +1,24 @@
 <?php
+/*
+|--------------------------------------------------------------------------
+| KONFIGURASI DATA BUKU
+|--------------------------------------------------------------------------
+*/
 $dataFile = __DIR__ . '/data_buku.json';
 $peminjamanFile = __DIR__ . '/data_peminjaman.json';
 
+/*
+|--------------------------------------------------------------------------
+| HELPER FUNCTION DATA BUKU
+|--------------------------------------------------------------------------
+*/
+// Escape output Data Buku agar aman ditampilkan ke HTML.
 function eBuku($value): string
 {
     return htmlspecialchars((string) $value, ENT_QUOTES, 'UTF-8');
 }
 
+// Menyediakan data buku awal ketika file JSON belum tersedia.
 function seedDataBuku(): array
 {
     return [
@@ -29,6 +41,7 @@ function seedDataBuku(): array
     ];
 }
 
+// Membaca data buku dari file JSON.
 function loadDataBuku(string $file): array
 {
     if (!file_exists($file)) {
@@ -41,6 +54,7 @@ function loadDataBuku(string $file): array
     return is_array($data) ? $data : seedDataBuku();
 }
 
+// Membaca data peminjaman untuk kebutuhan sinkron stok buku.
 function loadDataPeminjamanBuku(string $file): array
 {
     if (!file_exists($file)) {
@@ -51,11 +65,13 @@ function loadDataPeminjamanBuku(string $file): array
     return is_array($data) ? $data : [];
 }
 
+// Menyimpan data buku ke file JSON.
 function saveDataBuku(string $file, array $data): void
 {
     file_put_contents($file, json_encode(array_values($data), JSON_PRETTY_PRINT | JSON_UNESCAPED_UNICODE), LOCK_EX);
 }
 
+// Menghitung jumlah buku yang sedang dipinjam berdasarkan judul.
 function countDipinjamByJudul(array $dataPeminjaman, string $judul): int
 {
     $total = 0;
@@ -73,6 +89,7 @@ function countDipinjamByJudul(array $dataPeminjaman, string $judul): int
     return $total;
 }
 
+// Menambahkan judul pinjaman lama ke Data Buku jika belum terdaftar.
 function ensureDataBukuHasBorrowedTitles(array $dataBuku, array $dataPeminjaman): array
 {
     $existing = [];
@@ -113,17 +130,20 @@ function ensureDataBukuHasBorrowedTitles(array $dataBuku, array $dataPeminjaman)
     return $dataBuku;
 }
 
+// Menyediakan opsi jumlah data Data Buku per halaman.
 function getBukuPerPageOptions(): array
 {
     return [5, 7, 10, 15, 20];
 }
 
+// Memvalidasi jumlah data Data Buku per halaman.
 function normalizeBukuPerPage($value, int $default = 7): int
 {
     $value = (int) $value;
     return in_array($value, getBukuPerPageOptions(), true) ? $value : $default;
 }
 
+// Membuat URL pagination dan filter Data Buku.
 function buildBukuUrl(int $page, string $search, string $kategori, int $perPage): string
 {
     $params = ['menu' => 'databuku', 'page' => $page, 'per_page' => $perPage];
@@ -139,14 +159,21 @@ function buildBukuUrl(int $page, string $search, string $kategori, int $perPage)
     return '?' . http_build_query($params);
 }
 
+/*
+|--------------------------------------------------------------------------
+| READ DATA, FILTER, DAN PAGINATION
+|--------------------------------------------------------------------------
+*/
 require __DIR__ . '/databuku_crud/read.php';
 ?>
 
+<!-- Tampilan utama tabel Data Buku -->
 <section class="databuku-page">
     <div class="databuku-header">
         <h1>Data Buku</h1>
     </div>
 
+    <!-- Toolbar tambah, pencarian, dan filter buku -->
     <div class="databuku-toolbar">
         <a href="?menu=tambahbuku" class="btn-add-book">
             <i class="bi bi-plus"></i>
@@ -179,6 +206,7 @@ require __DIR__ . '/databuku_crud/read.php';
         </form>
     </div>
 
+    <!-- Tabel daftar buku dan tombol aksi -->
     <div class="databuku-table-wrap">
         <table class="databuku-table">
             <thead>
@@ -279,6 +307,7 @@ require __DIR__ . '/databuku_crud/read.php';
     </div>
 </section>
 
+<!-- Modal detail buku -->
 <div class="book-modal" id="detailBookModal" aria-hidden="true">
     <div class="book-modal-box detail-modal-box">
         <div class="book-modal-header">
@@ -298,6 +327,7 @@ require __DIR__ . '/databuku_crud/read.php';
     </div>
 </div>
 
+<!-- Modal edit buku -->
 <div class="book-modal" id="editBookModal" aria-hidden="true">
     <div class="book-modal-box">
         <div class="book-modal-header">
@@ -347,6 +377,7 @@ require __DIR__ . '/databuku_crud/read.php';
     </div>
 </div>
 
+<!-- Script modal detail/edit dan filter Data Buku -->
 <script>
 document.addEventListener('DOMContentLoaded', function () {
     const filterForm = document.getElementById('filterBukuForm');
@@ -360,6 +391,7 @@ document.addEventListener('DOMContentLoaded', function () {
         });
     }
 
+    // Membuka modal detail atau edit buku.
     function openModal(modal) {
         if (!modal) return;
         modal.classList.add('show');
@@ -367,6 +399,7 @@ document.addEventListener('DOMContentLoaded', function () {
         document.body.classList.add('modal-open');
     }
 
+    // Menutup semua modal buku yang sedang aktif.
     function closeModals() {
         document.querySelectorAll('.book-modal.show').forEach(function (modal) {
             modal.classList.remove('show');
@@ -375,6 +408,7 @@ document.addEventListener('DOMContentLoaded', function () {
         document.body.classList.remove('modal-open');
     }
 
+    // Mengambil payload JSON buku dari tombol aksi.
     function parseBook(button) {
         try {
             return JSON.parse(button.dataset.book || '{}');

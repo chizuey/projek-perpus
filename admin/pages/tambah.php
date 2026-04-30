@@ -1,4 +1,9 @@
 <?php
+/*
+|--------------------------------------------------------------------------
+| STATE FORM TAMBAH BUKU
+|--------------------------------------------------------------------------
+*/
 $defaultTambahBuku = [
     'judul' => '',
     'penulis' => '',
@@ -16,12 +21,14 @@ $kategoriList = ['Investasi', 'Sains', 'Sejarah', 'Teknologi', 'Novel', 'Psikolo
 
 unset($_SESSION['tambah_buku_errors'], $_SESSION['tambah_buku_old']);
 
+// Escape output form tambah buku agar aman ditampilkan ke HTML.
 function eTambahBuku($value): string
 {
     return htmlspecialchars((string) $value, ENT_QUOTES, 'UTF-8');
 }
 ?>
 
+<!-- Navigasi kembali dari form Tambah Buku ke Data Buku -->
 <div class="breadcrumb-bar">
     <a href="?menu=databuku" class="breadcrumb-back-btn">
         <i class="bi bi-chevron-left"></i>
@@ -29,6 +36,7 @@ function eTambahBuku($value): string
     <span class="breadcrumb-title">Tambah Buku</span>
 </div>
 
+<!-- Tampilan form tambah buku baru -->
 <main class="tambah-content">
     <?php if (!empty($errorsTambahBuku)): ?>
         <div class="form-alert">
@@ -36,6 +44,7 @@ function eTambahBuku($value): string
         </div>
     <?php endif; ?>
 
+    <!-- Form create buku, proses submit ditangani create.php -->
     <form method="POST" action="pages/databuku_crud/create.php" enctype="multipart/form-data">
         <div class="panel-card mb-3">
             <div class="panel-title">Input Data Buku</div>
@@ -95,11 +104,13 @@ function eTambahBuku($value): string
     </form>
 </main>
 
+<!-- Script preview jumlah copy/stok buku -->
 <script>
 document.addEventListener('DOMContentLoaded', function () {
     const stokInput = document.getElementById('stok');
     const copyPreview = document.getElementById('copyPreview');
 
+    // Menampilkan preview badge copy berdasarkan input stok.
     function renderCopyPreview() {
         if (!stokInput || !copyPreview) {
             return;

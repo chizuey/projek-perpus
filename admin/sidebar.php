@@ -1,5 +1,6 @@
-<!-- ===================== SIDEBAR FIXED ===================== -->
+<!-- ===================== SIDEBAR NAVIGASI ADMIN ===================== -->
 <aside class="sidebar">
+    <!-- Brand/logo sidebar admin -->
     <div class="sidebar-brand">
         <div class="sidebar-brand-icon">
             <img src="../logo_polije.png" alt="Logo Polije">
@@ -7,6 +8,7 @@
         <span class="sidebar-brand-text">ADMIN</span>
     </div>
 
+    <!-- Link menu utama admin -->
     <nav class="sidebar-nav">
         <a href="?menu=dashboard" class="sidebar-item <?= ($currentMenu === 'dashboard') ? 'active' : ''; ?>">
             <span>Dashboard</span>

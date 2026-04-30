@@ -1,14 +1,22 @@
 <?php
 
+/*
+|--------------------------------------------------------------------------
+| PROSES CREATE DATA BUKU
+|--------------------------------------------------------------------------
+| File ini menerima POST dari tambah.php dan menyimpan buku baru.
+*/
 if (session_status() === PHP_SESSION_NONE) {
     session_start();
 }
 
+// Menentukan lokasi file JSON Data Buku untuk proses tambah.
 function createBukuDataFile(): string
 {
     return __DIR__ . '/../data_buku.json';
 }
 
+// Membaca data buku untuk proses tambah.
 function loadCreateBukuData(string $file): array
 {
     if (!file_exists($file)) {
@@ -19,11 +27,13 @@ function loadCreateBukuData(string $file): array
     return is_array($data) ? $data : [];
 }
 
+// Menyimpan data buku setelah proses tambah.
 function saveCreateBukuData(string $file, array $data): void
 {
     file_put_contents($file, json_encode(array_values($data), JSON_PRETTY_PRINT | JSON_UNESCAPED_UNICODE), LOCK_EX);
 }
 
+// Membuat ID berikutnya untuk buku baru.
 function nextCreateBukuId(array $data): int
 {
     $maxId = 0;
@@ -35,16 +45,19 @@ function nextCreateBukuId(array $data): int
     return $maxId + 1;
 }
 
+// Mengarahkan kembali setelah proses tambah buku.
 function redirectCreateBuku(string $query): void
 {
     header('Location: ../../index.php' . $query);
     exit;
 }
 
+// Tolak akses langsung tanpa submit form.
 if (($_SERVER['REQUEST_METHOD'] ?? 'GET') !== 'POST') {
     redirectCreateBuku('?menu=tambahbuku');
 }
 
+// Ambil input form untuk divalidasi dan disimpan.
 $oldTambahBuku = [
     'judul' => trim($_POST['judul'] ?? ''),
     'penulis' => trim($_POST['penulis'] ?? ''),
@@ -57,6 +70,7 @@ $oldTambahBuku = [
     'stok' => max(0, (int) ($_POST['stok'] ?? 0)),
 ];
 
+// Validasi field wajib dan aturan stok.
 $errorsTambahBuku = [];
 
 if ($oldTambahBuku['judul'] === '') {
@@ -83,6 +97,7 @@ if ($oldTambahBuku['stok'] < 1) {
     $errorsTambahBuku[] = 'Stok buku minimal 1.';
 }
 
+// Baca data lama untuk cek duplikasi judul.
 $dataBukuFile = createBukuDataFile();
 $dataBuku = loadCreateBukuData($dataBukuFile);
 
@@ -99,6 +114,7 @@ if (!empty($errorsTambahBuku)) {
     redirectCreateBuku('?menu=tambahbuku');
 }
 
+// Tambahkan buku baru setelah validasi berhasil.
 $dataBuku[] = [
     'id' => nextCreateBukuId($dataBuku),
     'judul' => $oldTambahBuku['judul'],
