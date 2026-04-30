@@ -1,4 +1,8 @@
 <?php
+if (session_status() === PHP_SESSION_NONE) {
+    @session_start();
+}
+
 $menu = $_GET['menu'] ?? 'akun';
 
 $allowedMenus = [
@@ -11,6 +15,12 @@ $allowedMenus = [
         'styles' => [
             '../public/css/datapeminjam.css',
             '../public/css/popuppeminjaman.css',
+        ],
+    ],
+    'databuku' => [
+        'file' => 'pages/databuku.php',
+        'styles' => [
+            '../public/css/databuku.css',
         ],
     ],
     'laporan' => [
@@ -40,6 +50,19 @@ if (!isset($allowedMenus[$menu])) {
 $currentMenu = $menu;
 $currentFile = $allowedMenus[$menu]['file'];
 $currentStyles = $allowedMenus[$menu]['styles'];
+
+function localCssHref(string $href): string
+{
+    $path = realpath(__DIR__ . DIRECTORY_SEPARATOR . str_replace(['/', '\\'], DIRECTORY_SEPARATOR, $href));
+    $version = $path && file_exists($path) ? filemtime($path) : time();
+
+    return $href . '?v=' . $version;
+}
+
+if ($currentMenu === 'laporan' && ($_GET['action'] ?? '') === 'export') {
+    include $currentFile;
+    exit;
+}
 ?>
 <!DOCTYPE html>
 <html>
@@ -48,19 +71,14 @@ $currentStyles = $allowedMenus[$menu]['styles'];
     <meta charset="utf-8" />
 
     <!-- <link rel="stylesheet" href="css/tambah.css"> -->
-    <link rel="stylesheet" href="../public/css/sidetop.css">
+    <link rel="stylesheet" href="<?= htmlspecialchars(localCssHref('../public/css/sidetop.css'), ENT_QUOTES, 'UTF-8'); ?>">
 
     <?php foreach ($currentStyles as $style): ?>
-        <link rel="stylesheet" href="<?= htmlspecialchars($style, ENT_QUOTES, 'UTF-8'); ?>">
+        <link rel="stylesheet" href="<?= htmlspecialchars(localCssHref($style), ENT_QUOTES, 'UTF-8'); ?>">
     <?php endforeach; ?>
 
     <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css">
     <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.3/font/bootstrap-icons.min.css">
-    
-    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
-
-<!-- ICON -->
-    <link href="https://cdn.jsdelivr.net/npm/bootstrap-icons/font/bootstrap-icons.css" rel="stylesheet">
 
 </head>
 <body>

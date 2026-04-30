@@ -16,22 +16,24 @@ body {
    LAYOUT
    ============================================= */
 :root {
-    --sidebar-width: 60px;
-    --topbar-height: 14px;
+    --sidebar-width: 160px;
+    --topbar-height: 60px;
 }
 
-.main-content {
+body > main.main-content {
     margin-left: var(--sidebar-width);
     margin-top: var(--topbar-height);
-    padding: 28px 32px;
+    padding: 20px;
     min-height: calc(100vh - var(--topbar-height));
 }
 
 .dash-container {
-    max-width: 1300px;
+    width: 100%;
+    max-width: none;
     display: flex;
     flex-direction: column;
-    gap: 24px;
+    gap: 20px;
+    padding: 18px 24px 28px;
 }
 
 /* =============================================

@@ -2,8 +2,8 @@
     box-sizing: border-box;
 }
 :root {
-    --sidebar-width: 140px;
-    --topbar-height: 30px;
+    --sidebar-width: 160px;
+    --topbar-height: 60px;
 }
 
 .main-content {
@@ -480,4 +480,103 @@ input[type="checkbox"] {
     .table-actions {
         flex-wrap: wrap;
     }
+}
+
+/* Shared sizing for admin table pages */
+body {
+    margin: 0;
+    background: #f3f4f6;
+    font-family: Arial, sans-serif;
+    color: #1f2937;
+}
+
+.page-header {
+    min-height: 38px;
+    margin-bottom: 20px;
+}
+
+.toolbar {
+    align-items: center;
+    gap: 12px;
+    min-height: 38px;
+    margin-bottom: 18px;
+}
+
+.field-group,
+.search-box,
+.export-button {
+    min-height: 38px;
+    height: 38px;
+    border-radius: 6px;
+}
+
+.field-label,
+.status-filter select,
+.date-range input,
+.search-box input,
+.export-button {
+    font-size: 13px;
+}
+
+.status-filter {
+    min-width: 156px;
+}
+
+.date-range {
+    min-width: 310px;
+}
+
+.search-box {
+    min-width: 310px;
+}
+
+.export-button {
+    min-width: 148px;
+    padding: 0 16px;
+    font-weight: 500;
+}
+
+.table-card {
+    border-color: #e5e7eb;
+    border-radius: 8px 8px 0 0;
+}
+
+thead th {
+    padding: 14px 16px;
+    background: #f1f4f8;
+    color: #003b8e;
+    font-size: 12px;
+}
+
+tbody td {
+    padding: 14px 16px;
+    color: #111827;
+    font-size: 13px;
+}
+
+.action-muted,
+.action-link {
+    font-size: 13px;
+}
+
+.status-badge {
+    min-width: 88px;
+    height: 26px;
+    border-radius: 4px;
+    font-size: 12px;
+}
+
+.pagination-wrap {
+    min-height: 48px;
+    padding: 9px 0 0;
+}
+
+.page-arrow,
+.page-number {
+    min-width: 30px;
+    height: 30px;
+    border: 0;
+    background: #f3f6f9;
+    font-size: 12px;
+    font-weight: 700;
 }

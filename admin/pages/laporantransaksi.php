@@ -9,7 +9,9 @@ require_once __DIR__ . '/../../vendor/autoload.php';
 use Dompdf\Dompdf;
 use Dompdf\Options;
 
-if (session_status() === PHP_SESSION_NONE) session_start();
+if (($_GET['action'] ?? '') !== 'export' && session_status() === PHP_SESSION_NONE) {
+    @session_start();
+}
 $laporanFile = __DIR__ . '/data_laporan_transaksi.json';
 
 /*
@@ -98,6 +100,15 @@ function formatTanggal($tanggal)
     return date('d M Y', strtotime($tanggal));
 }
 
+function formatTanggalPdf($tanggal)
+{
+    if (empty($tanggal)) {
+        return '-';
+    }
+
+    return date('d-m-Y', strtotime($tanggal));
+}
+
 function getCurrentMenuLaporan()
 {
     return $_GET['menu'] ?? 'laporan';
@@ -127,9 +138,10 @@ function buatQuery(array $tambahan = [], array $hapus = [])
 
 function buildExportUrl(array $tambahan = [], array $hapus = [])
 {
-    $query = $_GET;
-
-    unset($query['menu']);
+    $query = array_merge(
+        ['menu' => getCurrentMenuLaporan()],
+        $_GET
+    );
 
     foreach ($hapus as $key) {
         unset($query[$key]);
@@ -143,7 +155,7 @@ function buildExportUrl(array $tambahan = [], array $hapus = [])
         }
     }
 
-    return 'laporantransaksi/laporantransaksi.php?' . http_build_query($query);
+    return '?' . http_build_query($query);
 }
 
 function getStatusClass($status)
@@ -170,36 +182,51 @@ function getStatusClass($status)
 */
 function getPdfStyles()
 {
-    $pdfCssPath = __DIR__ . '/laporantransaksipdf.css';
+    $pdfCssPath = __DIR__ . '/../../public/css/laporantransaksipdf.css';
 
     if (file_exists($pdfCssPath)) {
         return file_get_contents($pdfCssPath);
     }
 
-    return 'body{font-family:DejaVu Sans,sans-serif;font-size:12px;color:#344054;margin:24px;} .report-title{font-size:22px;font-weight:700;margin:0 0 14px;color:#1d2939;} .filter-list{margin:0 0 16px;padding:0;list-style:none;} .filter-list li{display:inline-block;margin:0 8px 8px 0;padding:7px 12px;border:1px solid #e4e7ec;border-radius:999px;background:#f8fafc;font-size:11px;color:#475467;} .report-table{width:100%;border-collapse:collapse;} .report-table th{padding:12px 14px;background:#fafbfc;border:1px solid #edf0f4;font-size:11px;font-weight:700;color:#98a2b3;text-align:left;} .report-table td{padding:12px 14px;border:1px solid #edf0f4;font-size:12px;color:#344054;vertical-align:middle;} .badge{display:inline-block;padding:6px 12px;border-radius:4px;font-size:10px;font-weight:700;color:#ffffff;} .badge-green{background:#22c55e;} .badge-red{background:#ef4444;} .badge-blue{background:#0f56b8;} .badge-default{background:#667085;} .empty-state{text-align:center;padding:28px 12px;color:#667085;}';
+    return 'body{font-family:DejaVu Sans,Arial,sans-serif;font-size:10px;color:#000;margin:0}.letterhead{position:relative;min-height:82px;border-bottom:2px solid #111;margin-bottom:8px}.letterhead-logo{position:absolute;left:68px;top:0;width:72px}.letterhead-text{text-align:center;font-weight:700;line-height:1.15;font-size:14px}.letterhead-address{font-weight:400;font-size:10px}.report-heading{text-align:center;margin:8px 0 10px;font-size:11px}.report-table{width:100%;border-collapse:collapse}.report-table th,.report-table td{border:1px solid #202840;padding:4px 5px;font-size:9px;line-height:1.2}.report-table th{text-align:center;font-weight:700}.empty-state{text-align:center;padding:18px}';
 }
 
-function buildFilterText($statusFilter, $startDate, $endDate, $keyword)
+function getLogoPolijeDataUri(): string
 {
-    $items = [];
-    $items[] = 'Status: ' . ($statusFilter !== '' ? $statusFilter : 'Semua');
+    $logoPath = __DIR__ . '/../../logo_polije.png';
 
-    if ($startDate !== '' || $endDate !== '') {
-        $tanggal = 'Tanggal: ' . ($startDate !== '' ? formatTanggal($startDate) : '-') . ' - ' . ($endDate !== '' ? formatTanggal($endDate) : '-');
-        $items[] = $tanggal;
+    if (!file_exists($logoPath)) {
+        return '';
     }
 
-    if ($keyword !== '') {
-        $items[] = 'Pencarian: ' . $keyword;
+    $data = base64_encode(file_get_contents($logoPath));
+    return 'data:image/png;base64,' . $data;
+}
+
+function hitungDendaLaporan(array $row): string
+{
+    $jatuhTempo = $row['tgl_jatuh_tempo'] ?? '';
+
+    if ($jatuhTempo === '') {
+        return 'Rp 0';
     }
 
-    return $items;
+    $tanggalKembali = !empty($row['tgl_kembali']) ? $row['tgl_kembali'] : date('Y-m-d');
+    $jatuhTempoTime = strtotime($jatuhTempo);
+    $tanggalKembaliTime = strtotime($tanggalKembali);
+
+    if (!$jatuhTempoTime || !$tanggalKembaliTime || $tanggalKembaliTime <= $jatuhTempoTime) {
+        return 'Rp 0';
+    }
+
+    $hariTerlambat = (int) floor(($tanggalKembaliTime - $jatuhTempoTime) / 86400);
+    return 'Rp ' . number_format($hariTerlambat * 500, 0, ',', '.');
 }
 
 function buildExportHtml($laporan, $statusFilter, $startDate, $endDate, $keyword, $autoPrint = false, $showPrintNote = false)
 {
-    $filters = buildFilterText($statusFilter, $startDate, $endDate, $keyword);
     $styles = getPdfStyles();
+    $logoDataUri = getLogoPolijeDataUri();
 
     ob_start();
     ?>
@@ -212,53 +239,49 @@ function buildExportHtml($laporan, $statusFilter, $startDate, $endDate, $keyword
     </style>
 </head>
 <body>
-    <div class="main-content"></div>
     <div class="report-wrapper">
-        <h1 class="report-title">Laporan Transaksi</h1>
+        <div class="letterhead">
+            <?php if ($logoDataUri !== ''): ?>
+                <img src="<?= $logoDataUri ?>" class="letterhead-logo" alt="Logo Polije">
+            <?php endif; ?>
+            <div class="letterhead-text">
+                <div>PERPUSTAKAAN</div>
+                <div>POLITEKNIK NEGERI JEMBER</div>
+                <div class="letterhead-address">Jl. Mastrip PO BOX 164, Jember - Jawa Timur- Indonesia</div>
+            </div>
+        </div>
 
-        <ul class="filter-list">
-            <?php foreach ($filters as $filter): ?>
-                <li><?= escape($filter) ?></li>
-            <?php endforeach; ?>
-        </ul>
+        <div class="report-heading">Laporan Peminjaman Buku</div>
 
         <table class="report-table">
             <thead>
                 <tr>
-                    <th>Tanggal</th>
+                    <th>No</th>
                     <th>Peminjam</th>
                     <th>Judul Buku</th>
-                    <th>Tgl. Pinjam</th>
-                    <th>Tgl. Jatuh Tempo</th>
-                    <th>Tgl. Kembali</th>
+                    <th>Tanggal Pinjam</th>
+                    <th>Tanggal Jatuh Tempo</th>
+                    <th>Tanggal Kembali</th>
+                    <th>Denda</th>
                     <th>Status</th>
                 </tr>
             </thead>
             <tbody>
                 <?php if (empty($laporan)): ?>
                     <tr>
-                        <td colspan="7" class="empty-state">Data laporan tidak ditemukan.</td>
+                        <td colspan="8" class="empty-state">Data laporan tidak ditemukan.</td>
                     </tr>
                 <?php else: ?>
-                    <?php foreach ($laporan as $row): ?>
-                        <?php
-                        $badgeClass = 'badge-default';
-                        if ($row['status'] === 'Dikembalikan') {
-                            $badgeClass = 'badge-green';
-                        } elseif ($row['status'] === 'Terlambat') {
-                            $badgeClass = 'badge-orange';
-                        } elseif ($row['status'] === 'Belum Kembali') {
-                            $badgeClass = 'badge-red';
-                        }
-                        ?>
+                    <?php foreach ($laporan as $index => $row): ?>
                         <tr>
-                            <td><?= escape(formatTanggal($row['tanggal'])) ?></td>
+                            <td class="text-center"><?= (int) $index + 1 ?>.</td>
                             <td><?= escape($row['peminjam']) ?></td>
                             <td><?= escape($row['judul_buku']) ?></td>
-                            <td><?= escape(formatTanggal($row['tgl_pinjam'])) ?></td>
-                            <td><?= escape(formatTanggal($row['tgl_jatuh_tempo'])) ?></td>
-                            <td><?= escape(formatTanggal($row['tgl_kembali'])) ?></td>
-                            <td><span class="badge <?= $badgeClass ?>"><?= escape($row['status']) ?></span></td>
+                            <td class="text-center"><?= escape(formatTanggalPdf($row['tgl_pinjam'])) ?></td>
+                            <td class="text-center"><?= escape(formatTanggalPdf($row['tgl_jatuh_tempo'])) ?></td>
+                            <td class="text-center"><?= escape(formatTanggalPdf($row['tgl_kembali'])) ?></td>
+                            <td class="text-center"><?= escape(hitungDendaLaporan($row)) ?></td>
+                            <td class="text-center"><?= escape($row['status']) ?></td>
                         </tr>
                     <?php endforeach; ?>
                 <?php endif; ?>
@@ -266,14 +289,6 @@ function buildExportHtml($laporan, $statusFilter, $startDate, $endDate, $keyword
         </table>
     </div>
 
-    <?php if ($autoPrint): ?>
-        <script>
-            window.addEventListener('load', function () {
-                window.print();
-            });
-        </script>
-        </div>
-    <?php endif; ?>
 </body>
 </html>
 <?php
@@ -294,7 +309,7 @@ function exportLaporanPdf($laporan, $statusFilter, $startDate, $endDate, $keywor
     $dompdf->setPaper('A4', 'landscape');
     $dompdf->loadHtml($html, 'UTF-8');
     $dompdf->render();
-    $dompdf->stream('laporantransaksi.pdf', ['Attachment' => true]);
+    $dompdf->stream('laporan-peminjaman-buku.pdf', ['Attachment' => true]);
     exit;
 }
 
@@ -303,7 +318,7 @@ function exportLaporanPdf($laporan, $statusFilter, $startDate, $endDate, $keywor
 | PROSES HAPUS DATA
 |--------------------------------------------------------------------------
 */
-if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['delete_selected'])) {
+if (($_SERVER['REQUEST_METHOD'] ?? 'GET') === 'POST' && isset($_POST['delete_selected'])) {
     $selectedIds = array_map('intval', $_POST['selected_ids'] ?? []);
     $laporanData = loadLaporanTransaksi($laporanFile);
 

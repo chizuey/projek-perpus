@@ -5,7 +5,7 @@
 |--------------------------------------------------------------------------
 */
 $dataFile = __DIR__ . '/data_peminjaman.json';
-$laporanFile = __DIR__ . '/../laporantransaksi/data_laporan_transaksi.json';
+$laporanFile = __DIR__ . '/data_laporan_transaksi.json';
 
 $openPopup = false;
 $errors = [];
@@ -228,21 +228,21 @@ function saveLaporanTransaksi(string $file, array $data): void
 */
 function getDaftarBuku(): array
 {
-    return [
-        'Algoritma' => 5,
-        'Basis Data' => 5,
-        'Jaringan' => 5,
-        'AI' => 5,
-        'Web Dev' => 5,
-        'Python' => 5,
-        'UI/UX' => 5,
-        'Pemrograman Web' => 5,
-        'Jaringan Komputer' => 5,
-        'Sistem Informasi' => 5,
-        'Pemrograman Java' => 5,
-        'Teknik Elektro' => 5,
-        'Manajemen Keuangan' => 5,
-    ];
+    $dataBukuFile = __DIR__ . '/data_buku.json';
+    $dataBuku = readJsonArray($dataBukuFile);
+    $daftarBuku = [];
+
+    foreach ($dataBuku as $item) {
+        $judul = trim((string) ($item['judul'] ?? ''));
+
+        if ($judul === '') {
+            continue;
+        }
+
+        $daftarBuku[$judul] = max(0, (int) ($item['stok'] ?? 0));
+    }
+
+    return $daftarBuku;
 }
 
 function isBukuValid(string $buku): bool
@@ -639,18 +639,7 @@ $endDisplay = $totalData > 0 ? min($offset + $perPage, $totalData) : 0;
 $paginationItems = getPaginationItems($currentPage, $totalPages);
 $opsiBuku = getOpsiBuku($dataPeminjaman);
 ?>
-<!DOCTYPE html>
-<html lang="id">
-<head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Data Peminjam</title>
-    <link rel="stylesheet" href="datapeminjam/datapeminjam.css">
-    <link rel="stylesheet" href="datapeminjam/popuppeminjaman.css">
-</head>
-<body>
-<div class="main-content">
-    <div class="datapeminjam-wrapper">
+<div class="datapeminjam-wrapper">
         <div class="datapeminjam-header">
             <div class="title-group">
                 <h1>Data Peminjam</h1>
@@ -804,7 +793,6 @@ $opsiBuku = getOpsiBuku($dataPeminjaman);
                 <?php endif; ?>
             </div>
         </div>
-    </div>
 </div>
 
 <?php include __DIR__ . '/../popuppeminjaman.php'; ?>
@@ -914,5 +902,3 @@ document.addEventListener('DOMContentLoaded', function () {
     }
 });
 </script>
-</body>
-</html>

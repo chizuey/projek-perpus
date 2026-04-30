@@ -6,20 +6,21 @@ body {
 }
 
 :root {
-    --sidebar-width: 80px;
-    --topbar-height: 80px;
+    --sidebar-width: 160px;
+    --topbar-height: 60px;
 }
 
 .main-content {
     margin-left: var(--sidebar-width);
     margin-top: var(--topbar-height);
+    padding: 20px;
 }
 
 .datapeminjam-wrapper {
     width: 100%;
-    max-width: 1410px;
-    margin: 0 auto;
-    padding: 0 24px 24px;
+    max-width: none;
+    margin: 0;
+    padding: 18px 24px 28px;
     box-sizing: border-box;
 }
 
@@ -402,4 +403,122 @@ body.modal-open {
         opacity: 1;
         transform: translateY(0);
     }
+}
+
+/* Shared sizing for admin table pages */
+body {
+    font-family: Arial, sans-serif;
+}
+
+.datapeminjam-wrapper {
+    padding: 18px 24px 28px;
+}
+
+.datapeminjam-header {
+    min-height: 38px;
+    margin-bottom: 20px;
+}
+
+.title-group h1 {
+    font-size: 18px;
+    line-height: 1.2;
+}
+
+.toolbar {
+    min-height: 38px;
+    margin-bottom: 18px;
+}
+
+.btn-tambah,
+.search-box,
+.search-submit {
+    height: 38px;
+}
+
+.btn-tambah {
+    padding: 0 16px;
+    border-radius: 6px;
+    font-size: 13px;
+    font-weight: 500;
+}
+
+.search-box {
+    width: 310px;
+}
+
+.search-box input {
+    border: 1px solid #e5e7eb;
+    border-radius: 6px;
+    background: #ffffff;
+    font-size: 13px;
+}
+
+.search-submit {
+    width: 38px;
+}
+
+.table-container {
+    border: 1px solid #e5e7eb;
+    border-radius: 8px 8px 0 0;
+    background: #ffffff;
+}
+
+.datapeminjam-table {
+    background: #ffffff;
+}
+
+.datapeminjam-table thead tr {
+    background: #f1f4f8;
+}
+
+.datapeminjam-table th,
+.datapeminjam-table td {
+    padding: 14px 16px;
+}
+
+.datapeminjam-table th {
+    color: #003b8e;
+    font-size: 12px;
+    font-weight: 700;
+}
+
+.datapeminjam-table td {
+    color: #111827;
+    font-size: 13px;
+}
+
+.status-badge {
+    min-width: 88px;
+    height: 26px;
+    border-radius: 4px;
+    font-size: 12px;
+    font-weight: 700;
+}
+
+.btn-kembalikan {
+    min-width: 94px;
+    height: 32px;
+    padding: 0 12px;
+    border-radius: 5px;
+    color: #111827;
+    font-size: 12px;
+    font-weight: 500;
+}
+
+.datapeminjam-footer {
+    min-height: 48px;
+    margin-top: 0;
+    color: #7890aa;
+}
+
+.data-count {
+    font-size: 12px;
+}
+
+.page-btn {
+    min-width: 30px;
+    height: 30px;
+    border-radius: 6px;
+    font-size: 12px;
+    font-weight: 700;
 }
