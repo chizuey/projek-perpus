@@ -1,5 +1,6 @@
 [
     {
+<<<<<<< HEAD
         "id": 21,
         "source_id": "pjm_69f1fead654796.63442227",
         "tanggal": "2026-04-25",
@@ -29,10 +30,110 @@
         "judul_buku": "Pemrograman Java",
         "tgl_pinjam": "2026-04-05",
         "tgl_jatuh_tempo": "2026-04-13",
+=======
+        "id": 28,
+        "source_id": "pjm_69f1b567952965.74871369",
+        "tanggal": "2026-04-29",
+        "peminjam": "kkkk",
+        "judul_buku": "Teknik Elektro",
+        "tgl_pinjam": "2026-04-29",
+        "tgl_jatuh_tempo": "2026-05-06",
+        "tgl_kembali": "",
+        "status": "Belum Kembali"
+    },
+    {
+        "id": 27,
+        "source_id": "pjm_69f05ba9a1d5e8.99355094",
+        "tanggal": "2026-04-28",
+        "peminjam": "Antony",
+        "judul_buku": "Web Dev",
+        "tgl_pinjam": "2026-04-28",
+        "tgl_jatuh_tempo": "2026-05-05",
+        "tgl_kembali": "",
+        "status": "Belum Kembali"
+    },
+    {
+        "id": 26,
+        "source_id": "pjm_69e736e6c16205.75969977",
+        "tanggal": "2026-04-17",
+        "peminjam": "Widya",
+        "judul_buku": "Manajemen Keuangan",
+        "tgl_pinjam": "2026-04-17",
+        "tgl_jatuh_tempo": "2026-04-26",
+        "tgl_kembali": "2026-04-21",
+        "status": "Dikembalikan"
+    },
+    {
+        "id": 25,
+        "source_id": "pjm_69e736e6c161e4.94815722",
+        "tanggal": "2026-04-07",
+        "peminjam": "Eko",
+        "judul_buku": "Teknik Elektro",
+        "tgl_pinjam": "2026-04-07",
+        "tgl_jatuh_tempo": "2026-04-18",
+        "tgl_kembali": "2026-04-22",
+        "status": "Dikembalikan"
+    },
+    {
+        "id": 24,
+        "source_id": "pjm_69e736e6c161b3.60717193",
+        "tanggal": "2026-03-28",
+        "peminjam": "Rani",
+        "judul_buku": "Pemrograman Java",
+        "tgl_pinjam": "2026-03-28",
+        "tgl_jatuh_tempo": "2026-04-05",
+        "tgl_kembali": "2026-04-05",
+        "status": "Dikembalikan"
+    },
+    {
+        "id": 23,
+        "source_id": "pjm_69e736e6c16188.76834780",
+        "tanggal": "2026-04-03",
+        "peminjam": "Andi",
+        "judul_buku": "Sistem Informasi",
+        "tgl_pinjam": "2026-04-03",
+        "tgl_jatuh_tempo": "2026-04-11",
+>>>>>>> c92a359b6d8a33b0205f4799b2a5403a55c80220
         "tgl_kembali": "2026-04-13",
         "status": "Dikembalikan"
     },
     {
+<<<<<<< HEAD
+=======
+        "id": 22,
+        "source_id": "pjm_69e736e6c16161.73431507",
+        "tanggal": "2026-04-09",
+        "peminjam": "Budi",
+        "judul_buku": "Jaringan Komputer",
+        "tgl_pinjam": "2026-04-09",
+        "tgl_jatuh_tempo": "2026-04-19",
+        "tgl_kembali": "2026-04-22",
+        "status": "Dikembalikan"
+    },
+    {
+        "id": 21,
+        "source_id": "pjm_69e736e6c16084.71948032",
+        "tanggal": "2026-04-15",
+        "peminjam": "Dina",
+        "judul_buku": "Basis Data",
+        "tgl_pinjam": "2026-04-15",
+        "tgl_jatuh_tempo": "2026-04-23",
+        "tgl_kembali": "2026-04-21",
+        "status": "Dikembalikan"
+    },
+    {
+        "id": 20,
+        "source_id": "pjm_69e736e6c0f913.10844797",
+        "tanggal": "2026-04-18",
+        "peminjam": "Fajar",
+        "judul_buku": "Pemrograman Web",
+        "tgl_pinjam": "2026-04-18",
+        "tgl_jatuh_tempo": "2026-04-27",
+        "tgl_kembali": "2026-04-21",
+        "status": "Dikembalikan"
+    },
+    {
+>>>>>>> c92a359b6d8a33b0205f4799b2a5403a55c80220
         "id": 18,
         "source_id": "pjm_69f1fead6544a1.52664624",
         "tanggal": "2026-04-11",
@@ -45,6 +146,7 @@
     },
     {
         "id": 17,
+<<<<<<< HEAD
         "source_id": "pjm_69f1fead6543d5.53504827",
         "tanggal": "2026-04-17",
         "peminjam": "Budi",
@@ -92,6 +194,121 @@
         "source_id": "pjm_69f1fb3d285ca9.72952103",
         "tanggal": "2026-04-15",
         "peminjam": "Eko",
+=======
+        "source_id": "pjm_69e72dc603d000.34022880",
+        "tanggal": "2026-04-21",
+        "peminjam": "Farez",
+        "judul_buku": "Teknik Elektro",
+        "tgl_pinjam": "2026-04-21",
+        "tgl_jatuh_tempo": "2026-04-28",
+        "tgl_kembali": "2026-04-21",
+        "status": "Dikembalikan"
+    },
+    {
+        "id": 16,
+        "source_id": "pjm_69e72dbb627d39.58442356",
+        "tanggal": "2026-04-21",
+        "peminjam": "Farez",
+        "judul_buku": "Manajemen Keuangan",
+        "tgl_pinjam": "2026-04-21",
+        "tgl_jatuh_tempo": "2026-04-28",
+        "tgl_kembali": "2026-04-21",
+        "status": "Dikembalikan"
+    },
+    {
+        "id": 14,
+        "source_id": "pjm_69e5dc3089d662.54711951",
+        "tanggal": "2026-04-16",
+        "peminjam": "Widya",
+        "judul_buku": "Manajemen Keuangan",
+        "tgl_pinjam": "2026-04-16",
+        "tgl_jatuh_tempo": "2026-04-25",
+        "tgl_kembali": "2026-04-20",
+        "status": "Dikembalikan"
+    },
+    {
+        "id": 13,
+        "source_id": "pjm_69e5dc3089d641.10097832",
+        "tanggal": "2026-04-06",
+        "peminjam": "Eko",
+        "judul_buku": "Teknik Elektro",
+        "tgl_pinjam": "2026-04-06",
+        "tgl_jatuh_tempo": "2026-04-17",
+        "tgl_kembali": "2026-04-20",
+        "status": "Dikembalikan"
+    },
+    {
+        "id": 12,
+        "source_id": "pjm_69e5dc3089d610.00195766",
+        "tanggal": "2026-03-27",
+        "peminjam": "Rani",
+        "judul_buku": "Pemrograman Java",
+        "tgl_pinjam": "2026-03-27",
+        "tgl_jatuh_tempo": "2026-04-04",
+        "tgl_kembali": "2026-04-04",
+        "status": "Dikembalikan"
+    },
+    {
+        "id": 11,
+        "source_id": "pjm_69e5dc3089d5e5.58777544",
+        "tanggal": "2026-04-02",
+        "peminjam": "Andi",
+        "judul_buku": "Sistem Informasi",
+        "tgl_pinjam": "2026-04-02",
+        "tgl_jatuh_tempo": "2026-04-10",
+        "tgl_kembali": "2026-04-12",
+        "status": "Dikembalikan"
+    },
+    {
+        "id": 10,
+        "source_id": "pjm_69e5dc3089d5c9.32965925",
+        "tanggal": "2026-04-08",
+        "peminjam": "Budi",
+        "judul_buku": "Jaringan Komputer",
+        "tgl_pinjam": "2026-04-08",
+        "tgl_jatuh_tempo": "2026-04-18",
+        "tgl_kembali": "2026-04-20",
+        "status": "Dikembalikan"
+    },
+    {
+        "id": 9,
+        "source_id": "pjm_69e5dc3089d580.30399715",
+        "tanggal": "2026-04-14",
+        "peminjam": "Dina",
+        "judul_buku": "Basis Data",
+        "tgl_pinjam": "2026-04-14",
+        "tgl_jatuh_tempo": "2026-04-22",
+        "tgl_kembali": "2026-04-20",
+        "status": "Dikembalikan"
+    },
+    {
+        "id": 8,
+        "source_id": "pjm_69e5dc3089b106.15492014",
+        "tanggal": "2026-04-17",
+        "peminjam": "Fajar",
+        "judul_buku": "Pemrograman Web",
+        "tgl_pinjam": "2026-04-17",
+        "tgl_jatuh_tempo": "2026-04-26",
+        "tgl_kembali": "2026-04-20",
+        "status": "Dikembalikan"
+    },
+    {
+        "id": 7,
+        "source_id": "pjm_69e5dcbd43cba3.00750757",
+        "tanggal": "2026-03-23",
+        "peminjam": "Farez",
+        "judul_buku": "UI\/UX",
+        "tgl_pinjam": "2026-03-23",
+        "tgl_jatuh_tempo": "2026-04-01",
+        "tgl_kembali": "2026-04-20",
+        "status": "Dikembalikan"
+    },
+    {
+        "id": 5,
+        "source_id": "pjm_69e5efeb9ce1b6.08455786",
+        "tanggal": "2026-04-20",
+        "peminjam": "Vian",
+>>>>>>> c92a359b6d8a33b0205f4799b2a5403a55c80220
         "judul_buku": "Teknik Elektro",
         "tgl_pinjam": "2026-04-15",
         "tgl_jatuh_tempo": "2026-04-26",
