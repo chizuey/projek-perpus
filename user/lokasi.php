@@ -3,7 +3,8 @@
 <head>
     <meta name="viewport" content="width=device-width, initial-scale=1"/>
     <meta charset="utf-8" />
-    <link rel="stylesheet" href="style.css">
+    <link rel="stylesheet" href="../public/css/style.css?v=2">
+    <link rel="stylesheet" href="style.css?v=2">
     <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;600;800&display=swap" rel="stylesheet">
     <title>Lokasi Perpustakaan</title>
 </head>
@@ -14,7 +15,7 @@
     <div class="hero-section-lokasi">
         <div class="hero-content-lokasi">
             <div class="hero-icon-lokasi">
-                <img src="user/gambar/info.png" alt="Icon Profil">
+                <img src="gambar/lakasi.png" alt="Icon Profil">
             </div>
             <h1 class="hero-title-lokasi">Lokasi & Jam Kerja</h1>
             <p class="hero-subtitle-lokasi">Perpustakaan POLIJE</p>

@@ -1,0 +1,124 @@
+@page {
+    size: A4 landscape;
+    margin: 12mm 10mm;
+}
+
+body {
+    margin: 0;
+    font-family: DejaVu Sans, Arial, Helvetica, sans-serif;
+    font-size: 10px;
+    color: #000000;
+}
+
+.report-wrapper {
+    width: 100%;
+}
+
+.letterhead {
+    position: relative;
+    min-height: 82px;
+    margin-bottom: 8px;
+    border-bottom: 2px solid #111111;
+}
+
+.letterhead-logo {
+    position: absolute;
+    top: 0;
+    left: 68px;
+    width: 72px;
+    height: auto;
+}
+
+.letterhead-text {
+    padding-top: 5px;
+    text-align: center;
+    color: #000000;
+    font-size: 14px;
+    font-weight: 700;
+    line-height: 1.15;
+}
+
+.letterhead-address {
+    margin-top: 2px;
+    font-size: 10px;
+    font-weight: 400;
+}
+
+.report-heading {
+    margin: 8px 0 10px;
+    text-align: center;
+    font-size: 11px;
+    line-height: 1.25;
+}
+
+.report-table {
+    width: 100%;
+    border-collapse: collapse;
+    table-layout: fixed;
+}
+
+.report-table thead {
+    display: table-header-group;
+}
+
+.report-table tr {
+    page-break-inside: avoid;
+}
+
+.report-table th,
+.report-table td {
+    border: 1px solid #202840;
+    padding: 4px 5px;
+    color: #000000;
+    font-size: 9px;
+    line-height: 1.2;
+    vertical-align: middle;
+}
+
+.report-table th {
+    text-align: center;
+    font-weight: 700;
+}
+
+.report-table th:nth-child(1),
+.report-table td:nth-child(1) {
+    width: 28px;
+}
+
+.report-table th:nth-child(2),
+.report-table td:nth-child(2) {
+    width: 145px;
+}
+
+.report-table th:nth-child(3),
+.report-table td:nth-child(3) {
+    width: 210px;
+}
+
+.report-table th:nth-child(4),
+.report-table td:nth-child(4),
+.report-table th:nth-child(5),
+.report-table td:nth-child(5),
+.report-table th:nth-child(6),
+.report-table td:nth-child(6) {
+    width: 86px;
+}
+
+.report-table th:nth-child(7),
+.report-table td:nth-child(7) {
+    width: 72px;
+}
+
+.report-table th:nth-child(8),
+.report-table td:nth-child(8) {
+    width: 82px;
+}
+
+.text-center {
+    text-align: center;
+}
+
+.empty-state {
+    padding: 18px 8px;
+    text-align: center;
+}

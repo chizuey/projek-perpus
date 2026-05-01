@@ -3,7 +3,9 @@
 <head>
     <meta name="viewport" content="width=device-width, initial-scale=1"/>
     <meta charset="utf-8" />
-    <link rel="stylesheet" href="style.css">
+    <link rel="stylesheet" href="../public/css/style.css?v=3">
+
+    <link rel="stylesheet" href="style.css?v=3">
     <title>Profil Perpustakaan</title>
 </head>
 
@@ -13,7 +15,7 @@
     <div class="hero-section-profil">
         <div class="hero-content-profil">
             <div class="hero-icon-profil">
-                <img src="user/gambar/prof.png" alt="Icon Profil">
+                <img src="gambar/prof.png" alt="Icon Profil">
             </div>
             <h1 class="hero-title-profil">Profil</h1>
             <p class="hero-subtitle-profil">Perpustakaan POLIJE</p>
@@ -23,7 +25,7 @@
     <main class="main-content-prof">
         <section class="section-about-prof">
             <div class="image-box-prof">
-                <img src="user/gambar/perpus.png" alt="Gedung Polije">
+                <img src="gambar/perpus.png" alt="Gedung Polije">
             </div>
             <div class="text-box-prof">
                 <h2 class="title-prof">UPT. <span>Perpustakaan POLIJE</span></h2>
@@ -65,7 +67,7 @@
                 </div>
 
                 <div class="visi-image-prof">
-                    <img src="user/gambar/perpus2.png" alt="Foto Perpustakaan Polije">
+                    <img src="gambar/perpus2.png" alt="Foto Perpustakaan Polije">
                 </div>
             </div>
         </section>
