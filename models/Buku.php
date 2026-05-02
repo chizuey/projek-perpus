@@ -1,236 +1,236 @@
 <?php
 
-require_once __DIR__ . '/../config/database.php';
-
 class Buku
 {
-    private mysqli $conn;
+    private string $file;
 
-    public function __construct(?mysqli $conn = null)
+    public function __construct(?string $file = null)
     {
-        $this->conn = $conn ?: (new Database())->getConnection();
+        $this->file = $file ?: __DIR__ . '/../admin/pages/data_buku.json';
     }
 
     public function all(): array
     {
-        $sql = "
-            SELECT
-                b.id_buku,
-                b.isbn,
-                b.judul,
-                b.pengarang,
-                b.tahun_terbit,
-                b.stok_tersedia,
-                b.total_stok,
-                b.cover_buku,
-                b.id_kategori,
-                b.id_penerbit,
-                k.nama_kategori,
-                p.nama_penerbit,
-                COALESCE(pinjam.total_dipinjam, 0) AS total_dipinjam
-            FROM buku b
-            INNER JOIN kategori k ON k.id_kategori = b.id_kategori
-            INNER JOIN penerbit p ON p.id_penerbit = b.id_penerbit
-            LEFT JOIN (
-                SELECT id_buku, COUNT(*) AS total_dipinjam
-                FROM peminjaman
-                WHERE status_pinjam IN ('borrowed', 'overdue')
-                GROUP BY id_buku
-            ) pinjam ON pinjam.id_buku = b.id_buku
-            ORDER BY b.id_buku DESC
-        ";
+        $data = array_map([$this, 'mapRow'], $this->read());
 
-        $result = $this->conn->query($sql);
-        $data = [];
-
-        while ($row = $result->fetch_assoc()) {
-            $data[] = $this->mapRow($row);
-        }
+        usort($data, function (array $a, array $b): int {
+            return ((int) ($b['id'] ?? 0)) <=> ((int) ($a['id'] ?? 0));
+        });
 
         return $data;
     }
 
     public function find(int $id): ?array
     {
-        $stmt = $this->conn->prepare("
-            SELECT b.*, k.nama_kategori, p.nama_penerbit, 0 AS total_dipinjam
-            FROM buku b
-            INNER JOIN kategori k ON k.id_kategori = b.id_kategori
-            INNER JOIN penerbit p ON p.id_penerbit = b.id_penerbit
-            WHERE b.id_buku = ?
-            LIMIT 1
-        ");
-        $stmt->bind_param('i', $id);
-        $stmt->execute();
-        $row = $stmt->get_result()->fetch_assoc();
+        foreach ($this->read() as $row) {
+            if ((int) ($row['id'] ?? $row['id_buku'] ?? 0) === $id) {
+                return $this->mapRow($row);
+            }
+        }
 
-        return $row ? $this->mapRow($row) : null;
+        return null;
     }
 
     public function create(array $data): int
     {
-        $idKategori = $this->findOrCreateKategori($data['kategori']);
-        $idPenerbit = $this->findOrCreatePenerbit($data['penerbit'], $data['tempat_terbit'] ?? '');
-        $isbn = $data['isbn'] !== '' ? $data['isbn'] : null;
-        $cover = $data['cover_buku'] !== '' ? $data['cover_buku'] : null;
-        $tahun = (int) $data['tahun'];
-        $stok = max(0, (int) $data['stok']);
+        $rows = $this->read();
+        $id = $this->nextId($rows);
+        $rows[] = $this->normalizeForStorage($data, $id);
+        $this->write($rows);
 
-        $stmt = $this->conn->prepare("
-            INSERT INTO buku
-                (isbn, judul, pengarang, tahun_terbit, stok_tersedia, total_stok, cover_buku, id_kategori, id_penerbit)
-            VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?)
-        ");
-        $stmt->bind_param(
-            'sssiiisii',
-            $isbn,
-            $data['judul'],
-            $data['penulis'],
-            $tahun,
-            $stok,
-            $stok,
-            $cover,
-            $idKategori,
-            $idPenerbit
-        );
-        $stmt->execute();
-
-        return (int) $this->conn->insert_id;
+        return $id;
     }
 
     public function update(int $id, array $data): void
     {
-        $idKategori = $this->findOrCreateKategori($data['kategori']);
-        $idPenerbit = $this->findOrCreatePenerbit($data['penerbit']);
-        $isbn = ($data['isbn'] ?? '') !== '' ? $data['isbn'] : null;
-        $tahun = (int) $data['tahun'];
-        $totalStok = max(0, (int) $data['stok']);
-        $dipinjam = $this->countDipinjamById($id);
-        $stokTersedia = max(0, $totalStok - $dipinjam);
+        $rows = $this->read();
 
-        $stmt = $this->conn->prepare("
-            UPDATE buku
-            SET isbn = ?,
-                judul = ?,
-                pengarang = ?,
-                tahun_terbit = ?,
-                stok_tersedia = ?,
-                total_stok = ?,
-                id_kategori = ?,
-                id_penerbit = ?
-            WHERE id_buku = ?
-        ");
-        $stmt->bind_param(
-            'sssiiiiii',
-            $isbn,
-            $data['judul'],
-            $data['penulis'],
-            $tahun,
-            $stokTersedia,
-            $totalStok,
-            $idKategori,
-            $idPenerbit,
-            $id
-        );
-        $stmt->execute();
+        foreach ($rows as $index => $row) {
+            if ((int) ($row['id'] ?? $row['id_buku'] ?? 0) !== $id) {
+                continue;
+            }
+
+            $current = $this->mapRow($row);
+            $merged = array_merge($current, $data);
+
+            if (trim((string) ($data['kategori'] ?? '')) === '') {
+                $merged['kategori'] = $current['kategori'];
+            }
+
+            if (trim((string) ($data['cover_buku'] ?? '')) === '') {
+                $merged['cover_buku'] = $current['cover'];
+            }
+
+            $rows[$index] = $this->normalizeForStorage($merged, $id);
+            $this->write($rows);
+            return;
+        }
     }
 
     public function delete(int $id): void
     {
-        $stmt = $this->conn->prepare('DELETE FROM buku WHERE id_buku = ?');
-        $stmt->bind_param('i', $id);
-        $stmt->execute();
+        $rows = array_values(array_filter($this->read(), function (array $row) use ($id): bool {
+            return (int) ($row['id'] ?? $row['id_buku'] ?? 0) !== $id;
+        }));
+
+        $this->write($rows);
     }
 
     public function kategoriOptions(): array
     {
-        $result = $this->conn->query('SELECT nama_kategori FROM kategori ORDER BY nama_kategori ASC');
-        return array_column($result->fetch_all(MYSQLI_ASSOC), 'nama_kategori');
+        $kategori = [];
+
+        foreach ($this->read() as $row) {
+            $nama = trim((string) ($row['kategori'] ?? $row['nama_kategori'] ?? ''));
+
+            if ($nama !== '') {
+                $kategori[] = $nama;
+            }
+        }
+
+        $kategori = array_values(array_unique($kategori));
+        natcasesort($kategori);
+
+        return array_values($kategori);
     }
 
     public function countByTitle(string $judul, ?int $exceptId = null): int
     {
-        if ($exceptId) {
-            $stmt = $this->conn->prepare('SELECT COUNT(*) AS total FROM buku WHERE LOWER(judul) = LOWER(?) AND id_buku <> ?');
-            $stmt->bind_param('si', $judul, $exceptId);
-        } else {
-            $stmt = $this->conn->prepare('SELECT COUNT(*) AS total FROM buku WHERE LOWER(judul) = LOWER(?)');
-            $stmt->bind_param('s', $judul);
+        $target = strtolower(trim($judul));
+        $total = 0;
+
+        foreach ($this->read() as $row) {
+            $id = (int) ($row['id'] ?? $row['id_buku'] ?? 0);
+            $current = strtolower(trim((string) ($row['judul'] ?? '')));
+
+            if ($current === $target && (!$exceptId || $id !== $exceptId)) {
+                $total++;
+            }
         }
 
-        $stmt->execute();
-        return (int) ($stmt->get_result()->fetch_assoc()['total'] ?? 0);
+        return $total;
     }
 
-    private function findOrCreateKategori(string $nama): int
+    private function read(): array
     {
-        $nama = trim($nama) !== '' ? trim($nama) : 'Lainnya';
-        $stmt = $this->conn->prepare('SELECT id_kategori FROM kategori WHERE nama_kategori = ? LIMIT 1');
-        $stmt->bind_param('s', $nama);
-        $stmt->execute();
-        $row = $stmt->get_result()->fetch_assoc();
-
-        if ($row) {
-            return (int) $row['id_kategori'];
+        if (!file_exists($this->file)) {
+            return [];
         }
 
-        $stmt = $this->conn->prepare('INSERT INTO kategori (nama_kategori) VALUES (?)');
-        $stmt->bind_param('s', $nama);
-        $stmt->execute();
+        $data = json_decode((string) file_get_contents($this->file), true);
 
-        return (int) $this->conn->insert_id;
+        return is_array($data) ? array_values($data) : [];
     }
 
-    private function findOrCreatePenerbit(string $nama, string $alamat = ''): int
+    private function write(array $rows): void
     {
-        $nama = trim($nama) !== '' ? trim($nama) : '-';
-        $stmt = $this->conn->prepare('SELECT id_penerbit FROM penerbit WHERE nama_penerbit = ? LIMIT 1');
-        $stmt->bind_param('s', $nama);
-        $stmt->execute();
-        $row = $stmt->get_result()->fetch_assoc();
+        $dir = dirname($this->file);
 
-        if ($row) {
-            return (int) $row['id_penerbit'];
+        if (!is_dir($dir)) {
+            mkdir($dir, 0775, true);
         }
 
-        $alamat = trim($alamat) !== '' ? trim($alamat) : null;
-        $stmt = $this->conn->prepare('INSERT INTO penerbit (nama_penerbit, alamat_penerbit) VALUES (?, ?)');
-        $stmt->bind_param('ss', $nama, $alamat);
-        $stmt->execute();
-
-        return (int) $this->conn->insert_id;
+        file_put_contents(
+            $this->file,
+            json_encode(array_values($rows), JSON_PRETTY_PRINT | JSON_UNESCAPED_UNICODE),
+            LOCK_EX
+        );
     }
 
-    private function countDipinjamById(int $id): int
+    private function nextId(array $rows): int
     {
-        $stmt = $this->conn->prepare("SELECT COUNT(*) AS total FROM peminjaman WHERE id_buku = ? AND status_pinjam IN ('borrowed', 'overdue')");
-        $stmt->bind_param('i', $id);
-        $stmt->execute();
+        $max = 0;
 
-        return (int) ($stmt->get_result()->fetch_assoc()['total'] ?? 0);
+        foreach ($rows as $row) {
+            $max = max($max, (int) ($row['id'] ?? $row['id_buku'] ?? 0));
+        }
+
+        return $max + 1;
+    }
+
+    private function normalizeForStorage(array $data, int $id): array
+    {
+        $row = [
+            'id' => $id,
+            'judul' => trim((string) ($data['judul'] ?? '')),
+            'penulis' => trim((string) ($data['penulis'] ?? $data['pengarang'] ?? '')),
+            'penerbit' => trim((string) ($data['penerbit'] ?? '')),
+            'tahun' => (int) ($data['tahun'] ?? 0),
+            'kategori' => trim((string) ($data['kategori'] ?? '')),
+            'stok' => max(0, (int) ($data['stok'] ?? $data['total_stok'] ?? 0)),
+        ];
+
+        $optionalFields = [
+            'isbn' => $data['isbn'] ?? '',
+            'tempat_terbit' => $data['tempat_terbit'] ?? '',
+            'sinopsis' => $data['sinopsis'] ?? '',
+            'cover' => $data['cover'] ?? $data['cover_buku'] ?? '',
+        ];
+
+        foreach ($optionalFields as $key => $value) {
+            $value = trim((string) $value);
+
+            if ($value !== '') {
+                $row[$key] = $value;
+            }
+        }
+
+        return $row;
+    }
+
+    private function activeBorrowCount(string $judul): int
+    {
+        $file = __DIR__ . '/../admin/pages/data_peminjaman.json';
+
+        if (!file_exists($file)) {
+            return 0;
+        }
+
+        $data = json_decode((string) file_get_contents($file), true);
+
+        if (!is_array($data)) {
+            return 0;
+        }
+
+        $total = 0;
+
+        foreach ($data as $item) {
+            $sameBook = trim((string) ($item['buku'] ?? '')) === $judul;
+            $active = empty($item['returned_at']);
+
+            if ($sameBook && $active) {
+                $total++;
+            }
+        }
+
+        return $total;
     }
 
     private function mapRow(array $row): array
     {
-        $stokTotal = (int) ($row['total_stok'] ?? 0);
-        $stokTersedia = (int) ($row['stok_tersedia'] ?? 0);
-        $dipinjam = (int) ($row['total_dipinjam'] ?? max(0, $stokTotal - $stokTersedia));
+        $id = (int) ($row['id'] ?? $row['id_buku'] ?? 0);
+        $judul = (string) ($row['judul'] ?? '');
+        $stokTotal = max(0, (int) ($row['stok'] ?? $row['total_stok'] ?? $row['stok_tersedia'] ?? 0));
+        $dipinjam = $this->activeBorrowCount($judul);
+        $stokTersedia = max(0, $stokTotal - $dipinjam);
+        $cover = (string) ($row['cover'] ?? $row['cover_buku'] ?? '');
 
         return [
-            'id' => (int) $row['id_buku'],
-            'id_buku' => (int) $row['id_buku'],
+            'id' => $id,
+            'id_buku' => $id,
             'isbn' => $row['isbn'] ?? '',
-            'judul' => $row['judul'] ?? '',
-            'penulis' => $row['pengarang'] ?? '',
-            'pengarang' => $row['pengarang'] ?? '',
-            'penerbit' => $row['nama_penerbit'] ?? '',
-            'tahun' => $row['tahun_terbit'] ?? '',
-            'kategori' => $row['nama_kategori'] ?? '',
+            'judul' => $judul,
+            'penulis' => $row['penulis'] ?? $row['pengarang'] ?? '',
+            'pengarang' => $row['penulis'] ?? $row['pengarang'] ?? '',
+            'penerbit' => $row['penerbit'] ?? $row['nama_penerbit'] ?? '',
+            'tahun' => $row['tahun'] ?? $row['tahun_terbit'] ?? '',
+            'kategori' => $row['kategori'] ?? $row['nama_kategori'] ?? '',
             'stok' => $stokTotal,
             'total_stok' => $stokTotal,
             'stok_tersedia' => $stokTersedia,
             'dipinjam' => $dipinjam,
-            'cover' => $row['cover_buku'] ?? '',
+            'cover' => $cover,
+            'cover_buku' => $cover,
         ];
     }
 }

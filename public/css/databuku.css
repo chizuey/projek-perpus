@@ -246,6 +246,11 @@ body {
     overflow: visible !important;
 }
 
+.databuku-delete-form {
+    display: inline-flex;
+    margin: 0;
+}
+
 .btn-table-action {
     height: 32px;
     padding: 0 12px;
@@ -263,6 +268,15 @@ body {
 
 .btn-table-action:hover {
     background: #f8fafc;
+}
+
+.btn-delete-book {
+    color: #b91c1c;
+}
+
+.btn-delete-book:hover {
+    background: #fef2f2;
+    border-color: #fecaca;
 }
 
 .btn-table-action:last-child {

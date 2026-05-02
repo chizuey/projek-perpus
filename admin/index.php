@@ -1,15 +1,11 @@
 <?php
 
-require_once '../config/database.php';
 // Inisialisasi session admin bila belum aktif.
 if (session_status() === PHP_SESSION_NONE) {
     @session_start();
 }
 
-$db = new Database();
-$conn = $db->getConnection();
-
-$menu = $_GET['menu'] ?? 'akun';
+$menu = $_GET['menu'] ?? 'dashboard';
 
 // Daftar menu yang boleh dirender oleh router admin.
 $allowedMenus = [
@@ -52,7 +48,7 @@ $allowedMenus = [
 
 // Fallback menu jika query menu tidak dikenal.
 if (!isset($allowedMenus[$menu])) {
-    $menu = 'akun';
+    $menu = 'dashboard';
 }
 
 $currentMenu = $menu;

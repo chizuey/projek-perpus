@@ -22,7 +22,7 @@ if (isset($_POST['login'])) {
 
             // Alihkan halaman berdasarkan level
             if ($data['level'] == 'admin') {
-                header("Location: ../admin/dashboard.php");
+                header("Location: ../admin/index.php?menu=dashboard");
             } else {
                 header("Location: ../user/beranda.php");
             }

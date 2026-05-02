@@ -1,5 +1,14 @@
 [
     {
+        "id": "pjm_69f60c15ea0a33.40412529",
+        "nim": "283628",
+        "nama": "Alafrezy",
+        "buku": "Vibe Coding",
+        "tanggal_pinjam": "2026-05-02",
+        "tanggal_kembali": "2026-05-09",
+        "returned_at": null
+    },
+    {
         "id": "pjm_69f350a89d7f21.71728820",
         "nim": "333333",
         "nama": "Antok",

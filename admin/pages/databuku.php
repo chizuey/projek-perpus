@@ -97,6 +97,23 @@ extract($bukuController->index(), EXTR_SKIP);
                                     <i class="bi bi-search"></i>
                                     <span>Detail</span>
                                 </button>
+                                <form
+                                    method="post"
+                                    action="actions/buku/delete.php"
+                                    class="databuku-delete-form"
+                                    onsubmit="return confirm('Yakin ingin menghapus buku ini?')"
+                                >
+                                    <input type="hidden" name="action" value="delete_buku">
+                                    <input type="hidden" name="id" value="<?= (int) $book['id']; ?>">
+                                    <input type="hidden" name="page" value="<?= (int) $currentPage; ?>">
+                                    <input type="hidden" name="q" value="<?= eBuku($search); ?>">
+                                    <input type="hidden" name="kategori_filter" value="<?= eBuku($kategoriFilter); ?>">
+                                    <input type="hidden" name="per_page" value="<?= (int) $perPage; ?>">
+                                    <button type="submit" class="btn-table-action btn-delete-book">
+                                        <i class="bi bi-trash"></i>
+                                        <span>Hapus</span>
+                                    </button>
+                                </form>
                             </td>
                         </tr>
                     <?php endforeach; ?>

@@ -102,7 +102,7 @@ $mode = isset($_GET['edit']) ? 'edit' : 'view';
 
         <?php if ($mode === 'edit'): ?>
         <!-- ===== MODE EDIT ===== -->
-        <form method="POST" action="admin.php?menu=akun" class="edit-form">
+        <form method="POST" action="?menu=akun" class="edit-form">
             <input type="hidden" name="aksi" value="edit">
 
             <div class="form-field">
@@ -132,7 +132,7 @@ $mode = isset($_GET['edit']) ? 'edit' : 'view';
             <button type="submit" class="btn-edit-profil">
                 <i class="bi bi-check-lg"></i> Simpan Perubahan
             </button>
-            <a href="admin.php?menu=akun" class="btn-logout" style="text-decoration:none; display:flex; align-items:center; justify-content:center; gap:.5rem;">
+            <a href="?menu=akun" class="btn-logout" style="text-decoration:none; display:flex; align-items:center; justify-content:center; gap:.5rem;">
                 <i class="bi bi-x-lg"></i> Batal
             </a>
         </form>
@@ -154,12 +154,12 @@ $mode = isset($_GET['edit']) ? 'edit' : 'view';
             <div class="info-field-value"><?= htmlspecialchars($last_login ?: '-') ?></div>
         </div>
 
-        <a href="admin.php?menu=akun&edit=1" class="btn-edit-profil"
+        <a href="?menu=akun&edit=1" class="btn-edit-profil"
            style="text-decoration:none; display:flex; align-items:center; justify-content:center; gap:.5rem;">
             <i class="bi bi-person-gear"></i> Edit Profil
         </a>
 
-        <a href="admin.php?menu=akun&logout=1" class="btn-logout"
+        <a href="?menu=akun&logout=1" class="btn-logout"
            style="text-decoration:none; display:flex; align-items:center; justify-content:center; gap:.5rem;"
            onclick="return confirm('Yakin ingin logout?')">
             <i class="bi bi-box-arrow-right"></i> Log Out
