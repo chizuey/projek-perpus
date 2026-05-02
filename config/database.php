@@ -3,13 +3,14 @@
 class Database {
     private $host = 'localhost';
     private $user = 'root';
-    private $password = '';
+    private $password = '1deA050806';
     private $db = 'db_perpustakaan';
 
     public $conn;
 
     public function __construct() {
         $this->conn = null;
+        mysqli_report(MYSQLI_REPORT_ERROR | MYSQLI_REPORT_STRICT);
 
         try {
             $this->conn = new mysqli(
@@ -22,14 +23,18 @@ class Database {
             if ($this->conn->connect_error) {
                 die('gagal koneksi'.$this->conn->connect_error);
             }
+            $this->conn->set_charset('utf8mb4');
         } catch (Exception $e) {
             die($e->getMessage());
         }
     }
 
-    public function getconnection() {
+    public function getConnection() {
         return $this->conn;
     }
 }
+
+// $db = new Database();
+// $conn = $db->getConnection();
 
 ?>
