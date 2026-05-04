@@ -185,7 +185,7 @@ body {
 }
 
 .databuku-table .col-kategori {
-    width: 12%;
+    width: 14%;
 }
 
 .databuku-table .col-stok {
@@ -193,7 +193,7 @@ body {
 }
 
 .databuku-table .col-aksi {
-    width: 18%;
+    width: 16%;
 }
 
 .databuku-table thead tr {
@@ -410,10 +410,6 @@ body {
     overflow: hidden;
 }
 
-.detail-modal-box {
-    width: 430px;
-}
-
 .book-modal-header {
     min-height: 60px;
     padding: 18px 22px;
@@ -439,30 +435,8 @@ body {
     cursor: pointer;
 }
 
-.book-detail-list,
 .book-edit-form {
     padding: 22px;
-}
-
-.book-detail-list {
-    display: grid;
-    gap: 12px;
-}
-
-.book-detail-list div {
-    display: grid;
-    grid-template-columns: 110px 1fr;
-    gap: 12px;
-    color: #334155;
-    font-size: 14px;
-}
-
-.book-detail-list span {
-    color: #64748b;
-}
-
-.book-detail-list strong {
-    font-weight: 600;
 }
 
 .book-edit-form label {
