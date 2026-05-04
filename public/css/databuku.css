@@ -159,10 +159,42 @@ body {
 
 .databuku-table {
     width: 100%;
-    min-width: 980px;
+    min-width: 1450px;
     border-collapse: collapse;
     table-layout: fixed;
     background: #ffffff;
+}
+
+.databuku-table .col-no {
+    width: 64px;
+}
+
+.databuku-table .col-judul {
+    width: 260px;
+}
+
+.databuku-table .col-penulis {
+    width: 220px;
+}
+
+.databuku-table .col-penerbit {
+    width: 240px;
+}
+
+.databuku-table .col-tahun {
+    width: 100px;
+}
+
+.databuku-table .col-kategori {
+    width: 180px;
+}
+
+.databuku-table .col-stok {
+    width: 90px;
+}
+
+.databuku-table .col-aksi {
+    width: 296px;
 }
 
 .databuku-table thead tr {
@@ -193,46 +225,6 @@ body {
     border-bottom: 0;
 }
 
-.databuku-table th:nth-child(1),
-.databuku-table td:nth-child(1) {
-    width: 6%;
-}
-
-.databuku-table th:nth-child(2),
-.databuku-table td:nth-child(2) {
-    width: 19%;
-}
-
-.databuku-table th:nth-child(3),
-.databuku-table td:nth-child(3) {
-    width: 17%;
-}
-
-.databuku-table th:nth-child(4),
-.databuku-table td:nth-child(4) {
-    width: 15%;
-}
-
-.databuku-table th:nth-child(5),
-.databuku-table td:nth-child(5) {
-    width: 8%;
-}
-
-.databuku-table th:nth-child(6),
-.databuku-table td:nth-child(6) {
-    width: 12%;
-}
-
-.databuku-table th:nth-child(7),
-.databuku-table td:nth-child(7) {
-    width: 8%;
-}
-
-.databuku-table th:nth-child(8),
-.databuku-table td:nth-child(8) {
-    width: 15%;
-}
-
 .databuku-table td:nth-child(2),
 .databuku-table td:nth-child(3),
 .databuku-table td:nth-child(4),
@@ -242,16 +234,21 @@ body {
 }
 
 .databuku-actions {
+    display: flex;
+    align-items: center;
+    gap: 10px;
     white-space: nowrap;
-    overflow: visible !important;
+    overflow: hidden !important;
 }
 
 .databuku-delete-form {
-    display: inline-flex;
+    display: flex;
+    flex: 0 0 auto;
     margin: 0;
 }
 
 .btn-table-action {
+    flex: 0 0 auto;
     height: 32px;
     padding: 0 12px;
     border: 1px solid #e5e7eb;
@@ -263,7 +260,6 @@ body {
     color: #111827;
     font-size: 12px;
     cursor: pointer;
-    margin-right: 8px;
 }
 
 .btn-table-action:hover {
@@ -277,10 +273,6 @@ body {
 .btn-delete-book:hover {
     background: #fef2f2;
     border-color: #fecaca;
-}
-
-.btn-table-action:last-child {
-    margin-right: 0;
 }
 
 .btn-table-action i {

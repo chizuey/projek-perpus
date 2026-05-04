@@ -1,31 +1,26 @@
 <?php
 session_start();
-include '../config.php'; // Pastikan file koneksi database sudah ada
+include '../config.php';
 
 if (isset($_POST['login'])) {
     $email = mysqli_real_escape_string($koneksi, $_POST['email']);
     $password = $_POST['password'];
 
-    // Mencari user berdasarkan email
-    $query = mysqli_query($koneksi, "SELECT * FROM users WHERE email = '$email'");
+    $query = mysqli_query($koneksi, "SELECT * FROM admin WHERE email_admin = '$email' LIMIT 1");
     
     if (mysqli_num_rows($query) === 1) {
         $data = mysqli_fetch_assoc($query);
 
-        // Verifikasi password (menggunakan hash agar aman)
         if (password_verify($password, $data['password'])) {
-            
-            // Simpan identitas ke Session
-            $_SESSION['id_user'] = $data['id'];
-            $_SESSION['nama']    = $data['nama_lengkap'];
-            $_SESSION['level']   = $data['level']; // Penting untuk membedakan admin/user
+            $_SESSION['id_admin'] = $data['id_admin'];
+            $_SESSION['id_user']  = $data['id_admin'];
+            $_SESSION['nama']     = $data['nama_admin'];
+            $_SESSION['jabatan']  = $data['jabatan_admin'] ?? 'Admin Perpustakaan';
+            $_SESSION['level']    = 'admin';
 
-            // Alihkan halaman berdasarkan level
-            if ($data['level'] == 'admin') {
-                header("Location: ../admin/index.php?menu=dashboard");
-            } else {
-                header("Location: ../user/beranda.php");
-            }
+            $adminId = (int) $data['id_admin'];
+            mysqli_query($koneksi, "UPDATE admin SET last_login_at = NOW() WHERE id_admin = $adminId");
+            header("Location: ../admin/index.php?menu=dashboard");
             exit();
 
         } else {

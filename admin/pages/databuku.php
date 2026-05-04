@@ -46,6 +46,16 @@ extract($bukuController->index(), EXTR_SKIP);
     <!-- Tabel daftar buku dan tombol aksi -->
     <div class="databuku-table-wrap">
         <table class="databuku-table">
+            <colgroup>
+                <col class="col-no">
+                <col class="col-judul">
+                <col class="col-penulis">
+                <col class="col-penerbit">
+                <col class="col-tahun">
+                <col class="col-kategori">
+                <col class="col-stok">
+                <col class="col-aksi">
+            </colgroup>
             <thead>
                 <tr>
                     <th>No.</th>
