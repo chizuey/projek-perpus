@@ -49,17 +49,6 @@ if (($_SERVER['REQUEST_METHOD'] ?? 'GET') === 'POST' && isset($_POST['aksi']) &&
     $pesan = 'success';
 }
 
-/*
-|--------------------------------------------------------------------------
-| PROSES LOGOUT
-|--------------------------------------------------------------------------
-*/
-if (isset($_GET['logout'])) {
-    session_destroy();
-    header('Location: ../user/beranda.php');
-    exit;
-}
-
 // Mode tampil: 'view' atau 'edit'
 $mode = isset($_GET['edit']) ? 'edit' : 'view';
 ?>

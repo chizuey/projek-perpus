@@ -251,7 +251,7 @@ function hitungDendaLaporan(array $row): string
 }
 
 // Membuat HTML laporan yang akan dipakai untuk PDF.
-function buildExportHtml($laporan, $statusFilter, $startDate, $endDate, $keyword, $autoPrint = false, $showPrintNote = false)
+function buildExportHtml($laporan, $statusFilter, $startDate, $endDate, $keyword)
 {
     $styles = getPdfStyles();
     $logoDataUri = getLogoPolijeDataUri();
@@ -327,7 +327,7 @@ function buildExportHtml($laporan, $statusFilter, $startDate, $endDate, $keyword
 // Membuat dan mengirim file PDF laporan.
 function exportLaporanPdf($laporan, $statusFilter, $startDate, $endDate, $keyword)
 {
-    $html = buildExportHtml($laporan, $statusFilter, $startDate, $endDate, $keyword, false, false);
+    $html = buildExportHtml($laporan, $statusFilter, $startDate, $endDate, $keyword);
 
     $options = new Options();
     $options->set('defaultFont', 'DejaVu Sans');
@@ -455,15 +455,6 @@ $returnQuery = buatQuery([], ['action']);
 | TEMPLATE HALAMAN LAPORAN TRANSAKSI
 |--------------------------------------------------------------------------
 -->
-<!DOCTYPE html>
-<html lang="id">
-<head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Laporan Transaksi</title>
-    <link rel="stylesheet" href="laporantransaksi.css">
-</head>
-<body>
     <div class="page-wrapper">
         <header class="page-header">
             <h1>Laporan Transaksi</h1>
