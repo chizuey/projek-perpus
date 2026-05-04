@@ -74,8 +74,9 @@ body {
     color: #ffffff;
 }
 
-.btn-add-book i {
+.btn-add-book .plus-icon {
     font-size: 15px;
+    line-height: 1;
 }
 
 .databuku-search {

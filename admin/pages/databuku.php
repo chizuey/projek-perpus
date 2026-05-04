@@ -13,8 +13,8 @@ extract($bukuController->index(), EXTR_SKIP);
     <!-- Toolbar tambah, pencarian, dan filter buku -->
     <div class="databuku-toolbar">
         <a href="?menu=tambahbuku" class="btn-add-book">
-            <i class="bi bi-plus"></i>
-            <span>Tambah Buku</span>
+            <span class="plus-icon">+</span>
+            Tambah Buku
         </a>
 
         <form method="get" class="databuku-search">
