@@ -4,7 +4,6 @@
 | KONFIGURASI AWAL
 |--------------------------------------------------------------------------
 */
-require_once __DIR__ . '/../../vendor/autoload.php';
 require_once __DIR__ . '/../../models/Peminjaman.php';
 
 use Dompdf\Dompdf;
