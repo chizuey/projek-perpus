@@ -1,3 +1,21 @@
+<?php
+session_start();
+require_once '../vendor/autoload.php';
+
+// 1. Inisialisasi Google Client
+$clientID = '118639840694-uuda9i1n1bc3c216tqufrjirucg3chdv.apps.googleusercontent.com';
+$clientSecret = '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';
+$redirectUri = 'http://localhost/projek-perpus/auth/proses-login.php';
+
+$client = new Google_Client();
+$client->setClientId($clientID);
+$client->setClientSecret($clientSecret);
+$client->setRedirectUri($redirectUri);
+$client->addScope("email");
+$client->addScope("profile");
+
+$loginUrl = $client->createAuthUrl(); 
+?>
 <!DOCTYPE html>
 <html lang="id">
 <head>
@@ -112,14 +130,10 @@
         <div class="divider">Atau Mahasiswa</div>
 
         <!-- TOMBOL SSO UNTUK MAHASISWA (SEKARANG DI BAWAH) -->
-        <a href="proses-login.php" class="btn-google">
-            <img src="https://upload.wikimedia.org/wikipedia/commons/5/53/Google_%22G%22_Logo.svg" width="18" alt="G">
-            Masuk dengan Akun SSO
-        </a>
+      <a href="<?php echo $loginUrl; ?>" class="btn-google">
+    <img src="https://upload.wikimedia.org/wikipedia/commons/5/53/Google_%22G%22_Logo.svg" width="18" alt="G">
+    Masuk dengan Akun SSO
+</a>
 
-        <div class="footer-note">
-            Sistem Informasi Perpustakaan v1.0
-        </div>
-    </div>
 </body>
 </html>
