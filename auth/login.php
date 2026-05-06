@@ -131,7 +131,6 @@ $loginUrl = $client->createAuthUrl();
 
         <!-- TOMBOL SSO UNTUK MAHASISWA (SEKARANG DI BAWAH) -->
       <a href="<?php echo $loginUrl; ?>" class="btn-google">
-    <img src="https://upload.wikimedia.org/wikipedia/commons/5/53/Google_%22G%22_Logo.svg" width="18" alt="G">
     Masuk dengan Akun SSO
 </a>
 
