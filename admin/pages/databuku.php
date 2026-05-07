@@ -91,14 +91,13 @@ extract($bukuController->index(), EXTR_SKIP);
                             ?>
                             <td><?= eBuku($stokTersedia); ?></td>
                             <td class="databuku-actions">
-                                <button
-                                    type="button"
-                                    class="btn-table-action js-edit-book"
-                                    data-book='<?= eBuku(json_encode($bookPayload, JSON_UNESCAPED_UNICODE)); ?>'
+                                <a
+                                    href="?menu=editbuku&id=<?= (int) $book['id']; ?>&page=<?= (int) $currentPage; ?>&q=<?= eBuku($search); ?>&kategori_filter=<?= eBuku($kategoriFilter); ?>&per_page=<?= (int) $perPage; ?>"
+                                    class="btn-table-action"
                                 >
                                     <i class="bi bi-pencil"></i>
                                     <span>Edit</span>
-                                </button>
+                                </a>
                                 <form
                                     method="post"
                                     action="actions/buku/delete.php"
@@ -163,125 +162,16 @@ extract($bukuController->index(), EXTR_SKIP);
     </div>
 </section>
 
-<!-- Modal edit buku -->
-<div class="book-modal" id="editBookModal" aria-hidden="true">
-    <div class="book-modal-box">
-        <div class="book-modal-header">
-            <h2>Edit Data Buku</h2>
-            <button type="button" class="book-modal-close js-close-book-modal" aria-label="Tutup">&times;</button>
-        </div>
-        <form method="post" action="actions/buku/update.php" class="book-edit-form">
-            <input type="hidden" name="action" value="edit_buku">
-            <input type="hidden" name="id" id="editId">
-            <input type="hidden" name="page" value="<?= (int) $currentPage; ?>">
-            <input type="hidden" name="q" value="<?= eBuku($search); ?>">
-            <input type="hidden" name="kategori_filter" value="<?= eBuku($kategoriFilter); ?>">
-            <input type="hidden" name="per_page" value="<?= (int) $perPage; ?>">
-
-            <label>Judul Buku</label>
-            <input type="text" name="judul" id="editJudul" required>
-
-            <label>Penulis</label>
-            <input type="text" name="penulis" id="editPenulis" required>
-
-            <label>Penerbit</label>
-            <input type="text" name="penerbit" id="editPenerbit" required>
-
-            <div class="book-edit-grid">
-                <div>
-                    <label>Tahun</label>
-                    <input type="number" name="tahun" id="editTahun" min="0" required>
-                </div>
-                <div>
-                    <label>Stok</label>
-                    <input type="number" name="stok" id="editStok" min="0" required>
-                </div>
-            </div>
-
-            <label>Kategori :</label>
-            <select name="kategori" id="editKategori" required>
-                <?php foreach ($kategoriOptions as $kategori): ?>
-                    <option value="<?= eBuku($kategori); ?>"><?= eBuku($kategori); ?></option>
-                <?php endforeach; ?>
-            </select>
-
-            <div class="book-modal-actions">
-                <button type="button" class="btn-cancel-edit js-close-book-modal">Batal</button>
-                <button type="submit" class="btn-save-edit">Simpan Perubahan</button>
-            </div>
-        </form>
-    </div>
-</div>
-
-<!-- Script modal edit dan filter Data Buku -->
+<!-- Script filter Data Buku -->
 <script>
 document.addEventListener('DOMContentLoaded', function () {
     const filterForm = document.getElementById('filterBukuForm');
     const filterSelect = filterForm ? filterForm.querySelector('select') : null;
-    const editModal = document.getElementById('editBookModal');
 
     if (filterSelect) {
         filterSelect.addEventListener('change', function () {
             filterForm.submit();
         });
     }
-
-    // Membuka modal edit buku.
-    function openModal(modal) {
-        if (!modal) return;
-        modal.classList.add('show');
-        modal.setAttribute('aria-hidden', 'false');
-        document.body.classList.add('modal-open');
-    }
-
-    // Menutup semua modal buku yang sedang aktif.
-    function closeModals() {
-        document.querySelectorAll('.book-modal.show').forEach(function (modal) {
-            modal.classList.remove('show');
-            modal.setAttribute('aria-hidden', 'true');
-        });
-        document.body.classList.remove('modal-open');
-    }
-
-    // Mengambil payload JSON buku dari tombol aksi.
-    function parseBook(button) {
-        try {
-            return JSON.parse(button.dataset.book || '{}');
-        } catch (error) {
-            return {};
-        }
-    }
-
-    document.querySelectorAll('.js-edit-book').forEach(function (button) {
-        button.addEventListener('click', function () {
-            const book = parseBook(button);
-            document.getElementById('editId').value = book.id || '';
-            document.getElementById('editJudul').value = book.judul || '';
-            document.getElementById('editPenulis').value = book.penulis || '';
-            document.getElementById('editPenerbit').value = book.penerbit || '';
-            document.getElementById('editTahun').value = book.tahun || '';
-            document.getElementById('editStok').value = book.stok || '';
-            document.getElementById('editKategori').value = book.kategori || '';
-            openModal(editModal);
-        });
-    });
-
-    document.querySelectorAll('.js-close-book-modal').forEach(function (button) {
-        button.addEventListener('click', closeModals);
-    });
-
-    document.querySelectorAll('.book-modal').forEach(function (modal) {
-        modal.addEventListener('click', function (event) {
-            if (event.target === modal) {
-                closeModals();
-            }
-        });
-    });
-
-    document.addEventListener('keydown', function (event) {
-        if (event.key === 'Escape') {
-            closeModals();
-        }
-    });
 });
 </script>

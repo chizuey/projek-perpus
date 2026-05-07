@@ -82,6 +82,41 @@ class BukuController
         return $state;
     }
 
+    public function edit(int $id): array
+    {
+        $this->startSession();
+        $book = $this->model->find($id);
+
+        if (!$book) {
+            $this->redirect('?menu=databuku');
+        }
+
+        // Map model fields to form fields if necessary
+        $bookData = [
+            'id' => $book['id'],
+            'judul' => $book['judul'],
+            'penulis' => $book['penulis'],
+            'penerbit' => $book['penerbit'],
+            'tahun' => $book['tahun'],
+            'tempat_terbit' => $book['tempat_terbit'] ?? '',
+            'isbn' => $book['isbn'],
+            'kategori' => [$book['kategori']],
+            'sinopsis' => $book['sinopsis'] ?? '',
+            'stok' => $book['stok'],
+        ];
+
+        $state = [
+            'errorsEditBuku' => $_SESSION['edit_buku_errors'] ?? [],
+            'oldEditBuku' => array_merge($bookData, $_SESSION['edit_buku_old'] ?? []),
+            'kategoriList' => $this->model->kategoriOptions(),
+            'bookId' => $id
+        ];
+
+        unset($_SESSION['edit_buku_errors'], $_SESSION['edit_buku_old']);
+
+        return $state;
+    }
+
     public function store(array $post, array $files = []): void
     {
         $this->startSession();
@@ -105,14 +140,40 @@ class BukuController
         $this->redirect('?menu=databuku');
     }
 
-    public function update(array $post): void
+    public function update(array $post, array $files = []): void
     {
+        $this->startSession();
         $id = (int) ($post['id'] ?? 0);
         $data = $this->normalizeInput($post, false);
+        $errors = $this->validate($data, false);
 
-        if ($id > 0 && empty($this->validate($data, false))) {
-            $this->model->update($id, $data);
+        if ($id <= 0) {
+            $this->redirect('?menu=databuku');
         }
+
+        if ($data['judul'] !== '') {
+            $book = $this->model->find($id);
+            if ($book && strtolower($book['judul']) !== strtolower($data['judul']) && $this->model->countByTitle($data['judul'], $id) > 0) {
+                $errors[] = 'Judul buku sudah ada di database.';
+            }
+        }
+
+        if (!empty($errors)) {
+            $_SESSION['edit_buku_errors'] = $errors;
+            $_SESSION['edit_buku_old'] = $post;
+            $this->redirect('?menu=editbuku&id=' . $id);
+        }
+
+        $newCover = $this->handleCoverUpload($files);
+        if ($newCover !== '') {
+            $data['cover_buku'] = $newCover;
+        } else {
+            // Jika tidak ada upload cover baru, jangan timpa data cover yang sudah ada.
+            unset($data['cover_buku']);
+        }
+
+        $this->model->update($id, $data);
+        unset($_SESSION['edit_buku_errors'], $_SESSION['edit_buku_old']);
 
         $this->redirect($this->buildUrl(
             max(1, (int) ($post['page'] ?? 1)),

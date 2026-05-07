@@ -7,4 +7,4 @@ if (($_SERVER['REQUEST_METHOD'] ?? 'GET') !== 'POST' || ($_POST['action'] ?? '')
     exit;
 }
 
-(new BukuController())->update($_POST);
+(new BukuController())->update($_POST, $_FILES);

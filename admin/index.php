@@ -38,6 +38,12 @@ $allowedMenus = [
             '../public/css/tambah.css'
         ]
     ],
+    'editbuku' => [
+        'file' => 'pages/editBuku.php',
+        'styles' => [
+            '../public/css/tambah.css'
+        ]
+    ],
     'dashboard' => [
         'file' => 'pages/dash.php',
         'styles' => [
