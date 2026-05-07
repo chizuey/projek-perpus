@@ -4,8 +4,8 @@ require_once '../vendor/autoload.php';
 require_once '../config.php';
 
 $client = new Google\Client();
-$client->setClientId('');
-$client->setClientSecret('');
+$client->setClientId('118639840694-uuda9i1n1bc3c216tqufrjirucg3chdv.apps.googleusercontent.com');
+$client->setClientSecret('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');
 $client->setRedirectUri('http://localhost/projek-perpus/auth/proses-login.php');
 $client->addScope("email");
 $client->addScope("profile");
@@ -30,7 +30,7 @@ if (isset($_GET['code'])) {
             exit();
         }
 
-        // Jika email valid Polije, cek atau daftarkan ke tabel anggota
+        // Jika email valid Polije, daftarkan ke tabel anggota
         $query = mysqli_query($koneksi, "SELECT * FROM anggota WHERE email_anggota = '$email' LIMIT 1");
         
         if (mysqli_num_rows($query) > 0) {
