@@ -1,6 +1,7 @@
 <?php
 require_once __DIR__ . '/../../controllers/PeminjamanController.php';
-extract(PeminjamanController::index(), EXTR_SKIP);
+$peminjamanController = new PeminjamanController();
+extract($peminjamanController->index(), EXTR_SKIP);
 ?>
 <!-- Tampilan utama menu Peminjaman -->
 <div class="datapeminjam-wrapper">
@@ -404,4 +405,3 @@ document.addEventListener('DOMContentLoaded', function () {
     }
 });
 </script>
-

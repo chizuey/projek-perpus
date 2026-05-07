@@ -130,4 +130,42 @@ class Peminjaman
             'denda' => 'Rp ' . number_format($terlambat * 500, 0, ',', '.')
         ];
     }
+
+    public function reportRows($statusFilter, $startDate, $endDate, $keyword)
+    {
+        $sql = "SELECT p.*, a.nama_anggota as peminjam, b.judul as judul_buku
+                FROM peminjaman p
+                JOIN anggota a ON a.id_anggota = p.id_anggota
+                JOIN buku b ON b.id_buku = p.id_buku
+                WHERE p.laporan_hidden_at IS NULL";
+        
+        if ($startDate) $sql .= " AND p.tanggal_pinjam >= '$startDate'";
+        if ($endDate) $sql .= " AND p.tanggal_pinjam <= '$endDate'";
+        if ($keyword) $sql .= " AND (a.nama_anggota LIKE '%$keyword%' OR b.judul LIKE '%$keyword%')";
+        
+        $sql .= " ORDER BY p.id_peminjaman DESC";
+        $result = $this->conn->query($sql);
+        
+        $rows = [];
+        while ($row = $result->fetch_assoc()) {
+            $meta = $this->getMeta($row);
+            $row['status'] = $meta['status'];
+            $row['tanggal'] = $row['tanggal_pinjam'];
+            $row['tgl_pinjam'] = $row['tanggal_pinjam'];
+            $row['tgl_jatuh_tempo'] = $row['tanggal_jatuh_tempo'];
+            $row['tgl_kembali'] = $row['tanggal_kembali'];
+            
+            if ($statusFilter !== 'Semua' && $row['status'] !== $statusFilter) continue;
+            
+            $rows[] = $row;
+        }
+        return $rows;
+    }
+
+    public function hideReports($ids)
+    {
+        if (empty($ids)) return;
+        $idList = implode(',', $ids);
+        $this->conn->query("UPDATE peminjaman SET laporan_hidden_at = NOW() WHERE id_peminjaman IN ($idList)");
+    }
 }

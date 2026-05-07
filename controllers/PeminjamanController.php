@@ -100,6 +100,18 @@ if (!function_exists('e')) {
     }
 }
 
+if (!function_exists('todayDate')) {
+    function todayDate() {
+        return date('Y-m-d');
+    }
+}
+
+if (!function_exists('defaultTanggalKembali')) {
+    function defaultTanggalKembali() {
+        return date('Y-m-d', strtotime('+7 days'));
+    }
+}
+
 if (!function_exists('formatTanggal')) {
     function formatTanggal($date) {
         return $date ? date('d M Y', strtotime($date)) : '-';

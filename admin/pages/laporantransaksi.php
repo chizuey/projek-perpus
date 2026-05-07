@@ -281,11 +281,13 @@ function exportLaporanPdf($laporan, $statusFilter, $startDate, $endDate, $keywor
 | PROSES HAPUS DATA
 |--------------------------------------------------------------------------
 */
+$peminjamanModel = new Peminjaman();
+
 if (($_SERVER['REQUEST_METHOD'] ?? 'GET') === 'POST' && isset($_POST['delete_selected'])) {
     $selectedIds = array_map('intval', $_POST['selected_ids'] ?? []);
 
     if (!empty($selectedIds)) {
-        Peminjaman::hideReports($selectedIds);
+        $peminjamanModel->hideReports($selectedIds);
     }
 
     $returnQuery = trim($_POST['return_query'] ?? '');
@@ -306,21 +308,21 @@ $keyword = trim($_GET['keyword'] ?? '');
 $page = max(1, (int) ($_GET['page'] ?? 1));
 $perPage = normalizeLaporanPerPage($_GET['per_page'] ?? 5);
 
-$semuaLaporan = Peminjaman::reportRows('Semua', '', '', '', false);
+$semuaLaporan = $peminjamanModel->reportRows('Semua', '', '', '', false);
 
 /*
 |--------------------------------------------------------------------------
 | Data dashboard: hanya ikut filter tanggal
 |--------------------------------------------------------------------------
 */
-$laporanDashboard = Peminjaman::reportRows('Semua', $startDate, $endDate, '', false);
+$laporanDashboard = $peminjamanModel->reportRows('Semua', $startDate, $endDate, '', false);
 
 /*
 |--------------------------------------------------------------------------
 | Data tabel: ikut filter tanggal + status + keyword
 |--------------------------------------------------------------------------
 */
-$laporan = Peminjaman::reportRows($statusFilter, $startDate, $endDate, $keyword, false);
+$laporan = $peminjamanModel->reportRows($statusFilter, $startDate, $endDate, $keyword, false);
 
 if (isset($_GET['action']) && $_GET['action'] === 'export') {
     // Export memakai data laporan yang sudah mengikuti filter aktif.
