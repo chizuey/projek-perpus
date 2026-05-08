@@ -7,4 +7,5 @@ if (($_SERVER['REQUEST_METHOD'] ?? 'GET') !== 'POST' || ($_POST['action'] ?? '')
     exit;
 }
 
-PeminjamanController::extend($_POST);
+$controller = new PeminjamanController();
+$controller->extend($_POST);
