@@ -95,11 +95,13 @@ class Peminjaman
         return false;
     }
 
-    public function getOpsiBuku()
-    {
-        $res = $this->conn->query("SELECT judul, stok_tersedia FROM buku ORDER BY judul ASC");
-        return $res->fetch_all(MYSQLI_ASSOC);
-    }
+  // File: Model/Peminjaman.php
+public function getOpsiBuku()
+{
+    // Pastikan kolom 'stok_tersedia' sesuai dengan yang ada di tabel 'buku'
+    $res = $this->conn->query("SELECT judul, stok_tersedia FROM buku ORDER BY judul ASC");
+    return $res->fetch_all(MYSQLI_ASSOC);
+}
 
     private function getAnggotaId($nim, $nama)
     {
@@ -108,11 +110,15 @@ class Peminjaman
         if ($row = $res->fetch_assoc()) {
             return $row['id_anggota'];
         }
-        $this->conn->query("INSERT INTO anggota (kode_anggota, nama_anggota) VALUES ('$nim', '$nama')");
+        
+        // Bikin email dummy unik menggunakan NIM
+$dummy_email = $nim . '@student.com';
+$this->conn->query("INSERT INTO anggota (kode_anggota, nama_anggota, email_anggota) VALUES ('$nim', '$nama', '$dummy_email')");
+        // INI BAGIAN YANG HILANG: Kembalikan ID baru dan tutup function-nya
         return $this->conn->insert_id;
     }
 
-    // Helper untuk hitung denda dan status
+
     public function getMeta($item)
     {
         $jatuh_tempo = strtotime($item['tanggal_jatuh_tempo']);

@@ -43,23 +43,21 @@
                     >
                 </div>
 
-                <div class="form-group">
-                    <label for="popup_buku">Buku</label>
-                    <select id="popup_buku" name="buku" required>
-                        <option value="">Pilih Buku</option>
-                        <?php foreach ($opsiBuku as $opsi): ?>
-                            <?php
-                            $judul = $opsi['judul'] ?? '';
-                            $stok = (int) ($opsi['stok'] ?? 0);
-                            $selected = (($oldInput['buku'] ?? '') === $judul) ? 'selected' : '';
-                            ?>
-                            <option value="<?= e($judul); ?>" <?= $selected; ?>>
-                                <?= e($judul); ?> (Stok: <?= $stok; ?>)
-                            </option>
-                        <?php endforeach; ?>
-                    </select>
-                </div>
-
+        <div class="mb-3">
+    <label for="buku" class="form-label">Buku</label>
+    <select name="buku" id="buku" class="form-select" required>
+        <option value="" selected disabled>Pilih Buku</option>
+        
+        <?php if (!empty($opsiBuku)): ?>
+            <?php foreach ($opsiBuku as $b): ?>
+                <option value="<?= e($b['judul']); ?>" <?= $b['stok_tersedia'] <= 0 ? 'disabled' : ''; ?>>
+                    <?= e($b['judul']); ?> (Stok: <?= $b['stok_tersedia']; ?>)
+                </option>
+            <?php endforeach; ?>
+        <?php endif; ?>
+        
+    </select>
+</div>
                 <?php
                 $tglPinjamValue = !empty($oldInput['tgl_pinjam']) ? $oldInput['tgl_pinjam'] : todayDate();
                 $tglKembaliValue = !empty($oldInput['tgl_kembali']) ? $oldInput['tgl_kembali'] : defaultTanggalKembali();

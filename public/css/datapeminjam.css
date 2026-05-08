@@ -16,6 +16,11 @@ body {
     padding: 20px;
 }
 
+table tbody tr td:nth-child(1),
+table tbody tr td:nth-child(2) {
+    text-transform: uppercase !important;
+}
+
 .datapeminjam-wrapper {
     width: 100%;
     max-width: none;
