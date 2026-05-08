@@ -4,7 +4,7 @@
   <meta charset="UTF-8">
   <title>Perpustakaan Polije</title>
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <link rel="stylesheet" href="../public/css/style.css?v=3"
+  <link rel="stylesheet" href="../public/css/style.css?v=6"
 
   <-- Font Awesome -->
   <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.0/css/all.min.css">
@@ -18,7 +18,7 @@
     <div class="container hero-content">
         <div class="hero-text">
             <h1>Selamat Datang di <br><span>Perpustakaan Polije</span></h1>
-            <p>Temukan ribuan judul buku, e-book, jurnal, dan referensi lainnya
+            <p>Temukan berbagai judul dan referensi lainnya
 untuk mendukung proses belajar mengajar. Temukan inspirasi
 dan pengetahuan tanpa batas.
             
@@ -39,16 +39,14 @@ dan pengetahuan tanpa batas.
 <section class="container features">
    <div class="feature-card">
         <div class="icon-box blue"><img src="gambar/koleksi.png"></div>
-        <h3>Koleksi Lengkap</h3>
-        <p>Ribuan buku, e-book, jurnal, dan e-proceding siap mendukung belajar.</p>
+        <h3>Koleksi Buku</h3>
+        <p>Tersedia berbagai macam judul buku cetak dari berbagai kategori untuk mendukung referensi belajar Anda.</p>
    </div>
 
    <div class="feature-card">
         <div class="icon-box blue"><img src="gambar/akses.png"></div>
-        <h3>Akses E-Journal</h3>
-        <p>Akses eksklusif ke berbagai
-jurnal nasional maupun
-internasional ternama
+        <h3>Katalog Buku Ter-update</h3>
+        <p>Cari dan temukan ketersediaan buku favorit Anda dengan mudah melalui sistem katalog digital kami.
    </div>
 
    <div class="feature-card">
