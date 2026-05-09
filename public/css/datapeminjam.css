@@ -434,13 +434,22 @@ table tbody tr td:nth-child(2) {
 }
 
 .return-confirm-box {
-    width: 460px;
-    max-width: calc(100vw - 32px);
-    overflow: visible;
+    width: 800px;
+    max-width: 95%;
+    max-height: 90vh;
+    display: flex;
+    flex-direction: column;
+    overflow: hidden;
     border-radius: 10px;
     background: #ffffff;
     box-shadow: 0 20px 40px rgba(0, 0, 0, 0.18);
     animation: returnPopupFadeIn 0.2s ease;
+}
+
+/* Memastikan tabel di dalam popup tidak kepotong (melebihi lebar box) */
+.return-confirm-body .datapeminjam-table {
+    min-width: 100% !important;
+    table-layout: auto !important;
 }
 
 .return-confirm-header {

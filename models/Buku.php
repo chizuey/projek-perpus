@@ -56,12 +56,12 @@ class Buku
         $id_kategori = $this->getKategoriId($data['kategori']);
         $copy_count = (int)$data['stok'];
         
-        $sql = "INSERT INTO buku (isbn, judul, penulis, penerbit, tahun_terbit, copy, id_kategori) 
-                VALUES (?, ?, ?, ?, ?, ?, ?)";
+        $sql = "INSERT INTO buku (isbn, judul, penulis, penerbit, tahun_terbit, copy, id_kategori, cover) 
+                VALUES (?, ?, ?, ?, ?, ?, ?, ?)";
         $stmt = $this->conn->prepare($sql);
-        $stmt->bind_param("sssssii", 
+        $stmt->bind_param("sssssiis", 
             $data['isbn'], $data['judul'], $data['penulis'], $data['penerbit'], $data['tahun'], 
-            $copy_count, $id_kategori
+            $copy_count, $id_kategori, $data['cover']
         );
         
         if ($stmt->execute()) {
@@ -84,11 +84,11 @@ class Buku
         $res = $this->conn->query("SELECT copy FROM buku WHERE id_buku = $id");
         $old_copy_count = $res->fetch_assoc()['copy'];
 
-        $sql = "UPDATE buku SET isbn=?, judul=?, penulis=?, penerbit=?, tahun_terbit=?, copy=?, id_kategori=? WHERE id_buku=?";
+        $sql = "UPDATE buku SET isbn=?, judul=?, penulis=?, penerbit=?, tahun_terbit=?, copy=?, id_kategori=?, cover=? WHERE id_buku=?";
         $stmt = $this->conn->prepare($sql);
-        $stmt->bind_param("sssssiii", 
+        $stmt->bind_param("sssssiisi", 
             $data['isbn'], $data['judul'], $data['penulis'], $data['penerbit'], $data['tahun'], 
-            $new_copy_count, $id_kategori, $id
+            $new_copy_count, $id_kategori, $data['cover'], $id
         );
         
         if ($stmt->execute()) {
