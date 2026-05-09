@@ -55,7 +55,7 @@
                     >
                 </div>
 
-                <div class="form-group" style="margin-top: 10px;">
+                <div class="form-group">
                     <label for="buku2">ID Eksemplar 2 (Opsional)</label>
                     <input 
                         type="text" 
@@ -66,7 +66,7 @@
                     >
                 </div>
 
-                <div class="form-group" style="margin-top: 10px;">
+                <div class="form-group">
                     <label for="buku3">ID Eksemplar 3 (Opsional)</label>
                     <input 
                         type="text" 
@@ -112,3 +112,20 @@
         </form>
     </div>
 </div>
+
+<script>
+// Logika untuk menutup popup peminjaman
+document.addEventListener('DOMContentLoaded', function() {
+    const popup = document.getElementById('popupPeminjaman');
+    const btnClose = document.getElementById('closePopupPeminjaman');
+    const btnBatal = document.getElementById('batalPopupPeminjaman');
+
+    const tutupPopup = () => {
+        popup.classList.remove('active');
+        document.body.classList.remove('modal-open');
+    };
+
+    if (btnClose) btnClose.onclick = tutupPopup;
+    if (btnBatal) btnBatal.onclick = tutupPopup;
+});
+</script>

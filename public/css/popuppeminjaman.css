@@ -17,7 +17,7 @@
     position: relative;
     z-index: 10000;
     width: 100%;
-    max-width: 720px;
+    max-width: 500px;
     overflow: hidden;
     border-radius: 12px;
     background: #ffffff;
@@ -28,10 +28,10 @@
     display: flex;
     justify-content: space-between;
     align-items: center;
-    padding: 18px 22px;
+    padding: 12px 20px;
     border-bottom: 1px solid #e5e7eb;
     color: #1e293b;
-    font-size: 24px;
+    font-size: 18px;
     font-weight: 600;
 }
 
@@ -50,7 +50,7 @@
 
 .popup-body {
     width: 100%;
-    padding: 22px;
+    padding: 15px 20px;
     box-sizing: border-box;
 }
 
@@ -66,15 +66,15 @@
 
 .form-group,
 .form-date {
-    margin-bottom: 16px;
+    margin-bottom: 12px;
 }
 
 .form-group label,
 .form-date label {
     display: block;
-    margin-bottom: 8px;
+    margin-bottom: 4px;
     color: #334155;
-    font-size: 15px;
+    font-size: 14px;
     font-weight: 500;
 }
 
@@ -82,8 +82,8 @@
 .form-group select,
 .form-date input {
     width: 100%;
-    height: 46px;
-    padding: 10px 12px;
+    height: 40px;
+    padding: 8px 12px;
     border: 1px solid #dbe2ea;
     border-radius: 8px;
     box-sizing: border-box;
@@ -112,7 +112,7 @@
     display: flex;
     justify-content: flex-end;
     gap: 12px;
-    margin-top: 22px;
+    margin-top: 15px;
 }
 
 .btn-batal,
