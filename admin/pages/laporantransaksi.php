@@ -1,9 +1,4 @@
 <?php
-/**
- * HALAMAN LAPORAN TRANSAKSI (VERSI SEDERHANA)
- * Halaman ini menampilkan riwayat peminjaman dengan ringkasan statistik.
- */
-
 // 1. Persiapan Data
 require_once __DIR__ . '/../../controllers/PeminjamanController.php';
 $peminjamanController = new PeminjamanController();
