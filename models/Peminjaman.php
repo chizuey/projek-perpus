@@ -57,6 +57,20 @@ class Peminjaman
     public function create($nim, $nama, $id_eksemplar_array, $adminId)
     {
         $id_anggota = $this->getAnggotaId($nim, $nama);
+        
+        // Cek jumlah buku yang sedang dipinjam
+        $res_count = $this->conn->query("SELECT COUNT(*) as active_count 
+                                        FROM detail_peminjaman dp 
+                                        JOIN peminjaman p ON p.id_peminjaman = dp.id_peminjaman 
+                                        WHERE p.id_anggota = $id_anggota AND dp.status_pengembalian = 'dipinjam'");
+        $active_count = $res_count->fetch_assoc()['active_count'];
+        
+        $new_count = count(array_filter($id_eksemplar_array));
+        
+        if (($active_count + $new_count) > 3) {
+            throw new Exception("Batas maksimal peminjaman adalah 3 buku. Saat ini sudah meminjam $active_count buku.");
+        }
+
         $tgl_pinjam = date('Y-m-d');
         $tgl_jatuh_tempo = date('Y-m-d', strtotime('+7 days'));
 
@@ -91,7 +105,8 @@ class Peminjaman
             return true;
         } catch (Exception $e) {
             $this->conn->rollback();
-            return false;
+            // Rethrow exception to be caught by controller
+            throw $e;
         }
     }
 

@@ -1,248 +1,210 @@
-/* =====================
-   PAGE WRAPPER
-===================== */
-.page-wrapper {
-  max-width: 480px;
-  margin: 0 auto;
-  padding: 0 1rem 3rem 1rem;
+:root {
+    --primary-blue: #0061f2;
+    --bg-light: #f8fafc;
+    --border-color: #e2e8f0;
+    --text-main: #1e293b;
+    --text-muted: #64748b;
+    --danger: #ef4444;
 }
 
-/* =====================
-   SECTION TITLE
-===================== */
-.section-title {
-  font-family: 'Inter-SemiBold', Helvetica, sans-serif;
-  font-size: 0.95rem;
-  color: #000;
-  margin: 1.25rem 0 0.75rem 0;
+body {
+    font-family: 'Inter', sans-serif;
+    background-color: var(--bg-light);
+    color: var(--text-main);
+    margin: 0;
+    padding: 20px 40px;
 }
 
-/* =====================
-   PROFILE CARD
-===================== */
+.container {
+    max-width: 1000px;
+    margin: 0 auto;
+}
+
+.btn-back {
+    border: 1px solid #e0e0e0; /* Memberi garis tepi halus */
+    transition: background 0.3s;
+}
+
+.btn-back:hover {
+    background-color: #eeeeee;
+}
+
+h2 { font-size: 24px; margin-bottom: 20px; font-weight: 700; color: #1e293b; }
+h3 { font-size: 18px; margin: 25px 0 15px 0; font-weight: 600; }
+
+/* Profile Card */
 .profile-card {
-  background-color: #fff;
-  border: 1px solid #e8e8e8;
-  border-radius: 10px;
-  padding: 1.1rem 1.25rem;
-  margin-bottom: 0.5rem;
+    background: white;
+    border: 1px solid var(--border-color);
+    border-radius: 12px;
+    padding: 30px;
+    display: flex;
+    align-items: center;
+    gap: 25px;
+    position: relative; /* Supaya tombol logout bisa ditaruh di kanan bawah */
+    box-shadow: 0 1px 3px rgba(0,0,0,0.05);
 }
 
-.profile-name {
-  font-family: 'Inter-Bold', Helvetica, sans-serif;
-  font-size: 1.3rem;
-  color: #000;
-  margin-bottom: 0.6rem;
+.avatar-placeholder {
+    width: 90px;
+    height: 90px;
+    background: #f1f5f9;
+    border-radius: 50%;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    border: 1px solid var(--border-color);
 }
 
-.badge-info {
-  background-color: #dbe7fb;
-  color: #0050ad;
-  font-family: 'Inter-Medium', Helvetica, sans-serif;
-  font-size: 0.72rem;
-  border-radius: 50px;
-  padding: 0.25rem 0.7rem;
-  display: inline-flex;
-  align-items: center;
-  gap: 0.3rem;
+.profile-info h1 {
+    margin: 0 0 10px 0;
+    font-size: 26px;
+    font-weight: 700;
 }
 
-/* =====================
-   BOOK CARD
-===================== */
-.book-card {
-  background-color: #fff;
-  border: 1px solid #e8e8e8;
-  border-radius: 10px;
-  padding: 1rem;
-  margin-bottom: 0.75rem;
+.badge-group { display: flex; gap: 10px; }
+.badge {
+    padding: 6px 14px;
+    border-radius: 6px;
+    font-size: 12px;
+    font-weight: 600;
+}
+.badge-nim { background: #e0e7ff; color: #4338ca; }
+
+/* Tombol Logout*/
+.btn-logout-card {
+    position: absolute;
+    right: 25px;
+    bottom: 25px;
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    padding: 10px 20px;
+    background: white;
+    color: var(--danger);
+    border: 1px solid var(--danger);
+    border-radius: 8px;
+    text-decoration: none;
+    font-size: 14px;
+    font-weight: 600;
+    transition: all 0.2s;
+}
+
+.btn-logout-card:hover {
+    background: var(--danger);
+    color: white;
+}
+
+/* Sections Grid */
+.grid-sections {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 20px;
+}
+
+.section-card {
+    background: white;
+    border: 1px solid var(--border-color);
+    border-radius: 12px;
+    padding: 24px;
+    box-shadow: 0 1px 2px rgba(0,0,0,0.03);
+}
+
+.book-item {
+    display: flex;
+    gap: 15px;
+    padding: 15px 0;
+    border-bottom: 1px solid #f1f5f9;
 }
 
 .book-cover {
-  width: 52px;
-  height: 76px;
-  border-radius: 5px;
-  border: 1px solid rgba(0,0,0,0.1);
-  background-color: #d1d5db;
-  object-fit: cover;
-  flex-shrink: 0;
+    width: 45px;
+    height: 60px;
+    background: #f1f5f9;
+    border-radius: 4px;
+    flex-shrink: 0;
 }
 
-.book-title {
-  font-family: 'Inter-SemiBold', Helvetica, sans-serif;
-  font-size: 0.82rem;
-  color: #000;
-  margin-bottom: 0.35rem;
+.book-detail { flex: 1; }
+.book-title { font-weight: 600; font-size: 14px; margin-bottom: 2px; }
+.book-author { color: var(--text-muted); font-size: 12px; margin-bottom: 5px; }
+.book-meta { font-size: 11px; color: var(--text-muted); }
+
+.status-labels {
+    display: flex;
+    flex-direction: column;
+    gap: 4px;
+    align-items: flex-end;
 }
 
-/* =====================
-   FINE BOX
-===================== */
-.fine-box {
-  background-color: #e8e8e8;
-  border-radius: 6px;
-  padding: 0.5rem 0.75rem;
-  margin-top: 0.5rem;
-  display: flex;
-  justify-content: space-between;
-  align-items: center;
+.status-tag {
+    padding: 4px 8px;
+    border-radius: 4px;
+    font-size: 10px;
+    font-weight: 600;
+    white-space: nowrap;
+}
+.tag-late { background: #fee2e2; color: #b91c1c; }
+.tag-denda { border: 1px solid var(--border-color); color: var(--primary-blue); }
+.tag-safe { background: #dcfce7; color: #15803d; }
+.tag-wait { background: #eff6ff; color: #1d4ed8; }
+
+.see-all {
+    display: block;
+    text-align: center;
+    margin-top: 15px;
+    color: var(--primary-blue);
+    text-decoration: none;
+    font-size: 13px;
+    font-weight: 600;
 }
 
-.fine-label {
-  font-family: 'Inter-Medium', Helvetica, sans-serif;
-  font-size: 0.68rem;
-  color: #949494;
-  display: block;
-}
-
-.fine-calc {
-  font-family: 'Inter-Bold', Helvetica, sans-serif;
-  font-size: 0.75rem;
-  color: #000;
-}
-
-/* =====================
-   DATE ROW
-===================== */
-.date-row {
-  display: flex;
-  align-items: center;
-  gap: 1rem;
-  padding-top: 0.6rem;
-  border-top: 1px dashed #e8e8e8;
-  margin-top: 0.6rem;
-}
-
-.date-label {
-  font-family: 'Inter-SemiBold', Helvetica, sans-serif;
-  font-size: 0.6rem;
-  color: #949494;
-  letter-spacing: 0.05em;
-  text-transform: uppercase;
-}
-
-.date-val {
-  font-family: 'Inter-Medium', Helvetica, sans-serif;
-  font-size: 0.75rem;
-  color: #000;
-  display: flex;
-  align-items: center;
-  gap: 0.25rem;
-}
-
-/* =====================
-   BADGES (STATUS)
-===================== */
-.badge-late,
-.badge-unpaid {
-  background-color: #ff0808;
-  color: #fff;
-}
-
-.badge-ontime {
-  background-color: #00c417;
-  color: #fff;
-}
-
-.badge-fine-blue,
-.badge-waiting {
-  background-color: #dbe7fb;
-  color: #0050ad;
-}
-
-.badge-late,
-.badge-ontime,
-.badge-fine-blue,
-.badge-unpaid,
-.badge-waiting {
-  font-family: 'Inter-SemiBold', Helvetica, sans-serif;
-  font-size: 0.68rem;
-  border-radius: 50px;
-  padding: 0.2rem 0.6rem;
-  display: inline-flex;
-  align-items: center;
-  gap: 0.25rem;
-  white-space: nowrap;
-}
-
-/* =====================
-   RESERVASI CARD
-===================== */
-.reservasi-card {
-  background-color: #fff;
-  border: 1px solid #e8e8e8;
-  border-radius: 10px;
-  padding: 1rem;
-  margin-bottom: 0.75rem;
-}
-
-/* =====================
-   STAT CARDS
-===================== */
-.stat-row {
-  display: flex;
-  gap: 0.6rem;
-  margin-bottom: 0.75rem;
+/* Stats Grid */
+.stats-grid {
+    display: grid;
+    grid-template-columns: repeat(3, 1fr);
+    gap: 20px;
 }
 
 .stat-card {
-  flex: 1;
-  background-color: #fff;
-  border: 1px solid #e8e8e8;
-  border-radius: 10px;
-  padding: 0.85rem;
+    background: white;
+    border: 1px solid var(--border-color);
+    border-radius: 12px;
+    padding: 20px;
+    display: flex;
+    align-items: center;
+    gap: 15px;
 }
 
-.stat-card-blue {
-  flex: 1;
-  background-color: #0050ad;
-  border-radius: 10px;
-  padding: 0.85rem;
+.stat-icon {
+    width: 48px;
+    height: 48px;
+    border-radius: 12px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 20px;
 }
 
-.stat-label {
-  font-family: 'Inter-Medium', Helvetica, sans-serif;
-  font-size: 0.65rem;
-  color: #949494;
+.stat-info .value { font-size: 22px; font-weight: 700; display: block; margin: 2px 0; }
+.stat-info .label { font-size: 12px; color: var(--text-muted); font-weight: 500; }
+.stat-info .desc { font-size: 11px; color: var(--text-muted); }
+
+/* Table */
+.table-card {
+    background: white;
+    border: 1px solid var(--border-color);
+    border-radius: 12px;
+    overflow: hidden;
+    margin-top: 15px;
 }
 
-.stat-value {
-  font-family: 'Inter-Bold', Helvetica, sans-serif;
-  font-size: 1.3rem;
-  color: #000;
-}
+table { width: 100%; border-collapse: collapse; }
+th { background: #f8fafc; padding: 15px 20px; font-size: 12px; color: var(--text-muted); text-align: left; border-bottom: 1px solid var(--border-color); }
+td { padding: 15px 20px; font-size: 13px; border-bottom: 1px solid #f1f5f9; }
 
-.stat-sub {
-  font-family: 'Inter-Medium', Helvetica, sans-serif;
-  font-size: 0.6rem;
-  color: #949494;
-}
-
-/* versi putih */
-.stat-label-white,
-.stat-value-white,
-.stat-sub-white {
-  color: #fff;
-}
-
-/* =====================
-   SKELETON (LOADING)
-===================== */
-.skeleton-card {
-  background-color: #fff;
-  border: 1px solid #e8e8e8;
-  border-radius: 10px;
-  padding: 1rem;
-  margin-bottom: 0.75rem;
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  min-height: 70px;
-}
-
-.skeleton-line {
-  width: 50px;
-  height: 5px;
-  background-color: #e0e0e0;
-  border-radius: 3px;
+@media (max-width: 768px) {
+    .grid-sections, .stats-grid { grid-template-columns: 1fr; }
+    .profile-card { flex-direction: column; text-align: center; padding-bottom: 80px; }
+    .btn-logout-card { left: 50%; transform: translateX(-50%); bottom: 20px; right: auto; }
 }

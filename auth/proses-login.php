@@ -7,7 +7,7 @@ require_once '../config.php';
 $client = new Google\Client();
 $client->setClientId('118639840694-uuda9i1n1bc3c216tqufrjirucg3chdv.apps.googleusercontent.com');
 $client->setClientSecret('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');
-$client->setRedirectUri('http://localhost/update/projek-perpus/auth/proses-login.php');
+$client->setRedirectUri('http://localhost/projek-perpus/auth/proses-login.php');
 
 // FIX SSL: Agar tidak error di localhost (Laragon/XAMPP)
 $client->setHttpClient(new \GuzzleHttp\Client(['verify' => false]));
@@ -45,46 +45,27 @@ if (isset($_GET['code'])) {
         
         // Escape string untuk keamanan database
         $email_db = mysqli_real_escape_string($koneksi, $email_asli);
-        $nama_db  = mysqli_real_escape_string($koneksi, $nama_bersih);
-        $nim_db   = mysqli_real_escape_string($koneksi, $nim_otomatis);
 
-        // 4. Cek keberadaan anggota di database - DISESUAIKAN DENGAN image_9207b5.png
+        // 4. Cek keberadaan anggota di database (KHUSUS MAHASISWA)
         $query = mysqli_query($koneksi, "SELECT * FROM anggota WHERE email = '$email_db' LIMIT 1");
         
         if (mysqli_num_rows($query) > 0) {
             $data = mysqli_fetch_assoc($query);
             
-            // Update data sesuai nama kolom di database: nim, nama, email
-            mysqli_query($koneksi, "UPDATE anggota SET 
-                nim = '$nim_db', 
-                nama = '$nama_db' 
-                WHERE email = '$email_db'");
-            
-            // Ambil ulang data terbaru setelah update
-            $res_update = mysqli_query($koneksi, "SELECT * FROM anggota WHERE email = '$email_db'");
-            $data = mysqli_fetch_assoc($res_update);
+            // 5. Set Session
+            $_SESSION['id_user'] = $data['id_anggota'];
+            $_SESSION['nama']    = $data['nama'];
+            $_SESSION['nim']     = $data['nim'];
+            $_SESSION['jurusan'] = $data['jurusan'];
+            $_SESSION['level']   = 'user';
+
+            header("Location: ../user/mahasiswa.php");
+            exit();
         } else {
-            // Jika belum terdaftar, buat baru - DISESUAIKAN DENGAN image_9207b5.png
-            // Kolom: nim, nama, email, status (default 'aktif' di DB)
-            $insert = mysqli_query($koneksi, "INSERT INTO anggota (nim, nama, email, status) 
-                                              VALUES ('$nim_db', '$nama_db', '$email_db', 'aktif')");
-            
-            if ($insert) {
-                $res_baru = mysqli_query($koneksi, "SELECT * FROM anggota WHERE email = '$email_db'");
-                $data = mysqli_fetch_assoc($res_baru);
-            } else {
-                die("Gagal simpan database: " . mysqli_error($koneksi));
-            }
+            // Jika email tidak ditemukan di tabel anggota
+            echo "<script>alert('Gagal! Akun Anda belum terdaftar di sistem perpustakaan. Silakan hubungi admin.'); window.location='login.php';</script>";
+            exit();
         } 
-
-        // 5. Set Session - DISESUAIKAN DENGAN image_9207b5.png
-        $_SESSION['id_user'] = $data['id_anggota'];
-        $_SESSION['nama']    = $data['nama'];
-        $_SESSION['nim']     = $data['nim'];
-        $_SESSION['level']   = 'user';
-
-        header("Location: ../user/mahasiswa.php");
-        exit();
     } else {
         die("Kesalahan Google: " . $token['error_description']);
     }
