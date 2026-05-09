@@ -99,7 +99,7 @@ extract($data, EXTR_SKIP);
      MODAL POPUP: DETAIL PEMINJAMAN (Melihat Buku)
      ====================================================== -->
 <div class="return-confirm-overlay" id="modalDetail">
-    <div class="return-confirm-box" style="width: 800px; max-width: 95%;">
+    <div class="return-confirm-box">
         <div class="return-confirm-header">
             <h3>Daftar Buku: <span id="txtNamaPeminjam"></span></h3>
             <button type="button" class="return-confirm-close" id="btnTutupModalX">&times;</button>
