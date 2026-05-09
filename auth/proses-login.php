@@ -29,7 +29,7 @@ if (isset($_GET['code'])) {
         $google_account_info = $google_oauth->userinfo->get();
         
         $email_asli = $google_account_info->email;
-        $nama_asli  = $google_account_info->name; // Nama dari Google biasanya "E41251709 NURUL MA'RIFAH"
+        $nama_asli  = $google_account_info->name; 
 
         // 1. Validasi Domain Email
         if (strpos($email_asli, '@student.polije.ac.id') === false) {
@@ -39,10 +39,8 @@ if (isset($_GET['code'])) {
 
         // 2. Ambil NIM dari email (sebelum @)
         $pecah_email = explode("@", $email_asli);
-        $nim_otomatis = strtoupper($pecah_email[0]); // Hasil: E41251709
+        $nim_otomatis = strtoupper($pecah_email[0]); 
 
-        // 3. Bersihkan NAMA (Hapus NIM dari Nama jika ada)
-        // Jika nama mengandung NIM di depannya, kita hapus supaya murni nama saja
         $nama_bersih = trim(str_replace($nim_otomatis, "", $nama_asli));
         
         // Escape string untuk keamanan database
@@ -50,38 +48,39 @@ if (isset($_GET['code'])) {
         $nama_db  = mysqli_real_escape_string($koneksi, $nama_bersih);
         $nim_db   = mysqli_real_escape_string($koneksi, $nim_otomatis);
 
-        // 4. Cek keberadaan anggota di database
-        $query = mysqli_query($koneksi, "SELECT * FROM anggota WHERE email_anggota = '$email_db' LIMIT 1");
+        // 4. Cek keberadaan anggota di database - DISESUAIKAN DENGAN image_9207b5.png
+        $query = mysqli_query($koneksi, "SELECT * FROM anggota WHERE email = '$email_db' LIMIT 1");
         
         if (mysqli_num_rows($query) > 0) {
             $data = mysqli_fetch_assoc($query);
             
-            // Update jika data lama masih menggunakan format MHS-xxx atau nama belum bersih
+            // Update data sesuai nama kolom di database: nim, nama, email
             mysqli_query($koneksi, "UPDATE anggota SET 
-                kode_anggota = '$nim_db', 
-                nama_anggota = '$nama_db' 
-                WHERE email_anggota = '$email_db'");
+                nim = '$nim_db', 
+                nama = '$nama_db' 
+                WHERE email = '$email_db'");
             
             // Ambil ulang data terbaru setelah update
-            $res_update = mysqli_query($koneksi, "SELECT * FROM anggota WHERE email_anggota = '$email_db'");
+            $res_update = mysqli_query($koneksi, "SELECT * FROM anggota WHERE email = '$email_db'");
             $data = mysqli_fetch_assoc($res_update);
         } else {
-            // Jika belum terdaftar, buat baru dengan NIM sebagai kode_anggota
-            $insert = mysqli_query($koneksi, "INSERT INTO anggota (kode_anggota, nama_anggota, email_anggota, status_anggota) 
-                                              VALUES ('$nim_db', '$nama_db', '$email_db', 'active')");
+            // Jika belum terdaftar, buat baru - DISESUAIKAN DENGAN image_9207b5.png
+            // Kolom: nim, nama, email, status (default 'aktif' di DB)
+            $insert = mysqli_query($koneksi, "INSERT INTO anggota (nim, nama, email, status) 
+                                              VALUES ('$nim_db', '$nama_db', '$email_db', 'aktif')");
             
             if ($insert) {
-                $res_baru = mysqli_query($koneksi, "SELECT * FROM anggota WHERE email_anggota = '$email_db'");
+                $res_baru = mysqli_query($koneksi, "SELECT * FROM anggota WHERE email = '$email_db'");
                 $data = mysqli_fetch_assoc($res_baru);
             } else {
                 die("Gagal simpan database: " . mysqli_error($koneksi));
             }
         } 
 
-        // 5. Set Session
+        // 5. Set Session - DISESUAIKAN DENGAN image_9207b5.png
         $_SESSION['id_user'] = $data['id_anggota'];
-        $_SESSION['nama']    = $data['nama_anggota'];
-        $_SESSION['nim']     = $data['kode_anggota'];
+        $_SESSION['nama']    = $data['nama'];
+        $_SESSION['nim']     = $data['nim'];
         $_SESSION['level']   = 'user';
 
         header("Location: ../user/mahasiswa.php");
@@ -91,15 +90,12 @@ if (isset($_GET['code'])) {
     }
 }
 
-/**
- * --------------------------------------------------------------
- * PROSES LOGIN ADMIN (MANUAL)
- * --------------------------------------------------------------
- */
+// PROSES LOGIN ADMIN (MANUAL)
 if (isset($_POST['login'])) {
     $email = mysqli_real_escape_string($koneksi, $_POST['email']);
     $password = $_POST['password'];
 
+    // Pastikan tabel 'admin' juga memiliki kolom 'email' atau sesuaikan jika berbeda
     $query_admin = mysqli_query($koneksi, "SELECT * FROM admin WHERE email_admin = '$email' LIMIT 1");
     
     if (mysqli_num_rows($query_admin) === 1) {
