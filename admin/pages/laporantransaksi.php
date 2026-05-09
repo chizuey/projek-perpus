@@ -60,7 +60,7 @@ $cari = $_GET['q'] ?? '';
     <!-- Bagian 3: Toolbar Filter & Pencarian -->
     <div class="toolbar">
         <form method="get" class="filter-form">
-            <input type="hidden" name="menu" value="laporantransaksi">
+            <input type="hidden" name="menu" value="laporan">
             
             <!-- Filter Status -->
             <div class="field-group status-filter">
@@ -86,9 +86,9 @@ $cari = $_GET['q'] ?? '';
                 <button type="submit" class="search-submit"><i class="bi bi-search"></i></button>
             </div>
 
-            <!-- Tombol Cetak PDF -->
-            <a href="actions/peminjaman/export_pdf.php" class="export-button">
-                <i class="bi bi-file-earmark-pdf"></i> Cetak PDF
+            <!-- Tombol Cetak CSV -->
+            <a href="actions/peminjaman/export_csv.php?status=<?= $filterStatus ?>&from=<?= $tglMulai ?>&to=<?= $tglSelesai ?>&q=<?= urlencode($cari) ?>" class="btn-export btn-csv">
+                <i class="bi bi-file-earmark-spreadsheet"></i> Cetak Laporan (CSV)
             </a>
         </form>
     </div>

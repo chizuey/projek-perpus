@@ -203,9 +203,18 @@ class Peminjaman
                 JOIN buku b ON b.id_buku = e.id_buku
                 WHERE p.laporan_hidden_at IS NULL";
         
-        if ($startDate) $sql .= " AND p.tanggal_peminjaman >= '$startDate'";
-        if ($endDate) $sql .= " AND p.tanggal_peminjaman <= '$endDate'";
-        if ($keyword) $sql .= " AND (a.nama LIKE '%$keyword%' OR b.judul LIKE '%$keyword%')";
+        if ($startDate) {
+            $startDate = $this->conn->real_escape_string($startDate);
+            $sql .= " AND p.tanggal_peminjaman >= '$startDate'";
+        }
+        if ($endDate) {
+            $endDate = $this->conn->real_escape_string($endDate);
+            $sql .= " AND p.tanggal_peminjaman <= '$endDate'";
+        }
+        if ($keyword) {
+            $keyword = $this->conn->real_escape_string($keyword);
+            $sql .= " AND (a.nama LIKE '%$keyword%' OR b.judul LIKE '%$keyword%')";
+        }
         
         $sql .= " ORDER BY dp.id_detail DESC";
         $result = $this->conn->query($sql);
