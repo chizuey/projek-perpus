@@ -122,7 +122,7 @@ function getStatusClass($status)
         return 'status-orange';
     }
 
-    if ($status === 'Belum Kembali') {
+    if ($status === 'Dipinjam') {
         return 'status-red';
     }
 
@@ -308,21 +308,21 @@ $keyword = trim($_GET['keyword'] ?? '');
 $page = max(1, (int) ($_GET['page'] ?? 1));
 $perPage = normalizeLaporanPerPage($_GET['per_page'] ?? 5);
 
-$semuaLaporan = $peminjamanModel->reportRows('Semua', '', '', '', false);
+$semuaLaporan = $peminjamanModel->reportRows('Semua', '', '', '');
 
 /*
 |--------------------------------------------------------------------------
 | Data dashboard: hanya ikut filter tanggal
 |--------------------------------------------------------------------------
 */
-$laporanDashboard = $peminjamanModel->reportRows('Semua', $startDate, $endDate, '', false);
+$laporanDashboard = $peminjamanModel->reportRows('Semua', $startDate, $endDate, '');
 
 /*
 |--------------------------------------------------------------------------
 | Data tabel: ikut filter tanggal + status + keyword
 |--------------------------------------------------------------------------
 */
-$laporan = $peminjamanModel->reportRows($statusFilter, $startDate, $endDate, $keyword, false);
+$laporan = $peminjamanModel->reportRows($statusFilter, $startDate, $endDate, $keyword);
 
 if (isset($_GET['action']) && $_GET['action'] === 'export') {
     // Export memakai data laporan yang sudah mengikuti filter aktif.
@@ -337,7 +337,7 @@ if (isset($_GET['action']) && $_GET['action'] === 'export') {
 $totalPeminjaman = count($laporanDashboard);
 $totalDikembalikan = count(array_filter($laporanDashboard, fn($item) => ($item['status'] ?? '') === 'Dikembalikan'));
 $totalTerlambat = count(array_filter($laporanDashboard, fn($item) => ($item['status'] ?? '') === 'Terlambat'));
-$totalBelumKembali = count(array_filter($laporanDashboard, fn($item) => ($item['status'] ?? '') === 'Belum Kembali'));
+$totalBelumKembali = count(array_filter($laporanDashboard, fn($item) => ($item['status'] ?? '') === 'Dipinjam'));
 
 /*
 |--------------------------------------------------------------------------
@@ -373,7 +373,7 @@ $returnQuery = buatQuery([], ['action']);
                         <option value="Semua" <?= $statusFilter === 'Semua' ? 'selected' : '' ?>>Semua</option>
                         <option value="Dikembalikan" <?= $statusFilter === 'Dikembalikan' ? 'selected' : '' ?>>Dikembalikan</option>
                         <option value="Terlambat" <?= $statusFilter === 'Terlambat' ? 'selected' : '' ?>>Terlambat</option>
-                        <option value="Belum Kembali" <?= $statusFilter === 'Belum Kembali' ? 'selected' : '' ?>>Belum Kembali</option>
+                        <option value="Dipinjam" <?= $statusFilter === 'Dipinjam' ? 'selected' : '' ?>>Dipinjam</option>
                     </select>
                     <svg class="select-chevron" viewBox="0 0 20 20" aria-hidden="true">
                         <path d="M5 7L10 12L15 7" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"></path>

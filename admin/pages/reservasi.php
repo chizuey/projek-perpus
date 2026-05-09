@@ -10,10 +10,10 @@ function fmtTgl($d): string {
 }
 
 $statusLabel = [
-    'pending'   => ['label' => 'Menunggu',   'class' => 'badge-pending'],
-    'confirmed' => ['label' => 'Dikonfirmasi','class' => 'badge-confirmed'],
-    'cancelled' => ['label' => 'Dibatalkan', 'class' => 'badge-cancelled'],
-    'expired'   => ['label' => 'Kadaluarsa', 'class' => 'badge-expired'],
+    'menunggu'  => ['label' => 'Menunggu',   'class' => 'badge-pending'],
+    'disetujui' => ['label' => 'Disetujui',  'class' => 'badge-confirmed'],
+    'dibatalkan'=> ['label' => 'Dibatalkan', 'class' => 'badge-cancelled'],
+    'selesai'   => ['label' => 'Selesai',    'class' => 'badge-confirmed'], // Bisa disesuaikan warnanya
 ];
 ?>
 
@@ -51,10 +51,10 @@ $statusLabel = [
                 <?php
                 $statusOptions = [
                     ''          => 'Semua',
-                    'pending'   => 'Menunggu',
-                    'confirmed' => 'Dikonfirmasi',
-                    'cancelled' => 'Dibatalkan',
-                    'expired'   => 'Kadaluarsa',
+                    'menunggu'  => 'Menunggu',
+                    'disetujui' => 'Disetujui',
+                    'dibatalkan'=> 'Dibatalkan',
+                    'selesai'   => 'Selesai',
                 ];
                 foreach ($statusOptions as $val => $lbl):
                     $active = ($filterStatus === $val) ? 'active' : '';
@@ -105,7 +105,7 @@ $statusLabel = [
             <?php if (!empty($pageData)): ?>
                 <?php foreach ($pageData as $i => $r): ?>
                     <?php
-                    $st    = $r['status_reservasi'] ?? 'pending';
+                    $st    = $r['status'] ?? 'menunggu';
                     $badge = $statusLabel[$st] ?? ['label' => $st, 'class' => 'badge-pending'];
                     ?>
                     <tr>
@@ -123,7 +123,7 @@ $statusLabel = [
                         <td><?= eR($r['nama_admin'] ?? '-'); ?></td>
                         <td>
                             <div class="action-group">
-                                <?php if ($st === 'pending'): ?>
+                                <?php if ($st === 'menunggu'): ?>
                                     <button
                                         type="button"
                                         class="btn-konfirmasi js-open-konfirmasi-modal"
@@ -142,7 +142,7 @@ $statusLabel = [
                                     >
                                         Batalkan
                                     </button>
-                                <?php elseif ($st === 'confirmed'): ?>
+                                <?php elseif ($st === 'disetujui'): ?>
                                     <button
                                         type="button"
                                         class="btn-batal js-open-batalkan-modal"

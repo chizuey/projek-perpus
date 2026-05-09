@@ -40,8 +40,8 @@ class ReservasiController
     {
         self::startSession();
 
-        // Tandai reservasi kadaluarsa otomatis setiap kali halaman dibuka
-        self::model()->expireKadaluarsa();
+        // Tandai reservasi kadaluarsa otomatis sudah tidak digunakan di skema baru
+        // self::model()->expireKadaluarsa();
 
         $search       = trim($_GET['q'] ?? '');
         $filterStatus = trim($_GET['status'] ?? '');

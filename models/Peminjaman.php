@@ -13,115 +13,161 @@ class Peminjaman
 
     public function all($search = '')
     {
-        $sql = "SELECT p.*, a.kode_anggota, a.nama_anggota, b.judul
-                FROM peminjaman p
+        // Query mengambil dari detail_peminjaman -> eksemplar -> buku
+        $sql = "SELECT dp.*, p.id_admin, a.nim as kode_anggota, a.nama as nama_anggota, b.judul, p.tanggal_peminjaman, p.batas_waktu
+                FROM detail_peminjaman dp
+                JOIN peminjaman p ON p.id_peminjaman = dp.id_peminjaman
                 JOIN anggota a ON a.id_anggota = p.id_anggota
-                JOIN buku b ON b.id_buku = p.id_buku
-                WHERE p.status_pinjam IN ('borrowed', 'overdue')";
+                JOIN eksemplar e ON e.id_eksemplar = dp.id_eksemplar
+                JOIN buku b ON b.id_buku = e.id_buku
+                WHERE dp.status_pengembalian != 'kembali'";
         
         if ($search) {
-            $sql .= " AND (a.kode_anggota LIKE '%$search%' OR a.nama_anggota LIKE '%$search%' OR b.judul LIKE '%$search%')";
+            $sql .= " AND (a.nim LIKE '%$search%' OR a.nama LIKE '%$search%' OR b.judul LIKE '%$search%')";
         }
         
-        $sql .= " ORDER BY p.id_peminjaman DESC";
+        $sql .= " ORDER BY dp.id_detail DESC";
         $result = $this->conn->query($sql);
         
         $data = [];
         while ($row = $result->fetch_assoc()) {
-            // Mapping sederhana agar sesuai dengan tampilan
-            $row['id'] = $row['id_peminjaman'];
+            $row['id'] = $row['id_detail'];
             $row['nim'] = $row['kode_anggota'];
             $row['nama'] = $row['nama_anggota'];
             $row['buku'] = $row['judul'];
+            $row['tanggal_pinjam'] = $row['tanggal_peminjaman'];
             $row['returned_at'] = $row['tanggal_kembali'];
-            $row['tanggal_kembali'] = $row['tanggal_jatuh_tempo'];
+            $row['tanggal_kembali'] = $row['batas_waktu'];
             $data[] = $row;
         }
         return $data;
     }
 
-    public function create($nim, $nama, $judul_buku, $adminId)
+    public function create($nim, $nama, $id_eksemplar_array, $adminId)
     {
-        // 1. Cari atau buat anggota
         $id_anggota = $this->getAnggotaId($nim, $nama);
-        
-        // 2. Cari buku
-        $res = $this->conn->query("SELECT id_buku, stok_tersedia FROM buku WHERE judul = '$judul_buku'");
-        $book = $res->fetch_assoc();
-        
-        if (!$book || $book['stok_tersedia'] < 1) return false;
-        
-        $id_buku = $book['id_buku'];
         $tgl_pinjam = date('Y-m-d');
-        $tgl_kembali = date('Y-m-d', strtotime('+7 days'));
-        
-        // 3. Insert peminjaman
-        $sql = "INSERT INTO peminjaman (id_anggota, id_buku, id_admin, tanggal_pinjam, tanggal_jatuh_tempo, status_pinjam) 
-                VALUES ($id_anggota, $id_buku, $adminId, '$tgl_pinjam', '$tgl_kembali', 'borrowed')";
-        $this->conn->query($sql);
-        
-        // 4. Update stok buku
-        $this->conn->query("UPDATE buku SET stok_tersedia = stok_tersedia - 1 WHERE id_buku = $id_buku");
-        
-        return true;
+        $tgl_jatuh_tempo = date('Y-m-d', strtotime('+7 days'));
+
+        $this->conn->begin_transaction();
+
+        try {
+            // Simpan Header Peminjaman
+            $sql_header = "INSERT INTO peminjaman (id_anggota, id_admin, tanggal_peminjaman, batas_waktu) VALUES (?, ?, ?, ?)";
+            $stmt = $this->conn->prepare($sql_header);
+            $stmt->bind_param("iiss", $id_anggota, $adminId, $tgl_pinjam, $tgl_jatuh_tempo);
+            $stmt->execute();
+            $id_peminjaman = $this->conn->insert_id;
+
+            $count = 0;
+            foreach ($id_eksemplar_array as $id_eksemplar) {
+                if (empty($id_eksemplar)) continue;
+                if ($count >= 3) break;
+
+                // Cek apakah eksemplar benar-benar tersedia
+                $res_eks = $this->conn->query("SELECT id_eksemplar FROM eksemplar WHERE id_eksemplar = " . (int)$id_eksemplar . " AND status = 'tersedia'");
+                if ($res_eks->num_rows > 0) {
+                    // Insert detail
+                    $sql_detail = "INSERT INTO detail_peminjaman (id_peminjaman, id_eksemplar, status_pengembalian) VALUES (?, ?, 'dipinjam')";
+                    $stmt_detail = $this->conn->prepare($sql_detail);
+                    $stmt_detail->bind_param("ii", $id_peminjaman, $id_eksemplar);
+                    $stmt_detail->execute();
+
+                    // Update status eksemplar
+                    $this->conn->query("UPDATE eksemplar SET status = 'dipinjam' WHERE id_eksemplar = " . (int)$id_eksemplar);
+                    $count++;
+                }
+            }
+
+            if ($count === 0) throw new Exception("Tidak ada buku yang berhasil dipinjam.");
+
+            $this->conn->commit();
+            return true;
+        } catch (Exception $e) {
+            $this->conn->rollback();
+            return false;
+        }
     }
 
-    public function extend($id)
+    public function extend($idDetail)
     {
-        $res = $this->conn->query("SELECT tanggal_jatuh_tempo FROM peminjaman WHERE id_peminjaman = $id");
+        // Di skema baru, batas_waktu ada di header (peminjaman), 
+        // tapi jika ingin per buku, kita bisa update header atau memindahkan batas_waktu ke detail.
+        // Berdasarkan SQL user, batas_waktu di header. Maka perpanjangan akan berlaku untuk SEMUA buku di transaksi itu.
+        
+        $res = $this->conn->query("SELECT p.id_peminjaman, p.batas_waktu 
+                                  FROM detail_peminjaman dp 
+                                  JOIN peminjaman p ON p.id_peminjaman = dp.id_peminjaman 
+                                  WHERE dp.id_detail = $idDetail");
         if ($row = $res->fetch_assoc()) {
-            $new_date = date('Y-m-d', strtotime($row['tanggal_jatuh_tempo'] . ' +7 days'));
-            $sql = "UPDATE peminjaman SET tanggal_jatuh_tempo = '$new_date', extended_at = NOW() WHERE id_peminjaman = $id";
-            return $this->conn->query($sql);
+            $id_peminjaman = $row['id_peminjaman'];
+            $new_date = date('Y-m-d', strtotime($row['batas_waktu'] . ' +7 days'));
+            
+            $sql = "UPDATE peminjaman SET batas_waktu = ? WHERE id_peminjaman = ?";
+            $stmt = $this->conn->prepare($sql);
+            $stmt->bind_param("si", $new_date, $id_peminjaman);
+            $stmt->execute();
+            
+            // Catat perpanjangan di detail
+            $this->conn->query("UPDATE detail_peminjaman SET extended_at = NOW() WHERE id_detail = $idDetail");
+            return true;
         }
         return false;
     }
 
-    public function returnBook($id)
+    public function returnBook($idDetail)
     {
-        $res = $this->conn->query("SELECT id_buku FROM peminjaman WHERE id_peminjaman = $id");
+        $res = $this->conn->query("SELECT id_eksemplar FROM detail_peminjaman WHERE id_detail = $idDetail");
         if ($row = $res->fetch_assoc()) {
-            $id_buku = $row['id_buku'];
+            $id_eksemplar = $row['id_eksemplar'];
             $today = date('Y-m-d');
             
-            // Update status peminjaman
-            $this->conn->query("UPDATE peminjaman SET tanggal_kembali = '$today', status_pinjam = 'returned' WHERE id_peminjaman = $id");
+            $sql = "UPDATE detail_peminjaman SET tanggal_kembali = ?, status_pengembalian = 'kembali' WHERE id_detail = ?";
+            $stmt = $this->conn->prepare($sql);
+            $stmt->bind_param("si", $today, $idDetail);
+            $stmt->execute();
             
-            // Update stok buku
-            $this->conn->query("UPDATE buku SET stok_tersedia = stok_tersedia + 1 WHERE id_buku = $id_buku");
+            $this->conn->query("UPDATE eksemplar SET status = 'tersedia' WHERE id_eksemplar = $id_eksemplar");
             
             return true;
         }
         return false;
     }
 
-  // File: Model/Peminjaman.php
-public function getOpsiBuku()
-{
-    // Pastikan kolom 'stok_tersedia' sesuai dengan yang ada di tabel 'buku'
-    $res = $this->conn->query("SELECT judul, stok_tersedia FROM buku ORDER BY judul ASC");
-    return $res->fetch_all(MYSQLI_ASSOC);
-}
+    public function getOpsiBuku()
+    {
+        $res = $this->conn->query("SELECT e.id_eksemplar, b.judul 
+                                  FROM eksemplar e 
+                                  JOIN buku b ON e.id_buku = b.id_buku 
+                                  WHERE e.status = 'tersedia' 
+                                  ORDER BY b.judul ASC");
+        $data = [];
+        while ($row = $res->fetch_assoc()) {
+            $data[] = $row;
+        }
+        return $data;
+    }
 
     private function getAnggotaId($nim, $nama)
     {
         $nim = $this->conn->real_escape_string($nim);
-        $res = $this->conn->query("SELECT id_anggota FROM anggota WHERE kode_anggota = '$nim'");
+        $res = $this->conn->query("SELECT id_anggota FROM anggota WHERE nim = '$nim'");
         if ($row = $res->fetch_assoc()) {
             return $row['id_anggota'];
         }
         
-        // Bikin email dummy unik menggunakan NIM
-$dummy_email = $nim . '@student.com';
-$this->conn->query("INSERT INTO anggota (kode_anggota, nama_anggota, email_anggota) VALUES ('$nim', '$nama', '$dummy_email')");
-        // INI BAGIAN YANG HILANG: Kembalikan ID baru dan tutup function-nya
+        $dummy_email = $nim . '@student.com';
+        $dummy_pass = password_hash('123456', PASSWORD_DEFAULT);
+        $sql = "INSERT INTO anggota (nim, nama, email, password) VALUES (?, ?, ?, ?)";
+        $stmt = $this->conn->prepare($sql);
+        $stmt->bind_param("ssss", $nim, $nama, $dummy_email, $dummy_pass);
+        $stmt->execute();
         return $this->conn->insert_id;
     }
 
-
     public function getMeta($item)
     {
-        $jatuh_tempo = strtotime($item['tanggal_jatuh_tempo']);
+        $jatuh_tempo = strtotime($item['batas_waktu'] ?? $item['tanggal_kembali']);
         $tgl_kembali = !empty($item['returned_at']) ? strtotime($item['returned_at']) : time();
         
         $terlambat = 0;
@@ -139,26 +185,28 @@ $this->conn->query("INSERT INTO anggota (kode_anggota, nama_anggota, email_anggo
 
     public function reportRows($statusFilter, $startDate, $endDate, $keyword)
     {
-        $sql = "SELECT p.*, a.nama_anggota as peminjam, b.judul as judul_buku
-                FROM peminjaman p
+        $sql = "SELECT dp.*, p.tanggal_peminjaman, p.batas_waktu, a.nama as peminjam, b.judul as judul_buku
+                FROM detail_peminjaman dp
+                JOIN peminjaman p ON p.id_peminjaman = dp.id_peminjaman
                 JOIN anggota a ON a.id_anggota = p.id_anggota
-                JOIN buku b ON b.id_buku = p.id_buku
+                JOIN eksemplar e ON e.id_eksemplar = dp.id_eksemplar
+                JOIN buku b ON b.id_buku = e.id_buku
                 WHERE p.laporan_hidden_at IS NULL";
         
-        if ($startDate) $sql .= " AND p.tanggal_pinjam >= '$startDate'";
-        if ($endDate) $sql .= " AND p.tanggal_pinjam <= '$endDate'";
-        if ($keyword) $sql .= " AND (a.nama_anggota LIKE '%$keyword%' OR b.judul LIKE '%$keyword%')";
+        if ($startDate) $sql .= " AND p.tanggal_peminjaman >= '$startDate'";
+        if ($endDate) $sql .= " AND p.tanggal_peminjaman <= '$endDate'";
+        if ($keyword) $sql .= " AND (a.nama LIKE '%$keyword%' OR b.judul LIKE '%$keyword%')";
         
-        $sql .= " ORDER BY p.id_peminjaman DESC";
+        $sql .= " ORDER BY dp.id_detail DESC";
         $result = $this->conn->query($sql);
         
         $rows = [];
         while ($row = $result->fetch_assoc()) {
             $meta = $this->getMeta($row);
             $row['status'] = $meta['status'];
-            $row['tanggal'] = $row['tanggal_pinjam'];
-            $row['tgl_pinjam'] = $row['tanggal_pinjam'];
-            $row['tgl_jatuh_tempo'] = $row['tanggal_jatuh_tempo'];
+            $row['tanggal'] = $row['tanggal_peminjaman'];
+            $row['tgl_pinjam'] = $row['tanggal_peminjaman'];
+            $row['tgl_jatuh_tempo'] = $row['batas_waktu'];
             $row['tgl_kembali'] = $row['tanggal_kembali'];
             
             if ($statusFilter !== 'Semua' && $row['status'] !== $statusFilter) continue;

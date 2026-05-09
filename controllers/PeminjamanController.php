@@ -52,11 +52,21 @@ class PeminjamanController
         
         $nim = trim($post['nim']);
         $nama = trim($post['nama']);
-        $buku = trim($post['buku']);
+        
+        // Ambil hingga 3 buku dari form
+        $buku_array = [];
+        if (!empty($post['buku1'])) $buku_array[] = trim($post['buku1']);
+        if (!empty($post['buku2'])) $buku_array[] = trim($post['buku2']);
+        if (!empty($post['buku3'])) $buku_array[] = trim($post['buku3']);
+        
         $adminId = 1; // Default admin
 
-        if (!$this->model->create($nim, $nama, $buku, $adminId)) {
-            $_SESSION['errors'] = ['Gagal simpan data. Pastikan buku dipilih dan stok ada.'];
+        if (empty($buku_array)) {
+            $_SESSION['errors'] = ['Minimal pilih satu buku.'];
+            $_SESSION['old'] = $post;
+            $_SESSION['open_popup'] = true;
+        } elseif (!$this->model->create($nim, $nama, $buku_array, $adminId)) {
+            $_SESSION['errors'] = ['Gagal simpan data. Pastikan buku tersedia.'];
             $_SESSION['old'] = $post;
             $_SESSION['open_popup'] = true;
         }

@@ -43,21 +43,39 @@
                     >
                 </div>
 
-        <div class="mb-3">
-    <label for="buku" class="form-label">Buku</label>
-    <select name="buku" id="buku" class="form-select" required>
-        <option value="" selected disabled>Pilih Buku</option>
-        
-        <?php if (!empty($opsiBuku)): ?>
-            <?php foreach ($opsiBuku as $b): ?>
-                <option value="<?= e($b['judul']); ?>" <?= $b['stok_tersedia'] <= 0 ? 'disabled' : ''; ?>>
-                    <?= e($b['judul']); ?> (Stok: <?= $b['stok_tersedia']; ?>)
-                </option>
-            <?php endforeach; ?>
-        <?php endif; ?>
-        
-    </select>
-</div>
+                <div class="form-group">
+                    <label for="buku1">ID Eksemplar 1 (Wajib)</label>
+                    <input 
+                        type="text" 
+                        name="buku1" 
+                        id="buku1" 
+                        placeholder="Masukkan ID Eksemplar (Baris 1)" 
+                        class="form-control"
+                        required
+                    >
+                </div>
+
+                <div class="form-group" style="margin-top: 10px;">
+                    <label for="buku2">ID Eksemplar 2 (Opsional)</label>
+                    <input 
+                        type="text" 
+                        name="buku2" 
+                        id="buku2" 
+                        placeholder="Masukkan ID Eksemplar (Baris 2)" 
+                        class="form-control"
+                    >
+                </div>
+
+                <div class="form-group" style="margin-top: 10px;">
+                    <label for="buku3">ID Eksemplar 3 (Opsional)</label>
+                    <input 
+                        type="text" 
+                        name="buku3" 
+                        id="buku3" 
+                        placeholder="Masukkan ID Eksemplar (Baris 3)" 
+                        class="form-control"
+                    >
+                </div>
                 <?php
                 $tglPinjamValue = !empty($oldInput['tgl_pinjam']) ? $oldInput['tgl_pinjam'] : todayDate();
                 $tglKembaliValue = !empty($oldInput['tgl_kembali']) ? $oldInput['tgl_kembali'] : defaultTanggalKembali();
