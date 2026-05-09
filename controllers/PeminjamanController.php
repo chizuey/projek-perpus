@@ -19,19 +19,19 @@ class PeminjamanController
         $perPage = isset($_GET['per_page']) ? (int)$_GET['per_page'] : 7;
         $currentPage = isset($_GET['page']) ? (int)$_GET['page'] : 1;
 
-        $dataPeminjaman = $this->model->all($search);
+        $dataHeader = $this->model->all($search);
         
-        $totalData = count($dataPeminjaman);
+        $totalData = count($dataHeader);
         $totalPages = ceil($totalData / $perPage);
         if ($totalPages < 1) $totalPages = 1;
         
         $offset = ($currentPage - 1) * $perPage;
-        $pageData = array_slice($dataPeminjaman, $offset, $perPage);
+        $pageData = array_slice($dataHeader, $offset, $perPage);
 
         return [
             'openPopup' => isset($_SESSION['open_popup']),
             'errors' => isset($_SESSION['errors']) ? $_SESSION['errors'] : [],
-            'oldInput' => isset($_SESSION['old']) ? $_SESSION['old'] : ['nim' => '', 'nama' => '', 'buku' => ''],
+            'oldInput' => isset($_SESSION['old']) ? $_SESSION['old'] : ['nim' => '', 'nama' => '', 'buku1' => ''],
             'search' => $search,
             'perPage' => $perPage,
             'totalData' => $totalData,
@@ -46,6 +46,11 @@ class PeminjamanController
         ];
     }
 
+    public function details($id)
+    {
+        return $this->model->getDetails($id);
+    }
+
     public function store($post)
     {
         if (session_status() === PHP_SESSION_NONE) session_start();
@@ -53,20 +58,19 @@ class PeminjamanController
         $nim = trim($post['nim']);
         $nama = trim($post['nama']);
         
-        // Ambil hingga 3 buku dari form
-        $buku_array = [];
-        if (!empty($post['buku1'])) $buku_array[] = trim($post['buku1']);
-        if (!empty($post['buku2'])) $buku_array[] = trim($post['buku2']);
-        if (!empty($post['buku3'])) $buku_array[] = trim($post['buku3']);
+        $id_eksemplar_array = [];
+        if (!empty($post['buku1'])) $id_eksemplar_array[] = trim($post['buku1']);
+        if (!empty($post['buku2'])) $id_eksemplar_array[] = trim($post['buku2']);
+        if (!empty($post['buku3'])) $id_eksemplar_array[] = trim($post['buku3']);
         
-        $adminId = 1; // Default admin
+        $adminId = 1;
 
-        if (empty($buku_array)) {
-            $_SESSION['errors'] = ['Minimal pilih satu buku.'];
+        if (empty($id_eksemplar_array)) {
+            $_SESSION['errors'] = ['Minimal masukkan satu ID Eksemplar.'];
             $_SESSION['old'] = $post;
             $_SESSION['open_popup'] = true;
-        } elseif (!$this->model->create($nim, $nama, $buku_array, $adminId)) {
-            $_SESSION['errors'] = ['Gagal simpan data. Pastikan buku tersedia.'];
+        } elseif (!$this->model->create($nim, $nama, $id_eksemplar_array, $adminId)) {
+            $_SESSION['errors'] = ['Gagal simpan data. Pastikan ID Eksemplar benar dan tersedia.'];
             $_SESSION['old'] = $post;
             $_SESSION['open_popup'] = true;
         }
@@ -78,6 +82,7 @@ class PeminjamanController
     public function extend($post)
     {
         $this->model->extend($post['id']);
+        // Redirect back to peminjaman
         header('Location: ../../index.php?menu=peminjaman');
         exit;
     }
@@ -87,6 +92,38 @@ class PeminjamanController
         $this->model->returnBook($post['id']);
         header('Location: ../../index.php?menu=peminjaman');
         exit;
+    }
+
+    public function report()
+    {
+        $status = isset($_GET['status']) ? $_GET['status'] : 'Semua';
+        $from = isset($_GET['from']) ? $_GET['from'] : '';
+        $to = isset($_GET['to']) ? $_GET['to'] : '';
+        $q = isset($_GET['q']) ? $_GET['q'] : '';
+
+        // Ambil data untuk tabel (dengan filter status)
+        $data = $this->model->reportRows($status, $from, $to, $q);
+        
+        // Ambil data tanpa filter status untuk menghitung ringkasan (Summary)
+        $allData = $this->model->reportRows('Semua', $from, $to, $q);
+        
+        $summary = [
+            'total' => count($allData),
+            'selesai' => 0,
+            'terlambat' => 0,
+            'dipinjam' => 0
+        ];
+
+        foreach ($allData as $row) {
+            if ($row['status'] === 'Selesai') $summary['selesai']++;
+            elseif ($row['status'] === 'Terlambat') $summary['terlambat']++;
+            elseif ($row['status'] === 'Dipinjam') $summary['dipinjam']++;
+        }
+
+        return [
+            'dataTampil' => $data,
+            'summary' => $summary
+        ];
     }
 
     private function getPaginationItems($current, $total)
