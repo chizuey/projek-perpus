@@ -7,7 +7,7 @@ require_once '../config.php';
 $client = new Google\Client();
 $client->setClientId('118639840694-uuda9i1n1bc3c216tqufrjirucg3chdv.apps.googleusercontent.com');
 $client->setClientSecret('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');
-$client->setRedirectUri('http://localhost/update/projek-perpus/auth/proses-login.php');
+$client->setRedirectUri('http://localhost/projek-perpus/auth/proses-login.php');
 
 // FIX SSL: Agar tidak error di localhost (Laragon/XAMPP)
 $client->setHttpClient(new \GuzzleHttp\Client(['verify' => false]));
