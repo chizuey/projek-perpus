@@ -32,23 +32,38 @@ if (!function_exists('eTambahBuku')) {
         <div class="panel-card mb-3">
             <div class="panel-title">Input Data Buku</div>
 
-            <label class="form-label-custom" for="judul">Judul Buku</label>
-            <input class="form-input-custom" id="judul" name="judul" type="text" placeholder="Masukkan judul buku..." value="<?= eTambahBuku($oldTambahBuku['judul']); ?>" required>
+            <div class="form-row-2">
+                <div>
+                    <label class="form-label-custom" for="judul">Judul Buku</label>
+                    <input class="form-input-custom" id="judul" name="judul" type="text" placeholder="Masukkan judul buku..." value="<?= eTambahBuku($oldTambahBuku['judul']); ?>" required>
+                </div>
+                <div>
+                    <label class="form-label-custom" for="penulis">Penulis</label>
+                    <input class="form-input-custom" id="penulis" name="penulis" type="text" placeholder="Masukkan nama penulis..." value="<?= eTambahBuku($oldTambahBuku['penulis']); ?>" required>
+                </div>
+            </div>
 
-            <label class="form-label-custom" for="penulis">Penulis</label>
-            <input class="form-input-custom" id="penulis" name="penulis" type="text" placeholder="Masukkan nama penulis..." value="<?= eTambahBuku($oldTambahBuku['penulis']); ?>" required>
+            <div class="form-row-2">
+                <div>
+                    <label class="form-label-custom" for="penerbit">Penerbit</label>
+                    <input class="form-input-custom" id="penerbit" name="penerbit" type="text" placeholder="Masukkan nama penerbit..." value="<?= eTambahBuku($oldTambahBuku['penerbit']); ?>" required>
+                </div>
+                <div>
+                    <label class="form-label-custom" for="isbn">ISBN</label>
+                    <input class="form-input-custom" id="isbn" name="isbn" type="text" placeholder="cth: 978-3-16-148410-0" value="<?= eTambahBuku($oldTambahBuku['isbn']); ?>">
+                </div>
+            </div>
 
-            <label class="form-label-custom" for="penerbit">Penerbit</label>
-            <input class="form-input-custom" id="penerbit" name="penerbit" type="text" placeholder="Masukkan nama penerbit..." value="<?= eTambahBuku($oldTambahBuku['penerbit']); ?>" required>
-
-            <label class="form-label-custom" for="tahun">Tahun Terbit</label>
-            <input class="form-input-custom" id="tahun" name="tahun" type="number" min="0" placeholder="cth: 2023" value="<?= eTambahBuku($oldTambahBuku['tahun']); ?>" required>
-
-            <label class="form-label-custom" for="tempat_terbit">Tempat Terbit</label>
-            <input class="form-input-custom" id="tempat_terbit" name="tempat_terbit" type="text" placeholder="cth: Jakarta" value="<?= eTambahBuku($oldTambahBuku['tempat_terbit']); ?>">
-
-            <label class="form-label-custom" for="isbn">ISBN</label>
-            <input class="form-input-custom" id="isbn" name="isbn" type="text" placeholder="cth: 978-3-16-148410-0" value="<?= eTambahBuku($oldTambahBuku['isbn']); ?>">
+            <div class="form-row-2">
+                <div>
+                    <label class="form-label-custom" for="tahun">Tahun Terbit</label>
+                    <input class="form-input-custom" id="tahun" name="tahun" type="number" min="0" placeholder="cth: 2023" value="<?= eTambahBuku($oldTambahBuku['tahun']); ?>" required>
+                </div>
+                <div>
+                    <label class="form-label-custom" for="tempat_terbit">Tempat Terbit</label>
+                    <input class="form-input-custom" id="tempat_terbit" name="tempat_terbit" type="text" placeholder="cth: Jakarta" value="<?= eTambahBuku($oldTambahBuku['tempat_terbit']); ?>">
+                </div>
+            </div>
 
             <span class="kategori-label">Kategori :</span>
             <div class="kategori-grid">
@@ -79,7 +94,10 @@ if (!function_exists('eTambahBuku')) {
             <label class="synopsis-label" for="sinopsis">Deskripsi/Sinopsis :</label>
             <textarea class="synopsis-area" id="sinopsis" name="sinopsis" placeholder="Masukkan deskripsi atau sinopsis buku..."><?= eTambahBuku($oldTambahBuku['sinopsis']); ?></textarea>
 
-            <button type="submit" class="btn-tambahkan">Tambahkan</button>
+            <div class="form-actions" style="margin-top: 1rem;">
+                <button type="submit" class="btn-tambahkan">Tambahkan</button>
+                <a href="?menu=databuku" class="btn-batal-form" style="text-decoration: none; display: inline-flex; align-items: center; justify-content: center;">Batal</a>
+            </div>
         </div>
 
         <div class="panel-card">

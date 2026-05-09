@@ -80,7 +80,7 @@ class BukuController
         
         $data = $post;
         $data['kategori'] = is_array($post['kategori']) ? $post['kategori'][0] : $post['kategori'];
-        $data['cover_buku'] = $this->uploadFile($files);
+        $data['cover'] = $this->uploadFile($files);
 
         // Validasi sederhana
         if (empty($data['judul']) || empty($data['penulis'])) {
@@ -121,7 +121,11 @@ class BukuController
         
         $newCover = $this->uploadFile($files);
         if ($newCover) {
-            $data['cover_buku'] = $newCover;
+            $data['cover'] = $newCover;
+        } else {
+            // Jika tidak ada cover baru, gunakan cover lama dari model (atau dari input hidden if provided)
+            $oldBook = $this->model->find($id);
+            $data['cover'] = $oldBook['cover'] ?? null;
         }
 
         $this->model->update($id, $data);
