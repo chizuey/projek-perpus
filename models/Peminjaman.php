@@ -175,9 +175,10 @@ class Peminjaman
         
         $dummy_email = $nim . '@student.com';
         $dummy_pass = password_hash('123456', PASSWORD_DEFAULT);
-        $sql = "INSERT INTO anggota (nim, nama, email, password) VALUES (?, ?, ?, ?)";
+        $jurusan_default = '-';
+        $sql = "INSERT INTO anggota (nim, nama, email, password, jurusan) VALUES (?, ?, ?, ?, ?)";
         $stmt = $this->conn->prepare($sql);
-        $stmt->bind_param("ssss", $nim, $nama, $dummy_email, $dummy_pass);
+        $stmt->bind_param("sssss", $nim, $nama, $dummy_email, $dummy_pass, $jurusan_default);
         $stmt->execute();
         return $this->conn->insert_id;
     }
