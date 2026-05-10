@@ -33,6 +33,11 @@ if (!function_exists('eEditBuku')) {
             <?= eEditBuku(implode(' ', $errorsEditBuku)); ?>
         </div>
     <?php endif; ?>
+    <?php if (!empty($successEditBuku)): ?>
+        <div class="form-alert form-success">
+            <?= eEditBuku($successEditBuku); ?>
+        </div>
+    <?php endif; ?>
 
     <!-- Form update buku, proses submit ditangani update.php -->
     <form method="POST" action="actions/buku/update.php" enctype="multipart/form-data">
@@ -75,10 +80,6 @@ if (!function_exists('eEditBuku')) {
                     <label class="form-label-custom" for="tahun">Tahun Terbit</label>
                     <input class="form-input-custom" id="tahun" name="tahun" type="number" min="0" placeholder="cth: 2023" value="<?= eEditBuku($oldEditBuku['tahun']); ?>" required>
                 </div>
-                <div>
-                    <label class="form-label-custom" for="tempat_terbit">Tempat Terbit</label>
-                    <input class="form-input-custom" id="tempat_terbit" name="tempat_terbit" type="text" placeholder="cth: Jakarta" value="<?= eEditBuku($oldEditBuku['tempat_terbit']); ?>">
-                </div>
             </div>
 
             <span class="kategori-label">Kategori :</span>
@@ -119,58 +120,48 @@ if (!function_exists('eEditBuku')) {
                 </div>
             </div>
 
-            <label class="synopsis-label" for="sinopsis">Deskripsi/Sinopsis :</label>
-            <textarea class="synopsis-area" id="sinopsis" name="sinopsis" placeholder="Masukkan deskripsi atau sinopsis buku..."><?= eEditBuku($oldEditBuku['sinopsis']); ?></textarea>
-
             <div class="form-actions" style="margin-top: 1rem;">
                 <button type="submit" class="btn-tambahkan">Simpan Perubahan</button>
                 <a href="?menu=databuku" class="btn-batal-form" style="text-decoration: none; display: inline-flex; align-items: center; justify-content: center;">Batal</a>
             </div>
         </div>
-
-        <div class="panel-card">
-            <div class="copy-panel-title">Copy Buku</div>
-            <label class="form-label-custom" for="stok">Jumlah Copy / Stok</label>
-            <input class="form-input-custom stock-input" id="stok" name="stok" type="number" min="1" value="<?= (int) $oldEditBuku['stok']; ?>" required>
-            <div class="copy-list-row" id="copyPreview" aria-live="polite"></div>
-        </div>
     </form>
+
+    <div class="panel-card">
+        <div class="copy-panel-title">Eksemplar Buku</div>
+        <p class="eksemplar-help">Klik ID eksemplar untuk memilih, lalu klik Hapus Eksemplar.</p>
+
+        <form method="post" action="actions/buku/add_eksemplar.php" class="eksemplar-inline-form">
+            <input type="hidden" name="action" value="add_eksemplar">
+            <input type="hidden" name="id" value="<?= (int) $bookId; ?>">
+            <button type="submit" class="btn-tambah-copy">Tambah Eksemplar</button>
+        </form>
+
+        <form method="post" action="actions/buku/delete_eksemplar.php" onsubmit="return confirm('Yakin ingin menghapus eksemplar yang dipilih?')">
+            <input type="hidden" name="action" value="delete_eksemplar">
+            <input type="hidden" name="id" value="<?= (int) $bookId; ?>">
+
+            <div class="eksemplar-grid">
+                <?php if (empty($eksemplarList)): ?>
+                    <span class="eksemplar-empty">Belum ada eksemplar.</span>
+                <?php else: ?>
+                    <?php foreach ($eksemplarList as $eksemplar): ?>
+                        <?php $isTersedia = $eksemplar['status'] === 'tersedia'; ?>
+                        <label class="eksemplar-item <?= $isTersedia ? '' : 'disabled'; ?>">
+                            <input
+                                type="checkbox"
+                                name="eksemplar_ids[]"
+                                value="<?= (int) $eksemplar['id_eksemplar']; ?>"
+                                <?= $isTersedia ? '' : 'disabled'; ?>
+                            >
+                            <span>ID <?= (int) $eksemplar['id_eksemplar']; ?></span>
+                            <small><?= eEditBuku($eksemplar['status']); ?></small>
+                        </label>
+                    <?php endforeach; ?>
+                <?php endif; ?>
+            </div>
+
+            <button type="submit" class="btn-hapus-eksemplar">Hapus Eksemplar</button>
+        </form>
+    </div>
 </main>
-
-<!-- Script preview jumlah copy/stok buku -->
-<script>
-document.addEventListener('DOMContentLoaded', function () {
-    const stokInput = document.getElementById('stok');
-    const copyPreview = document.getElementById('copyPreview');
-
-    // Menampilkan preview badge copy berdasarkan input stok.
-    function renderCopyPreview() {
-        if (!stokInput || !copyPreview) {
-            return;
-        }
-
-        const total = Math.max(1, parseInt(stokInput.value || '1', 10));
-        const visible = Math.min(total, 12);
-        copyPreview.innerHTML = '';
-
-        for (let index = 1; index <= visible; index++) {
-            const badge = document.createElement('span');
-            badge.className = 'copy-badge';
-            badge.textContent = 'b' + String(index).padStart(3, '0');
-            copyPreview.appendChild(badge);
-        }
-
-        if (total > visible) {
-            const badge = document.createElement('span');
-            badge.className = 'copy-badge';
-            badge.textContent = '+' + (total - visible);
-            copyPreview.appendChild(badge);
-        }
-    }
-
-    if (stokInput) {
-        stokInput.addEventListener('input', renderCopyPreview);
-        renderCopyPreview();
-    }
-});
-</script>
