@@ -11,6 +11,10 @@ class Buku
         $this->conn = (new Database())->getConnection();
     }
 
+    // ============================================================
+    // ADMIN - Data Buku (admin/pages/databuku.php)
+    // Mengambil semua buku untuk tabel daftar buku di halaman admin
+    // ============================================================
     public function all()
     {
         $sql = "SELECT buku.*, kategori.nama_kategori, 
@@ -33,6 +37,10 @@ class Buku
         return $data;
     }
 
+    // ============================================================
+    // ADMIN - Edit Buku (admin/pages/editBuku.php)
+    // Mengambil data satu buku berdasarkan ID untuk form edit
+    // ============================================================
     public function find($id)
     {
         $sql = "SELECT buku.*, kategori.nama_kategori
@@ -51,6 +59,10 @@ class Buku
         return $row;
     }
 
+    // ============================================================
+    // ADMIN - Tambah Buku (admin/pages/tambah.php)
+    // Menyimpan data buku baru + generate eksemplar fisik
+    // ============================================================
     public function create($data)
     {
         $id_kategori = $this->getKategoriId($data['kategori']);
@@ -75,6 +87,10 @@ class Buku
         return false;
     }
 
+    // ============================================================
+    // ADMIN - Edit Buku (admin/pages/editBuku.php)
+    // Memperbarui data buku + sesuaikan jumlah eksemplar
+    // ============================================================
     public function update($id, $data)
     {
         $id_kategori = $this->getKategoriId($data['kategori']);
@@ -109,6 +125,10 @@ class Buku
         return false;
     }
 
+    // ============================================================
+    // ADMIN - Data Buku (admin/pages/databuku.php)
+    // Menghapus buku (eksemplar ikut terhapus via CASCADE)
+    // ============================================================
     public function delete($id)
     {
         // Eksemplar akan terhapus otomatis karena CONSTRAINT ON DELETE CASCADE di database
@@ -116,6 +136,10 @@ class Buku
         return $this->conn->query($sql);
     }
 
+    // ============================================================
+    // ADMIN - Tambah & Edit Buku + USER - Koleksi
+    // Mengambil daftar nama kategori untuk dropdown filter/form
+    // ============================================================
     public function kategoriOptions()
     {
         $result = $this->conn->query("SELECT nama_kategori FROM kategori");
@@ -126,6 +150,10 @@ class Buku
         return $options;
     }
 
+    // ============================================================
+    // INTERNAL - Dipakai oleh create() dan update()
+    // Mencari ID kategori, jika belum ada maka buat baru
+    // ============================================================
     private function getKategoriId($nama)
     {
         $nama = $this->conn->real_escape_string($nama);
@@ -137,6 +165,10 @@ class Buku
         return $this->conn->insert_id;
     }
 
+    // ============================================================
+    // ADMIN - Validasi Tambah & Edit Buku
+    // Mengecek apakah judul buku sudah ada (untuk cegah duplikat)
+    // ============================================================
     public function countByTitle($judul, $exceptId = null)
     {
         $sql = "SELECT COUNT(*) as total FROM buku WHERE judul = ?";
@@ -153,6 +185,10 @@ class Buku
         return $row['total'];
     }
 
+    // ============================================================
+    // USER - Beranda (user/beranda.php)
+    // Mengambil buku paling sering dipinjam untuk section Terpopuler
+    // ============================================================
     public function getPopular($limit = 6)
     {
         $sql = "SELECT b.*, k.nama_kategori, 
@@ -174,6 +210,10 @@ class Buku
         return $data;
     }
 
+    // ============================================================
+    // USER - Beranda (user/beranda.php)
+    // Mengambil buku terbaru untuk section Koleksi Terbaru
+    // ============================================================
     public function getNewest($limit = 6)
     {
         $sql = "SELECT b.*, k.nama_kategori
@@ -190,5 +230,90 @@ class Buku
             $data[] = $row;
         }
         return $data;
+    }
+    // ============================================================
+    // USER - Koleksi (user/koleksi.php)
+    // Pencarian & filter buku dengan pagination untuk halaman koleksi
+    // ============================================================
+    public function searchKoleksi($search = '', $kategori = '', $tahun = '', $page = 1, $perPage = 15)
+    {
+        $where = [];
+        $params = [];
+        $types = '';
+
+        if ($search !== '') {
+            $where[] = "(b.judul LIKE ? OR b.penulis LIKE ?)";
+            $like = '%' . $search . '%';
+            $params[] = $like;
+            $params[] = $like;
+            $types .= 'ss';
+        }
+        if ($kategori !== '') {
+            $where[] = "k.nama_kategori = ?";
+            $params[] = $kategori;
+            $types .= 's';
+        }
+        if ($tahun !== '') {
+            $where[] = "b.tahun_terbit = ?";
+            $params[] = $tahun;
+            $types .= 's';
+        }
+
+        $whereClause = count($where) > 0 ? 'WHERE ' . implode(' AND ', $where) : '';
+
+        // Count total
+        $countSql = "SELECT COUNT(*) as total FROM buku b LEFT JOIN kategori k ON b.id_kategori = k.id_kategori $whereClause";
+        $stmtCount = $this->conn->prepare($countSql);
+        if ($types !== '') {
+            $stmtCount->bind_param($types, ...$params);
+        }
+        $stmtCount->execute();
+        $total = $stmtCount->get_result()->fetch_assoc()['total'];
+
+        // Fetch page
+        $offset = ($page - 1) * $perPage;
+        $dataSql = "SELECT b.*, k.nama_kategori,
+                           (SELECT COUNT(*) FROM eksemplar WHERE id_buku = b.id_buku AND status = 'tersedia') as stok_tersedia
+                    FROM buku b
+                    LEFT JOIN kategori k ON b.id_kategori = k.id_kategori
+                    $whereClause
+                    ORDER BY b.id_buku DESC
+                    LIMIT $perPage OFFSET $offset";
+        $stmtData = $this->conn->prepare($dataSql);
+        if ($types !== '') {
+            $stmtData->bind_param($types, ...$params);
+        }
+        $stmtData->execute();
+        $result = $stmtData->get_result();
+
+        $data = [];
+        while ($row = $result->fetch_assoc()) {
+            $row['id'] = $row['id_buku'];
+            $row['kategori'] = $row['nama_kategori'];
+            $row['tahun'] = $row['tahun_terbit'];
+            $data[] = $row;
+        }
+
+        return [
+            'data' => $data,
+            'total' => $total,
+            'totalPages' => max(1, ceil($total / $perPage)),
+            'currentPage' => $page,
+            'perPage' => $perPage
+        ];
+    }
+
+    // ============================================================
+    // USER - Koleksi (user/koleksi.php)
+    // Mengambil daftar tahun terbit unik untuk dropdown filter
+    // ============================================================
+    public function getTahunOptions()
+    {
+        $result = $this->conn->query("SELECT DISTINCT tahun_terbit FROM buku WHERE tahun_terbit IS NOT NULL AND tahun_terbit != '' ORDER BY tahun_terbit DESC");
+        $options = [];
+        while ($row = $result->fetch_assoc()) {
+            $options[] = $row['tahun_terbit'];
+        }
+        return $options;
     }
 }
