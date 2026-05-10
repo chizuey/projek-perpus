@@ -18,6 +18,9 @@ class PeminjamanController
         $search = isset($_GET['q']) ? trim($_GET['q']) : '';
         $perPage = isset($_GET['per_page']) ? (int)$_GET['per_page'] : 7;
         $currentPage = isset($_GET['page']) ? (int)$_GET['page'] : 1;
+        $openPopup = isset($_SESSION['open_popup']);
+        $errors = isset($_SESSION['errors']) ? $_SESSION['errors'] : [];
+        $oldInput = isset($_SESSION['old']) ? $_SESSION['old'] : ['nim' => '', 'nama' => '', 'buku1' => ''];
 
         $dataHeader = $this->model->all($search);
         
@@ -28,10 +31,12 @@ class PeminjamanController
         $offset = ($currentPage - 1) * $perPage;
         $pageData = array_slice($dataHeader, $offset, $perPage);
 
+        unset($_SESSION['open_popup'], $_SESSION['errors'], $_SESSION['old']);
+
         return [
-            'openPopup' => isset($_SESSION['open_popup']),
-            'errors' => isset($_SESSION['errors']) ? $_SESSION['errors'] : [],
-            'oldInput' => isset($_SESSION['old']) ? $_SESSION['old'] : ['nim' => '', 'nama' => '', 'buku1' => ''],
+            'openPopup' => $openPopup,
+            'errors' => $errors,
+            'oldInput' => $oldInput,
             'search' => $search,
             'perPage' => $perPage,
             'totalData' => $totalData,
@@ -69,10 +74,14 @@ class PeminjamanController
             $_SESSION['errors'] = ['Minimal masukkan satu ID Eksemplar.'];
             $_SESSION['old'] = $post;
             $_SESSION['open_popup'] = true;
-        } elseif (!$this->model->create($nim, $nama, $id_eksemplar_array, $adminId)) {
-            $_SESSION['errors'] = ['Gagal simpan data. Pastikan ID Eksemplar benar dan tersedia.'];
-            $_SESSION['old'] = $post;
-            $_SESSION['open_popup'] = true;
+        } else {
+            try {
+                $this->model->create($nim, $nama, $id_eksemplar_array, $adminId);
+            } catch (Exception $e) {
+                $_SESSION['errors'] = [$e->getMessage()];
+                $_SESSION['old'] = $post;
+                $_SESSION['open_popup'] = true;
+            }
         }
 
         header('Location: ../../index.php?menu=peminjaman');

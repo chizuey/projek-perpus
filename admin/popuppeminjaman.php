@@ -51,6 +51,7 @@
                         id="buku1" 
                         placeholder="Masukkan ID Eksemplar (Baris 1)" 
                         class="form-control"
+                        value="<?= e($oldInput['buku1'] ?? ''); ?>"
                         required
                     >
                 </div>
@@ -63,6 +64,7 @@
                         id="buku2" 
                         placeholder="Masukkan ID Eksemplar (Baris 2)" 
                         class="form-control"
+                        value="<?= e($oldInput['buku2'] ?? ''); ?>"
                     >
                 </div>
 
@@ -74,6 +76,7 @@
                         id="buku3" 
                         placeholder="Masukkan ID Eksemplar (Baris 3)" 
                         class="form-control"
+                        value="<?= e($oldInput['buku3'] ?? ''); ?>"
                     >
                 </div>
                 <?php
@@ -119,6 +122,7 @@ document.addEventListener('DOMContentLoaded', function() {
     const popup = document.getElementById('popupPeminjaman');
     const btnClose = document.getElementById('closePopupPeminjaman');
     const btnBatal = document.getElementById('batalPopupPeminjaman');
+    const pesanError = <?= json_encode(!empty($errors) ? implode(' ', $errors) : ''); ?>;
 
     const tutupPopup = () => {
         popup.classList.remove('active');
@@ -127,5 +131,6 @@ document.addEventListener('DOMContentLoaded', function() {
 
     if (btnClose) btnClose.onclick = tutupPopup;
     if (btnBatal) btnBatal.onclick = tutupPopup;
+    if (pesanError) alert(pesanError);
 });
 </script>

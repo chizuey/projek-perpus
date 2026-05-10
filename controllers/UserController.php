@@ -22,8 +22,8 @@ class UserController
             exit();
         }
 
-        $activeLoans = $this->anggotaModel->getActiveLoans($idUser);
-        $history = $this->anggotaModel->getLoanHistory($idUser);
+        $activeLoans = $this->anggotaModel->getActiveLoans($profile);
+        $history = $this->anggotaModel->getLoanHistory($profile);
         
         // Calculate fines and status for active loans
         foreach ($activeLoans as &$loan) {
