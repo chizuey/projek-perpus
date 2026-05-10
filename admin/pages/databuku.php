@@ -41,6 +41,11 @@ extract($bukuController->index(), EXTR_SKIP);
             </select>
             <i class="bi bi-chevron-down"></i>
         </form>
+
+        <a href="?menu=kategori" class="btn-kelola-kategori">
+            <i class="bi bi-gear"></i>
+            Kelola Kategori
+        </a>
     </div>
 
     <!-- Tabel daftar buku dan tombol aksi -->
