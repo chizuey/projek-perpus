@@ -152,4 +152,43 @@ class Buku
         $row = $stmt->get_result()->fetch_assoc();
         return $row['total'];
     }
+
+    public function getPopular($limit = 6)
+    {
+        $sql = "SELECT b.*, k.nama_kategori, 
+                       (SELECT COUNT(*) FROM eksemplar e 
+                        JOIN detail_peminjaman dp ON e.id_eksemplar = dp.id_eksemplar 
+                        WHERE e.id_buku = b.id_buku) as loan_count
+                FROM buku b
+                LEFT JOIN kategori k ON b.id_kategori = k.id_kategori
+                ORDER BY loan_count DESC
+                LIMIT $limit";
+        $result = $this->conn->query($sql);
+        
+        $data = [];
+        while ($row = $result->fetch_assoc()) {
+            $row['id'] = $row['id_buku'];
+            $row['kategori'] = $row['nama_kategori'];
+            $data[] = $row;
+        }
+        return $data;
+    }
+
+    public function getNewest($limit = 6)
+    {
+        $sql = "SELECT b.*, k.nama_kategori
+                FROM buku b
+                LEFT JOIN kategori k ON b.id_kategori = k.id_kategori
+                ORDER BY b.id_buku DESC
+                LIMIT $limit";
+        $result = $this->conn->query($sql);
+        
+        $data = [];
+        while ($row = $result->fetch_assoc()) {
+            $row['id'] = $row['id_buku'];
+            $row['kategori'] = $row['nama_kategori'];
+            $data[] = $row;
+        }
+        return $data;
+    }
 }
