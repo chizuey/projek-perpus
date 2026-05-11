@@ -77,7 +77,7 @@ secara digital.</p>
 <section class="container book-section">
     <div class="section-header">
         <h2>Koleksi Terbaru</h2>
-        <a href="#" class="view-all">Lihat Semua <i class="fas fa-chevron-right" style="font-size: 10px;"></i></a>
+        
     </div>
 
     <div class="book-grid">
@@ -99,7 +99,7 @@ secara digital.</p>
 <section class="container book-section">
     <div class="section-header">
         <h2>Buku Terpopuler</h2>
-        <a href="#" class="view-all">Lihat Semua <i class="fas fa-chevron-right" style="font-size: 10px;"></i></a>
+        
     </div>
 
     <div class="book-grid">
