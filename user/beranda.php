@@ -29,11 +29,11 @@ $popularBooks = $bukuModel->getPopular(6);
 untuk mendukung proses belajar mengajar. Temukan inspirasi
 dan pengetahuan tanpa batas.
             
-            <div class="search-container">
+            <form class="search-container" id="searchForm" method="GET" action="koleksi.php">
                 <i class="fas fa-search search-icon"></i>
-                <input type="text" placeholder="Cari judul buku atau penulis...">
-                <button class="btn-search">Cari Buku</button>
-            </div>
+                <input type="text" name="q" id="searchInput" placeholder="Cari judul buku atau penulis...">
+                <button type="submit" class="btn-search">Cari Buku</button>
+            </form>
         </div>
 
         <div class="hero-image">
