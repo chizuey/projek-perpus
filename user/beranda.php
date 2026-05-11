@@ -4,7 +4,7 @@
   <meta charset="UTF-8">
   <title>Perpustakaan Polije</title>
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <link rel="stylesheet" href="../public/css/style.css?v=3"
+  <link rel="stylesheet" href="../public/css/style.css?v=6"
 
   <-- Font Awesome -->
   <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.0/css/all.min.css">
@@ -45,10 +45,8 @@ dan pengetahuan tanpa batas.
 
    <div class="feature-card">
         <div class="icon-box blue"><img src="gambar/akses.png"></div>
-        <h3>Akses E-Journal</h3>
-        <p>Akses eksklusif ke berbagai
-jurnal nasional maupun
-internasional ternama
+        <h3>Akses Katalog</h3>
+        <p>Cari dan temukan berbagai koleksi buku dengan mudah melalui sistem digital.</p>
    </div>
 
    <div class="feature-card">

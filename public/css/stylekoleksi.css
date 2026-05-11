@@ -508,6 +508,7 @@ a {
   width: 100%;
   flex: 0 0 auto;
   background-color: #f3f4f6;
+  overflow: hidden;
 }
 
 .koleksi .atomic-habits {
@@ -519,6 +520,7 @@ a {
   background-image: url(./img/atomic-habits.png);
   background-size: cover;
   background-position: 50% 50%;
+  transition: 0.3s ease;
 }
 
 .koleksi .container-19 {
@@ -589,6 +591,7 @@ a {
   flex: 0 0 auto;
   background-color: #f3f4f6;
   aspect-ratio: 0.75;
+  overflow: hidden;
 }
 
 .koleksi .bumi-manusia {
@@ -600,6 +603,7 @@ a {
   background-position: 50% 50%;
   position: relative;
   align-self: stretch;
+  transition: 0.3s ease;
 }
 
 .koleksi .card-3 {
@@ -628,6 +632,7 @@ a {
   background-position: 50% 50%;
   position: relative;
   align-self: stretch;
+  transition: 0.3s ease;
 }
 
 .koleksi .card-4 {
@@ -655,6 +660,7 @@ a {
   background-image: url(./img/cover-4.png);
   background-size: cover;
   background-position: 50% 50%;
+  transition: 0.3s ease;
 }
 
 .koleksi .card-5 {
@@ -684,6 +690,7 @@ a {
   flex-grow: 1;
   background-color: #f1f5f9;
   aspect-ratio: 0.67;
+  overflow: hidden;
 }
 
 .koleksi .cover-2 {
@@ -694,6 +701,7 @@ a {
   background-image: url(./img/image.png);
   background-size: cover;
   background-position: 50% 50%;
+  transition: 0.3s ease;
 }
 
 .koleksi .background-4 {
@@ -750,6 +758,7 @@ a {
   background-image: url(./img/atomic-habits-3.png);
   background-size: cover;
   background-position: 50% 50%;
+  transition: 0.3s ease;
 }
 
 .koleksi .card-7 {
@@ -778,6 +787,7 @@ a {
   background-image: url(./img/bumi-manusia.png);
   background-size: cover;
   background-position: 50% 50%;
+  transition: 0.3s ease;
 }
 
 .koleksi .card-8 {
@@ -806,6 +816,7 @@ a {
   background-image: url(./img/laskar-pelangi.png);
   background-size: cover;
   background-position: 50% 50%;
+  transition: 0.3s ease;
 }
 
 .koleksi .card-9 {
@@ -833,6 +844,7 @@ a {
   background-image: url(./img/cover-5.png);
   background-size: cover;
   background-position: 50% 50%;
+  transition: 0.3s ease;
 }
 
 .koleksi .card-10 {
@@ -860,6 +872,7 @@ a {
   background-image: url(./img/cover.png);
   background-size: cover;
   background-position: 50% 50%;
+  transition: 0.3s ease;
 }
 
 .koleksi .card-11 {
@@ -887,6 +900,7 @@ a {
   background-image: url(./img/atomic-habits-2.png);
   background-size: cover;
   background-position: 50% 50%;
+  transition: 0.3s ease;
 }
 
 .koleksi .container-20 {
@@ -927,6 +941,7 @@ a {
   background-image: url(./img/bumi-manusia-2.png);
   background-size: cover;
   background-position: 50% 50%;
+  transition: 0.3s ease;
 }
 
 .koleksi .card-13 {
@@ -955,6 +970,7 @@ a {
   background-image: url(./img/laskar-pelangi-3.png);
   background-size: cover;
   background-position: 50% 50%;
+  transition: 0.3s ease;
 }
 
 .koleksi .card-14 {
@@ -982,6 +998,7 @@ a {
   background-image: url(./img/cover-3.png);
   background-size: cover;
   background-position: 50% 50%;
+  transition: 0.3s ease;
 }
 
 .koleksi .card-15 {
@@ -1009,4 +1026,62 @@ a {
   background-image: url(./img/cover-2.png);
   background-size: cover;
   background-position: 50% 50%;
+  transition: 0.3s ease;
+}
+
+/* ================= CARD HOVER ANIMATION ================= */
+.koleksi .card,
+.koleksi .card-2,
+.koleksi .card-3,
+.koleksi .card-4,
+.koleksi .card-5,
+.koleksi .card-6,
+.koleksi .card-7,
+.koleksi .card-8,
+.koleksi .card-9,
+.koleksi .card-10,
+.koleksi .card-11,
+.koleksi .card-12,
+.koleksi .card-13,
+.koleksi .card-14,
+.koleksi .card-15 {
+  transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+}
+
+.koleksi .card:hover,
+.koleksi .card-2:hover,
+.koleksi .card-3:hover,
+.koleksi .card-4:hover,
+.koleksi .card-5:hover,
+.koleksi .card-6:hover,
+.koleksi .card-7:hover,
+.koleksi .card-8:hover,
+.koleksi .card-9:hover,
+.koleksi .card-10:hover,
+.koleksi .card-11:hover,
+.koleksi .card-12:hover,
+.koleksi .card-13:hover,
+.koleksi .card-14:hover,
+.koleksi .card-15:hover {
+  transform: translateY(-5px);
+  box-shadow: 0 10px 15px -3px rgba(0, 0, 0, 0.1);
+}
+
+/* COVER IMAGE ZOOM ANIMATION */
+.koleksi .card:hover .atomic-habits,
+.koleksi .card:hover .atomic-habits-2,
+.koleksi .card:hover .atomic-habits-3,
+.koleksi .card-2:hover .bumi-manusia,
+.koleksi .card-7:hover .bumi-manusia-2,
+.koleksi .card-12:hover .bumi-manusia-3,
+.koleksi .card-3:hover .laskar-pelangi,
+.koleksi .card-8:hover .laskar-pelangi-2,
+.koleksi .card-13:hover .laskar-pelangi-3,
+.koleksi .card-4:hover .cover,
+.koleksi .card-5:hover .cover-2,
+.koleksi .card-9:hover .cover-3,
+.koleksi .card-10:hover .cover-4,
+.koleksi .card-14:hover .cover-5,
+.koleksi .card-15:hover .cover-6 {
+  transform: scale(1.05);
 }
