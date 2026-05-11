@@ -108,31 +108,32 @@ $hasActiveFilter = ($search !== '' || $kategori !== '' || $tahun !== '');
                 </div>
             <?php else: ?>
                 <?php foreach ($books as $b): 
-                    // VARIABEL POPUP (ADD INI)
-                    $id_pop    = (int)($b['id'] ?? $b['id_buku'] ?? 0);
-                    $titel_pop = addslashes(htmlspecialchars($b['judul']));
-                    $kat_pop   = htmlspecialchars($b['kategori']);
-                    $desk_pop  = addslashes(htmlspecialchars($b['deskripsi'] ?? 'Tidak ada deskripsi.'));
-                    $img_pop   = !empty($b['cover']) ? '../' . htmlspecialchars($b['cover']) : 'gambar/buku.png';
-                ?>
-                    <div class="koleksi-card" style="cursor: pointer;" onclick="bukaPopup(<?= $id_pop ?>, '<?= $titel_pop ?>', '<?= $kat_pop ?>', '<?= $img_pop ?>', '<?= $desk_pop ?>')">>
-                        <div class="koleksi-card-cover">
-                            <img src="../<?= !empty($b['cover']) ? htmlspecialchars($b['cover']) : 'user/gambar/buku.png'; ?>" alt="<?= htmlspecialchars($b['judul']); ?>">
-                        </div>
-                        <div class="koleksi-card-info">
-                            <h4><?= htmlspecialchars($b['judul']); ?></h4>
-                            <div class="author"><?= htmlspecialchars($b['penulis']); ?></div>
-                            <div class="meta-row">
-                                <?php if (!empty($b['kategori'])): ?>
-                                    <span class="kategori-badge"><?= htmlspecialchars($b['kategori']); ?></span>
-                                <?php endif; ?>
-                                <?php if (!empty($b['tahun'])): ?>
-                                    <span class="tahun"><?= htmlspecialchars($b['tahun']); ?></span>
-                                <?php endif; ?>
-                            </div>
-                        </div>
-                    </div>
-                <?php endforeach; ?>
+    // VARIABEL POPUP
+    $id_pop    = (int)($b['id'] ?? $b['id_buku'] ?? 0);
+    $titel_pop = addslashes(htmlspecialchars($b['judul']));
+    $kat_pop   = htmlspecialchars($b['kategori']);
+    $desk_pop  = addslashes(htmlspecialchars($b['deskripsi'] ?? 'Tidak ada deskripsi.'));
+    $img_pop   = !empty($b['cover']) ? '../' . htmlspecialchars($b['cover']) : '../user/gambar/buku.png';
+    $stok_pop  = (int)($b['copy'] ?? 0); // TAMBAHKAN STOK DI SINI
+?>
+    <div class="koleksi-card" style="cursor: pointer;" onclick="bukaPopup(<?= $id_pop ?>, '<?= $titel_pop ?>', '<?= $kat_pop ?>', '<?= $img_pop ?>', '<?= $desk_pop ?>', <?= $stok_pop ?>)">
+        <div class="koleksi-card-cover">
+            <img src="../<?= !empty($b['cover']) ? htmlspecialchars($b['cover']) : 'user/gambar/buku.png'; ?>" alt="<?= htmlspecialchars($b['judul']); ?>">
+        </div>
+        <div class="koleksi-card-info">
+            <h4><?= htmlspecialchars($b['judul']); ?></h4>
+            <div class="author"><?= htmlspecialchars($b['penulis']); ?></div>
+            <div class="meta-row">
+                <?php if (!empty($b['kategori'])): ?>
+                    <span class="kategori-badge"><?= htmlspecialchars($b['kategori']); ?></span>
+                <?php endif; ?>
+                <?php if (!empty($b['tahun'])): ?>
+                    <span class="tahun"><?= htmlspecialchars($b['tahun']); ?></span>
+                <?php endif; ?>
+            </div>
+        </div>
+    </div>
+<?php endforeach; ?>
             <?php endif; ?>
         </div>
 
