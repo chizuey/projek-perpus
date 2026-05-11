@@ -2,16 +2,23 @@
 
 require_once __DIR__ . '/../models/Anggota.php';
 require_once __DIR__ . '/../models/Peminjaman.php';
+require_once __DIR__ . '/../models/Reservasi.php';
+require_once __DIR__ . '/../config/database.php';
 
 class UserController
 {
     private $anggotaModel;
     private $peminjamanModel;
+    private $reservasiModel;
+    private $conn;
 
     public function __construct()
     {
         $this->anggotaModel = new Anggota();
         $this->peminjamanModel = new Peminjaman();
+        $db = new Database();
+        $this->conn = $db->getConnection();
+        $this->reservasiModel = new Reservasi($this->conn);
     }
 
     public function dashboard($idUser)
@@ -33,6 +40,9 @@ class UserController
             $loan['terlambat'] = $meta['terlambat'];
         }
 
+        // Get active reservations
+        $activeReservations = $this->getActiveReservations($profile['id_anggota']);
+
         // Calculate stats
         $totalBukuDipinjam = count($history);
         $riwayatKeterlambatan = 0;
@@ -48,6 +58,49 @@ class UserController
                 $riwayatKeterlambatan++;
             }
             
+            // Extract numeric denda
+            $dendaNumeric = (int)str_replace(['Rp ', '.', ','], '', $meta['denda']);
+            $totalDenda += $dendaNumeric;
+        }
+
+        // Sync total denda to database
+        if ($totalDenda != $profile['total_denda']) {
+            $this->anggotaModel->updateDenda($idUser, $totalDenda);
+            $profile['total_denda'] = $totalDenda;
+        }
+
+        return [
+            'profile' => $profile,
+            'activeLoans' => $activeLoans,
+            'activeReservations' => $activeReservations,
+            'history' => $history,
+            'stats' => [
+                'totalBuku' => $totalBukuDipinjam,
+                'totalKeterlambatan' => $riwayatKeterlambatan,
+                'totalDenda' => $totalDenda
+            ]
+        ];
+    }
+
+    private function getActiveReservations($idAnggota)
+    {
+        $sql = 'SELECT r.*, b.judul, b.cover, b.penulis
+                FROM reservasi r
+                JOIN buku b ON r.id_buku = b.id_buku
+                WHERE r.id_anggota = ? AND r.status IN ("menunggu", "disetujui")
+                ORDER BY r.tanggal_reservasi DESC';
+        $stmt = $this->conn->prepare($sql);
+        $stmt->bind_param('i', $idAnggota);
+        $stmt->execute();
+        $result = $stmt->get_result();
+        
+        $data = [];
+        while ($row = $result->fetch_assoc()) {
+            $data[] = $row;
+        }
+        return $data;
+    }
+}
             // Extract numeric denda
             $dendaNumeric = (int)str_replace(['Rp ', '.', ','], '', $meta['denda']);
             $totalDenda += $dendaNumeric;

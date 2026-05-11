@@ -553,6 +553,15 @@
     background-color: #003d85;
 }
 
+.bd-btn-reservasi:disabled {
+    background-color: #cccccc;
+    cursor: not-allowed;
+}
+
+.reservasi-form {
+    display: contents;
+}
+
 /* Responsif untuk layar HP */
 @media (max-width: 768px) {
     .bd-main-flex-auto {

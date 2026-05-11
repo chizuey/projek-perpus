@@ -109,12 +109,13 @@ $hasActiveFilter = ($search !== '' || $kategori !== '' || $tahun !== '');
             <?php else: ?>
                 <?php foreach ($books as $b): 
                     // VARIABEL POPUP (ADD INI)
+                    $id_pop    = (int)($b['id'] ?? $b['id_buku'] ?? 0);
                     $titel_pop = addslashes(htmlspecialchars($b['judul']));
                     $kat_pop   = htmlspecialchars($b['kategori']);
                     $desk_pop  = addslashes(htmlspecialchars($b['deskripsi'] ?? 'Tidak ada deskripsi.'));
                     $img_pop   = !empty($b['cover']) ? '../' . htmlspecialchars($b['cover']) : 'gambar/buku.png';
                 ?>
-                    <div class="koleksi-card" style="cursor: pointer;" onclick="bukaPopup('<?= $titel_pop ?>', '<?= $kat_pop ?>', '<?= $img_pop ?>', '<?= $desk_pop ?>')">
+                    <div class="koleksi-card" style="cursor: pointer;" onclick="bukaPopup(<?= $id_pop ?>, '<?= $titel_pop ?>', '<?= $kat_pop ?>', '<?= $img_pop ?>', '<?= $desk_pop ?>')">>
                         <div class="koleksi-card-cover">
                             <img src="../<?= !empty($b['cover']) ? htmlspecialchars($b['cover']) : 'user/gambar/buku.png'; ?>" alt="<?= htmlspecialchars($b['judul']); ?>">
                         </div>

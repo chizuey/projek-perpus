@@ -95,6 +95,37 @@ class ReservasiController
     }
 
     // =========================================================================
+    // CREATE (USER)
+    // =========================================================================
+
+    public static function create(array $post): array
+    {
+        self::startSession();
+        
+        if (empty($_SESSION['id_anggota'])) {
+            return ['success' => false, 'message' => 'Anda harus login terlebih dahulu'];
+        }
+
+        $idAnggota = (int) $_SESSION['id_anggota'];
+        $idBuku = (int) ($post['id_buku'] ?? 0);
+
+        if ($idBuku <= 0) {
+            return ['success' => false, 'message' => 'ID buku tidak valid'];
+        }
+
+        try {
+            $success = self::model()->create($idAnggota, $idBuku);
+            if ($success) {
+                return ['success' => true, 'message' => 'Reservasi berhasil dibuat'];
+            } else {
+                return ['success' => false, 'message' => 'Anda sudah memiliki reservasi aktif untuk buku ini'];
+            }
+        } catch (Exception $e) {
+            return ['success' => false, 'message' => $e->getMessage()];
+        }
+    }
+
+    // =========================================================================
     // Redirect helpers
     // =========================================================================
 
