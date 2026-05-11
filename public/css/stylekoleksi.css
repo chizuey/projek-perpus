@@ -387,3 +387,184 @@
     .koleksi-grid { grid-template-columns: repeat(2, 1fr); }
     .koleksi-title { font-size: 24px; }
 }
+/* ============================================================
+   CSS KHUSUS POPUP (MODAL DETAIL BUKU)
+   Gunakan class dengan awalan bd- agar tidak bentrok
+   ============================================================ */
+
+/* 1. Overlay (Background Gelap) */
+.bd-modal-overlay {
+    position: fixed; /* Membuatnya melayang mengikuti layar */
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    background-color: rgba(0, 0, 0, 0.6); /* Transparansi hitam */
+    display: none; /* Default sembunyi, muncul lewat JS (flex) */
+    justify-content: center;
+    align-items: center;
+    z-index: 10000; /* Pastikan di atas elemen apapun */
+    backdrop-filter: blur(4px); /* Efek blur di belakang popup */
+}
+
+/* 2. Kotak Putih Utama */
+.bd-modal-content {
+    background-color: #ffffff;
+    width: 880px; /* Lebar maksimal sesuai referensi */
+    max-width: 95%;
+    border-radius: 16px;
+    display: flex;
+    flex-direction: column;
+    overflow: hidden;
+    box-shadow: 0 25px 50px rgba(0, 0, 0, 0.25);
+    animation: fadeInModal 0.3s ease;
+}
+
+/* Animasi muncul halus */
+@keyframes fadeInModal {
+    from { opacity: 0; transform: translateY(-20px); }
+    to { opacity: 1; transform: translateY(0); }
+}
+
+/* 3. Header Modal */
+.bd-header {
+    padding: 15px 25px;
+    border-bottom: 1px solid #f1f5f9;
+    display: flex;
+    align-items: center;
+}
+
+.bd-back-btn {
+    cursor: pointer;
+    font-size: 14px;
+    color: #64748b;
+    transition: color 0.2s;
+    display: flex;
+    align-items: center;
+    gap: 8px;
+}
+
+.bd-back-btn:hover {
+    color: #1e293b;
+}
+
+/* 4. Area Konten (Cover & Detail) */
+.bd-main-flex-auto {
+    display: flex;
+    padding: 30px 40px;
+    gap: 40px;
+    align-items: stretch; /* Membuat tinggi teks sejajar dengan cover */
+}
+
+/* Sisi Kiri (Cover) */
+.bd-cover-wrapper {
+    flex: 0 0 240px; /* Ukuran cover tetap */
+    display: flex;
+    align-items: flex-start;
+}
+
+.bd-img-auto {
+    width: 100%;
+    height: auto;
+    border-radius: 8px;
+    box-shadow: 0 8px 15px rgba(0, 0, 0, 0.1);
+    object-fit: contain;
+}
+
+/* Sisi Kanan (Informasi) */
+.bd-detail-wrapper {
+    flex: 1;
+    display: flex;
+    flex-direction: column;
+}
+
+.bd-title {
+    font-size: 26px;
+    font-weight: 800;
+    color: #1e293b;
+    margin-bottom: 8px;
+    line-height: 1.2;
+    text-transform: uppercase;
+}
+
+.bd-meta-row {
+    margin-bottom: 15px;
+}
+
+.bd-tag {
+    background-color: #eff6ff;
+    color: #3b82f6;
+    padding: 4px 12px;
+    border-radius: 20px;
+    font-size: 12px;
+    font-weight: 700;
+}
+
+.bd-description {
+    font-size: 14px;
+    line-height: 1.6;
+    color: #475569;
+    margin-bottom: 20px;
+    flex-grow: 1; /* Mengisi ruang agar action area nempel ke bawah */
+}
+
+/* 5. Area Action (Status & Tombol) */
+.bd-action-area {
+    display: flex;
+    gap: 15px;
+    margin-top: auto;
+}
+
+.bd-status-box {
+    flex: 1.5;
+    background-color: #f1f5f9;
+    padding: 12px 20px;
+    border-radius: 10px;
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+}
+
+.bd-status-text {
+    color: #475569;
+    font-weight: 600;
+}
+
+.bd-status-count {
+    color: #1e40af;
+    font-weight: 800;
+    font-size: 20px;
+}
+
+.bd-btn-reservasi {
+    flex: 1;
+    background-color: #0050ad;
+    color: #ffffff;
+    border: none;
+    padding: 14px;
+    border-radius: 10px;
+    font-size: 15px;
+    font-weight: 700;
+    cursor: pointer;
+    transition: background 0.2s;
+}
+
+.bd-btn-reservasi:hover {
+    background-color: #003d85;
+}
+
+/* Responsif untuk layar HP */
+@media (max-width: 768px) {
+    .bd-main-flex-auto {
+        flex-direction: column;
+        padding: 20px;
+    }
+    .bd-cover-wrapper {
+        flex: 0 0 auto;
+        width: 180px;
+        margin: 0 auto;
+    }
+    .bd-action-area {
+        flex-direction: column;
+    }
+}

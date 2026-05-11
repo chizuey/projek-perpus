@@ -46,9 +46,12 @@ $base = ($caller_dir_name === 'user') ? '' : '../';
     <div class="footer-section social">
       <h3 class="footer-title">Media Sosial</h3>
       <div class="social-container">
-        <li><a href="#" class="social-link"><img src="<?php echo $base; ?>gambar/ig.png"> Instagram</a>
-        <li><a href="#" class="social-link"><img src="<?php echo $base; ?>gambar/fb.png"> Facebook</a>
-        <li><a href="#" class="social-link"><img src="<?php echo $base; ?>gambar/mail.png"> Email</a>
+        <li><a href="https://www.instagram.com/humaspolije?utm_source=ig_web_button_share_sheet&igsh=ZDNlZDc0MzIxNw==" 
+        class="social-link"><img src="<?php echo $base; ?>gambar/ig.png"> Instagram</a>
+        <li><a href="https://l.facebook.com/l.php?u=http%3A%2F%2Fwww.polije.ac.id%2F&h=AUB9BaIV-p7S_Z2KJWDIhjF_1FIir8_GMt5YXgv55fcGtJj3U-5JsAFh8PfSJv1nuLijhJmNDsfCUk4-ERZFRf32clVvCB7Gh8TFzo6NxB_IkRngrG6mKaGSczluz38Dfbj6JC6cEpBOmnpZZmCc9Q" 
+        class="social-link"><img src="<?php echo $base; ?>gambar/fb.png"> Facebook</a>
+        <li><a href="https://www.youtube.com/channel/UCFn17-2Pt2AsNhhQhSzUytg"
+         class="social-link"><img src="<?php echo $base; ?>../public/img/yt.png"> YouTube</a>
       </div>
     </div>
   </div>

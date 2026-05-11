@@ -3,7 +3,7 @@
 <head>
     <meta name="viewport" content="width=device-width, initial-scale=1"/>
     <meta charset="utf-8" />
-    <link rel="stylesheet" href="../public/css/style.css?v=3">
+    <link rel="stylesheet" href="/projek-perpus/public/css/style.css?v=<?php echo time(); ?>">
 
     <link rel="stylesheet" href="style.css?v=3">
     <title>Profil Perpustakaan</title>
