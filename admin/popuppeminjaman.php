@@ -1,9 +1,11 @@
+<?php include_once __DIR__ . '/popup/popup_helper.php'; ?>
+
 <!-- Popup form tambah peminjaman baru -->
 <div class="popup-overlay <?= $openPopup ? 'active' : ''; ?>" id="popupPeminjaman">
     <div class="popup-box">
         <div class="popup-header">
             <span>Tambah Peminjaman</span>
-            <button type="button" class="popup-close" id="closePopupPeminjaman" aria-label="Tutup">&times;</button>
+            <button type="button" class="popup-close" data-popup-close="popupPeminjaman" aria-label="Tutup">&times;</button>
         </div>
 
         <!-- Form create peminjaman, diproses oleh halaman peminjaman -->
@@ -108,7 +110,7 @@
                 </div>
 
                 <div class="popup-footer">
-                    <button type="button" class="btn-batal" id="batalPopupPeminjaman">Batal</button>
+                    <button type="button" class="btn-batal" data-popup-close="popupPeminjaman">Batal</button>
                     <button type="submit" class="btn-simpan">Simpan</button>
                 </div>
             </div>
@@ -119,18 +121,8 @@
 <script>
 // Logika untuk menutup popup peminjaman
 document.addEventListener('DOMContentLoaded', function() {
-    const popup = document.getElementById('popupPeminjaman');
-    const btnClose = document.getElementById('closePopupPeminjaman');
-    const btnBatal = document.getElementById('batalPopupPeminjaman');
     const pesanError = <?= json_encode(!empty($errors) ? implode(' ', $errors) : ''); ?>;
 
-    const tutupPopup = () => {
-        popup.classList.remove('active');
-        document.body.classList.remove('modal-open');
-    };
-
-    if (btnClose) btnClose.onclick = tutupPopup;
-    if (btnBatal) btnBatal.onclick = tutupPopup;
     if (pesanError) alert(pesanError);
 });
 </script>

@@ -103,23 +103,19 @@ extract($bukuController->index(), EXTR_SKIP);
                                     <i class="bi bi-pencil"></i>
                                     <span>Edit</span>
                                 </a>
-                                <form
-                                    method="post"
-                                    action="actions/buku/delete.php"
-                                    class="databuku-delete-form"
-                                    onsubmit="return confirm('Yakin ingin menghapus buku ini?')"
+                                <button
+                                    type="button"
+                                    class="btn-table-action btn-delete-book js-hapus-buku"
+                                    data-id="<?= (int) $book['id']; ?>"
+                                    data-judul="<?= eBuku($book['judul']); ?>"
+                                    data-page="<?= (int) $currentPage; ?>"
+                                    data-q="<?= eBuku($search); ?>"
+                                    data-kategori-filter="<?= eBuku($kategoriFilter); ?>"
+                                    data-per-page="<?= (int) $perPage; ?>"
                                 >
-                                    <input type="hidden" name="action" value="delete_buku">
-                                    <input type="hidden" name="id" value="<?= (int) $book['id']; ?>">
-                                    <input type="hidden" name="page" value="<?= (int) $currentPage; ?>">
-                                    <input type="hidden" name="q" value="<?= eBuku($search); ?>">
-                                    <input type="hidden" name="kategori_filter" value="<?= eBuku($kategoriFilter); ?>">
-                                    <input type="hidden" name="per_page" value="<?= (int) $perPage; ?>">
-                                    <button type="submit" class="btn-table-action btn-delete-book">
-                                        <i class="bi bi-trash"></i>
-                                        <span>Hapus</span>
-                                    </button>
-                                </form>
+                                    <i class="bi bi-trash"></i>
+                                    <span>Hapus</span>
+                                </button>
                             </td>
                         </tr>
                     <?php endforeach; ?>
@@ -167,6 +163,8 @@ extract($bukuController->index(), EXTR_SKIP);
     </div>
 </section>
 
+<?php include __DIR__ . '/../popup/hapus_buku.php'; ?>
+
 <!-- Script filter Data Buku -->
 <script>
 document.addEventListener('DOMContentLoaded', function () {
@@ -178,5 +176,18 @@ document.addEventListener('DOMContentLoaded', function () {
             filterForm.submit();
         });
     }
+
+    document.querySelectorAll('.js-hapus-buku').forEach(button => {
+        button.addEventListener('click', function () {
+            bukaPopupHapusBuku(
+                this.dataset.id,
+                this.dataset.judul,
+                this.dataset.page,
+                this.dataset.q,
+                this.dataset.kategoriFilter,
+                this.dataset.perPage
+            );
+        });
+    });
 });
 </script>

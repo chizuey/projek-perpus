@@ -9,6 +9,10 @@ if (session_status() === PHP_SESSION_NONE) {
 }
 
 // Check if user is logged in
+if (empty($_SESSION['id_anggota']) && !empty($_SESSION['id_user'])) {
+    $_SESSION['id_anggota'] = $_SESSION['id_user'];
+}
+
 if (empty($_SESSION['id_anggota'])) {
     http_response_code(401);
     echo json_encode(['success' => false, 'message' => 'Silahkan login terlebih dahulu']);
@@ -21,7 +25,7 @@ if ($_SERVER['REQUEST_METHOD'] !== 'POST') {
     exit;
 }
 
-require_once __DIR__ . '/../../controllers/ReservasiController.php';
+require_once __DIR__ . '/../../../controllers/ReservasiController.php';
 
 $result = ReservasiController::create($_POST);
 http_response_code($result['success'] ? 200 : 400);

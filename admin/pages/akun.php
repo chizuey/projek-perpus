@@ -25,7 +25,7 @@ if (($_SERVER['REQUEST_METHOD'] ?? 'GET') === 'POST' && ($_POST['aksi'] ?? '') =
     if ($nama !== '' && $email !== '') {
         $stmt = $conn->prepare(
             'UPDATE admin
-             SET nama_admin = ?, jabatan_admin = ?, email_admin = ?, no_hp_admin = ?
+             SET nama = ?, jabatan_admin = ?, email = ?, no_hp_admin = ?
              WHERE id_admin = ?'
         );
         $stmt->bind_param('ssssi', $nama, $jabatan, $email, $noHp, $adminId);
@@ -44,9 +44,9 @@ $adminRow = $stmt->get_result()->fetch_assoc() ?: [];
 
 $admin = [
     'id' => $adminRow['id_admin'] ?? 'ADM001',
-    'nama' => $adminRow['nama_admin'] ?? 'Administrator',
+    'nama' => $adminRow['nama'] ?? 'Administrator',
     'jabatan' => $adminRow['jabatan_admin'] ?? 'Admin Perpustakaan',
-    'email' => $adminRow['email_admin'] ?? 'admin@perpustakaan.com',
+    'email' => $adminRow['email'] ?? 'admin@perpustakaan.com',
     'no_hp' => $adminRow['no_hp_admin'] ?? '-',
     'last_login' => $adminRow['last_login_at'] ?? '',
 ];

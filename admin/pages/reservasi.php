@@ -10,23 +10,21 @@ function fmtTgl($d): string {
 }
 
 $statusLabel = [
-    'menunggu'  => ['label' => 'Menunggu',   'class' => 'badge-pending'],
-    'disetujui' => ['label' => 'Disetujui',  'class' => 'badge-confirmed'],
-    'dibatalkan'=> ['label' => 'Dibatalkan', 'class' => 'badge-cancelled'],
-    'selesai'   => ['label' => 'Selesai',    'class' => 'badge-confirmed'], // Bisa disesuaikan warnanya
+    'menunggu'   => ['label' => 'Menunggu',   'class' => 'badge-pending'],
+    'disetujui'  => ['label' => 'Disetujui',  'class' => 'badge-confirmed'],
+    'dibatalkan' => ['label' => 'Dibatalkan', 'class' => 'badge-cancelled'],
+    'selesai'    => ['label' => 'Selesai',    'class' => 'badge-confirmed'],
 ];
 ?>
 
 <div class="reservasi-wrapper">
-    <!-- Header -->
     <div class="reservasi-header">
         <div class="title-group">
             <h1>Reservasi Buku</h1>
-            <span class="total-badge"><?= $totalData; ?> data</span>
+            <span class="total-badge"><?= (int)$totalData; ?> data</span>
         </div>
     </div>
 
-    <!-- Toolbar: search + filter status + per page -->
     <div class="toolbar">
         <div class="toolbar-left">
             <form method="get" class="search-form">
@@ -46,15 +44,14 @@ $statusLabel = [
                 <button type="submit" class="btn-search">Cari</button>
             </form>
 
-            <!-- Filter status -->
             <div class="filter-group">
                 <?php
                 $statusOptions = [
-                    ''          => 'Semua',
-                    'menunggu'  => 'Menunggu',
-                    'disetujui' => 'Disetujui',
-                    'dibatalkan'=> 'Dibatalkan',
-                    'selesai'   => 'Selesai',
+                    ''           => 'Semua',
+                    'menunggu'   => 'Menunggu',
+                    'disetujui'  => 'Disetujui',
+                    'dibatalkan' => 'Dibatalkan',
+                    'selesai'    => 'Selesai',
                 ];
                 foreach ($statusOptions as $val => $lbl):
                     $active = ($filterStatus === $val) ? 'active' : '';
@@ -75,8 +72,8 @@ $statusLabel = [
                 <label for="per_page_reservasi">Tampilkan</label>
                 <select name="per_page" id="per_page_reservasi" onchange="this.form.submit()">
                     <?php foreach (Reservasi::perPageOptions() as $opt): ?>
-                        <option value="<?= $opt; ?>" <?= $perPage === $opt ? 'selected' : ''; ?>>
-                            <?= $opt; ?>
+                        <option value="<?= (int)$opt; ?>" <?= $perPage === $opt ? 'selected' : ''; ?>>
+                            <?= (int)$opt; ?>
                         </option>
                     <?php endforeach; ?>
                 </select>
@@ -85,7 +82,6 @@ $statusLabel = [
         </div>
     </div>
 
-    <!-- Tabel -->
     <div class="table-wrapper">
         <table class="reservasi-table">
             <thead>
@@ -105,11 +101,11 @@ $statusLabel = [
             <?php if (!empty($pageData)): ?>
                 <?php foreach ($pageData as $i => $r): ?>
                     <?php
-                    $st    = $r['status'] ?? 'menunggu';
+                    $st = $r['status'] ?? 'menunggu';
                     $badge = $statusLabel[$st] ?? ['label' => $st, 'class' => 'badge-pending'];
                     ?>
                     <tr>
-                        <td><?= $startDisplay + $i; ?></td>
+                        <td><?= (int)($startDisplay + $i); ?></td>
                         <td><?= eR($r['kode_anggota'] ?? ''); ?></td>
                         <td><?= eR($r['nama_anggota'] ?? ''); ?></td>
                         <td><?= eR($r['judul_buku'] ?? ''); ?></td>
@@ -126,29 +122,41 @@ $statusLabel = [
                                 <?php if ($st === 'menunggu'): ?>
                                     <button
                                         type="button"
-                                        class="btn-konfirmasi js-open-konfirmasi-modal"
+                                        class="btn-konfirmasi js-konfirmasi-reservasi"
                                         data-id="<?= (int)$r['id_reservasi']; ?>"
                                         data-nama="<?= eR($r['nama_anggota'] ?? ''); ?>"
                                         data-buku="<?= eR($r['judul_buku'] ?? ''); ?>"
+                                        data-page="<?= (int)$currentPage; ?>"
+                                        data-per-page="<?= (int)$perPage; ?>"
+                                        data-q="<?= eR($search); ?>"
+                                        data-status="<?= eR($filterStatus); ?>"
                                     >
                                         Konfirmasi
                                     </button>
                                     <button
                                         type="button"
-                                        class="btn-batal js-open-batalkan-modal"
+                                        class="btn-batal js-batalkan-reservasi"
                                         data-id="<?= (int)$r['id_reservasi']; ?>"
                                         data-nama="<?= eR($r['nama_anggota'] ?? ''); ?>"
                                         data-buku="<?= eR($r['judul_buku'] ?? ''); ?>"
+                                        data-page="<?= (int)$currentPage; ?>"
+                                        data-per-page="<?= (int)$perPage; ?>"
+                                        data-q="<?= eR($search); ?>"
+                                        data-status="<?= eR($filterStatus); ?>"
                                     >
                                         Batalkan
                                     </button>
                                 <?php elseif ($st === 'disetujui'): ?>
                                     <button
                                         type="button"
-                                        class="btn-batal js-open-batalkan-modal"
+                                        class="btn-batal js-batalkan-reservasi"
                                         data-id="<?= (int)$r['id_reservasi']; ?>"
                                         data-nama="<?= eR($r['nama_anggota'] ?? ''); ?>"
                                         data-buku="<?= eR($r['judul_buku'] ?? ''); ?>"
+                                        data-page="<?= (int)$currentPage; ?>"
+                                        data-per-page="<?= (int)$perPage; ?>"
+                                        data-q="<?= eR($search); ?>"
+                                        data-status="<?= eR($filterStatus); ?>"
                                     >
                                         Batalkan
                                     </button>
@@ -172,11 +180,10 @@ $statusLabel = [
         </table>
     </div>
 
-    <!-- Info + pagination -->
     <div class="table-footer">
         <span class="table-info">
             <?php if ($totalData > 0): ?>
-                Menampilkan <?= $startDisplay; ?>–<?= $endDisplay; ?> dari <?= $totalData; ?> data
+                Menampilkan <?= (int)$startDisplay; ?>-<?= (int)$endDisplay; ?> dari <?= (int)$totalData; ?> data
             <?php else: ?>
                 Tidak ada data
             <?php endif; ?>
@@ -185,7 +192,7 @@ $statusLabel = [
         <?php if ($totalPages > 1): ?>
             <div class="pagination">
                 <?php if ($currentPage > 1): ?>
-                    <a href="?menu=reservasi&page=<?= $currentPage - 1; ?>&per_page=<?= $perPage; ?>&q=<?= eR($search); ?>&status=<?= eR($filterStatus); ?>"
+                    <a href="?menu=reservasi&page=<?= (int)($currentPage - 1); ?>&per_page=<?= (int)$perPage; ?>&q=<?= eR($search); ?>&status=<?= eR($filterStatus); ?>"
                        class="page-btn">&laquo;</a>
                 <?php endif; ?>
 
@@ -193,15 +200,15 @@ $statusLabel = [
                     <?php if ($pg === '...'): ?>
                         <span class="page-dots">...</span>
                     <?php else: ?>
-                        <a href="?menu=reservasi&page=<?= $pg; ?>&per_page=<?= $perPage; ?>&q=<?= eR($search); ?>&status=<?= eR($filterStatus); ?>"
+                        <a href="?menu=reservasi&page=<?= (int)$pg; ?>&per_page=<?= (int)$perPage; ?>&q=<?= eR($search); ?>&status=<?= eR($filterStatus); ?>"
                            class="page-btn <?= $pg === $currentPage ? 'active' : ''; ?>">
-                            <?= $pg; ?>
+                            <?= (int)$pg; ?>
                         </a>
                     <?php endif; ?>
                 <?php endforeach; ?>
 
                 <?php if ($currentPage < $totalPages): ?>
-                    <a href="?menu=reservasi&page=<?= $currentPage + 1; ?>&per_page=<?= $perPage; ?>&q=<?= eR($search); ?>&status=<?= eR($filterStatus); ?>"
+                    <a href="?menu=reservasi&page=<?= (int)($currentPage + 1); ?>&per_page=<?= (int)$perPage; ?>&q=<?= eR($search); ?>&status=<?= eR($filterStatus); ?>"
                        class="page-btn">&raquo;</a>
                 <?php endif; ?>
             </div>
@@ -209,104 +216,36 @@ $statusLabel = [
     </div>
 </div>
 
-<!-- ===== MODAL KONFIRMASI ===== -->
-<div class="modal-overlay" id="modalKonfirmasi">
-    <div class="modal-box">
-        <div class="modal-header">
-            <span>Konfirmasi Reservasi</span>
-            <button type="button" class="modal-close" id="closeKonfirmasiModal">&times;</button>
-        </div>
-        <div class="modal-body">
-            <p>Konfirmasi reservasi buku <strong id="konfirmasi-buku"></strong> untuk anggota
-                <strong id="konfirmasi-nama"></strong>?
-            </p>
-        </div>
-        <form method="post" action="actions/reservasi/konfirmasi.php">
-            <input type="hidden" name="id" id="konfirmasi-id">
-            <input type="hidden" name="page" value="<?= (int)$currentPage; ?>">
-            <input type="hidden" name="per_page" value="<?= (int)$perPage; ?>">
-            <input type="hidden" name="q" value="<?= eR($search); ?>">
-            <input type="hidden" name="status" value="<?= eR($filterStatus); ?>">
-            <div class="modal-footer">
-                <button type="button" class="btn-cancel-modal" id="cancelKonfirmasiModal">Batal</button>
-                <button type="submit" class="btn-confirm-modal btn-green">Ya, Konfirmasi</button>
-            </div>
-        </form>
-    </div>
-</div>
-
-<!-- ===== MODAL BATALKAN ===== -->
-<div class="modal-overlay" id="modalBatalkan">
-    <div class="modal-box">
-        <div class="modal-header">
-            <span>Batalkan Reservasi</span>
-            <button type="button" class="modal-close" id="closeBatalkanModal">&times;</button>
-        </div>
-        <div class="modal-body">
-            <p>Batalkan reservasi buku <strong id="batalkan-buku"></strong> untuk anggota
-                <strong id="batalkan-nama"></strong>?
-            </p>
-        </div>
-        <form method="post" action="actions/reservasi/batalkan.php">
-            <input type="hidden" name="id" id="batalkan-id">
-            <input type="hidden" name="page" value="<?= (int)$currentPage; ?>">
-            <input type="hidden" name="per_page" value="<?= (int)$perPage; ?>">
-            <input type="hidden" name="q" value="<?= eR($search); ?>">
-            <input type="hidden" name="status" value="<?= eR($filterStatus); ?>">
-            <div class="modal-footer">
-                <button type="button" class="btn-cancel-modal" id="cancelBatalkanModal">Batal</button>
-                <button type="submit" class="btn-confirm-modal btn-red">Ya, Batalkan</button>
-            </div>
-        </form>
-    </div>
-</div>
+<?php include __DIR__ . '/../popup/reservasi.php'; ?>
 
 <script>
-(function () {
-    // Modal Konfirmasi
-    const modalKonfirmasi   = document.getElementById('modalKonfirmasi');
-    const konfirmasiButtons = document.querySelectorAll('.js-open-konfirmasi-modal');
-
-    konfirmasiButtons.forEach(btn => {
-        btn.addEventListener('click', () => {
-            document.getElementById('konfirmasi-id').value   = btn.dataset.id;
-            document.getElementById('konfirmasi-nama').textContent = btn.dataset.nama;
-            document.getElementById('konfirmasi-buku').textContent = btn.dataset.buku;
-            modalKonfirmasi.classList.add('active');
-        });
+document.addEventListener('DOMContentLoaded', function () {
+    document.querySelectorAll('.js-konfirmasi-reservasi').forEach(function (button) {
+        button.onclick = function () {
+            bukaPopupKonfirmasiReservasi(
+                this.dataset.id,
+                this.dataset.nama,
+                this.dataset.buku,
+                this.dataset.page,
+                this.dataset.perPage,
+                this.dataset.q,
+                this.dataset.status
+            );
+        };
     });
 
-    ['closeKonfirmasiModal', 'cancelKonfirmasiModal'].forEach(id => {
-        document.getElementById(id)?.addEventListener('click', () => {
-            modalKonfirmasi.classList.remove('active');
-        });
+    document.querySelectorAll('.js-batalkan-reservasi').forEach(function (button) {
+        button.onclick = function () {
+            bukaPopupBatalkanReservasi(
+                this.dataset.id,
+                this.dataset.nama,
+                this.dataset.buku,
+                this.dataset.page,
+                this.dataset.perPage,
+                this.dataset.q,
+                this.dataset.status
+            );
+        };
     });
-
-    modalKonfirmasi.addEventListener('click', e => {
-        if (e.target === modalKonfirmasi) modalKonfirmasi.classList.remove('active');
-    });
-
-    // Modal Batalkan
-    const modalBatalkan   = document.getElementById('modalBatalkan');
-    const batalkanButtons = document.querySelectorAll('.js-open-batalkan-modal');
-
-    batalkanButtons.forEach(btn => {
-        btn.addEventListener('click', () => {
-            document.getElementById('batalkan-id').value   = btn.dataset.id;
-            document.getElementById('batalkan-nama').textContent = btn.dataset.nama;
-            document.getElementById('batalkan-buku').textContent = btn.dataset.buku;
-            modalBatalkan.classList.add('active');
-        });
-    });
-
-    ['closeBatalkanModal', 'cancelBatalkanModal'].forEach(id => {
-        document.getElementById(id)?.addEventListener('click', () => {
-            modalBatalkan.classList.remove('active');
-        });
-    });
-
-    modalBatalkan.addEventListener('click', e => {
-        if (e.target === modalBatalkan) modalBatalkan.classList.remove('active');
-    });
-})();
+});
 </script>

@@ -27,6 +27,11 @@ class Anggota
         return $result->fetch_assoc();
     }
 
+    public function getById($id)
+    {
+        return $this->findById($id);
+    }
+
     public function getActiveLoans($anggota)
     {
         $idList = $this->getRelatedAnggotaIds($anggota);
@@ -48,6 +53,11 @@ class Anggota
         return $loans;
     }
 
+    public function getPeminjamanAktif($anggota)
+    {
+        return $this->getActiveLoans($anggota);
+    }
+
     public function getLoanHistory($anggota)
     {
         $idList = $this->getRelatedAnggotaIds($anggota);
@@ -66,6 +76,11 @@ class Anggota
             $history[] = $row;
         }
         return $history;
+    }
+
+    public function getRiwayatPeminjaman($anggota)
+    {
+        return $this->getLoanHistory($anggota);
     }
 
     public function updateDenda($idAnggota, $totalDenda)
