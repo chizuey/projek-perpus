@@ -4,7 +4,9 @@ if (session_status() === PHP_SESSION_NONE) {
     @session_start();
 }
 
-if (($_SESSION['level'] ?? '') !== 'admin' || !isset($_SESSION['id_user'])) {
+$adminId = $_SESSION['id_admin'] ?? $_SESSION['id_user'] ?? null;
+
+if (($_SESSION['level'] ?? '') !== 'admin' || empty($adminId)) {
     header('Location: ../../../auth/login.php');
     exit;
 }

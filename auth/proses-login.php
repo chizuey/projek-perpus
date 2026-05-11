@@ -1,8 +1,8 @@
 <?php
 session_start();
 
-require_once '../vendor/autoload.php';
-require_once '../config.php';
+require_once __DIR__ . '/../vendor/autoload.php';
+require_once __DIR__ . '/../config.php';
 
 // KONFIGURASI GOOGLE
 $client = new Google\Client();
@@ -107,8 +107,8 @@ if (isset($_GET['code'])) {
 
         mysqli_query(
             $koneksi,
-            "INSERT INTO anggota (nama, nim, email)
-            VALUES ('$nama_db', '$nim_db', '$email_db')"
+            "INSERT INTO anggota (nama, nama_anggota, nim, email)
+            VALUES ('$nama_db', '$nama_db', '$nim_db', '$email_db')"
         );
 
         // Ambil akun yang baru dibuat
@@ -126,11 +126,12 @@ if (isset($_GET['code'])) {
     |--------------------------------------------------------------------------
     */
 
-    $_SESSION['id_user'] = $data['id_anggota'];
-    $_SESSION['nama']    = $data['nama'];
-    $_SESSION['nim']     = $data['nim'];
-    $_SESSION['jurusan'] = $data['jurusan'] ?? '';
-    $_SESSION['level']   = 'user';
+    $_SESSION['id_user']    = $data['id_anggota'];
+    $_SESSION['id_anggota'] = $data['id_anggota'];
+    $_SESSION['nama']       = $data['nama'];
+    $_SESSION['nim']        = $data['nim'];
+    $_SESSION['jurusan']    = $data['jurusan'] ?? '';
+    $_SESSION['level']      = 'user';
 
     header("Location: ../user/mahasiswa.php");
     exit();
@@ -144,14 +145,14 @@ if (isset($_GET['code'])) {
 |--------------------------------------------------------------------------
 */
 
-if (isset($_POST['login'])) {
+if (isset($_POST['login']) || isset($_POST['login_admin'])) {
 
     $email    = mysqli_real_escape_string($koneksi, $_POST['email']);
     $password = $_POST['password'];
 
     $query_admin = mysqli_query(
         $koneksi,
-        "SELECT * FROM admin WHERE email_admin = '$email' LIMIT 1"
+        "SELECT * FROM admin WHERE email = '$email' LIMIT 1"
     );
 
     if (mysqli_num_rows($query_admin) === 1) {
@@ -161,7 +162,8 @@ if (isset($_POST['login'])) {
         if (password_verify($password, $data_admin['password'])) {
 
             $_SESSION['id_admin'] = $data_admin['id_admin'];
-            $_SESSION['nama']     = $data_admin['nama_admin'];
+            $_SESSION['nama']     = $data_admin['nama'];
+            $_SESSION['jabatan']  = $data_admin['jabatan_admin'] ?? 'Admin Perpustakaan';
             $_SESSION['level']    = 'admin';
 
             mysqli_query(

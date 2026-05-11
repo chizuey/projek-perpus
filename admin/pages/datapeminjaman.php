@@ -130,6 +130,8 @@ extract($data, EXTR_SKIP);
 
 <!-- Sertakan popup untuk tambah peminjaman baru -->
 <?php include __DIR__ . '/../popuppeminjaman.php'; ?>
+<?php include __DIR__ . '/../popup/perpanjang_peminjaman.php'; ?>
+<?php include __DIR__ . '/../popup/kembalikan_buku.php'; ?>
 
 <!-- ======================================================
      JAVASCRIPT: LOGIKA INTERAKSI HALAMAN
@@ -140,6 +142,12 @@ document.addEventListener('DOMContentLoaded', function () {
     const modalDetail = document.getElementById('modalDetail');
     const bodiTabel = document.getElementById('tabelDetailBuku');
     const txtNama = document.getElementById('txtNamaPeminjam');
+
+    const escapeAttr = (value) => String(value ?? '')
+        .replace(/&/g, '&amp;')
+        .replace(/"/g, '&quot;')
+        .replace(/</g, '&lt;')
+        .replace(/>/g, '&gt;');
 
     // 2. Fungsi Membuka Modal Detail & Ambil Data via AJAX
     function bukaDetail(id, nama) {
@@ -172,10 +180,26 @@ document.addEventListener('DOMContentLoaded', function () {
                             <td style="text-align: center;">
                                 <div class="peminjaman-action-group">
                                     ${!buku.extended_at ? 
-                                        `<button class="btn-perpanjang btn-sm" onclick="prosesAksi('update', ${buku.id_detail}, 'perpanjang')">Perpanjang</button>` : 
+                                        `<button
+                                            type="button"
+                                            class="btn-perpanjang btn-sm"
+                                            data-action-peminjaman="perpanjang"
+                                            data-id="${escapeAttr(buku.id_detail)}"
+                                            data-judul="${escapeAttr(buku.judul)}"
+                                            data-id-eksemplar="${escapeAttr(buku.id_eksemplar)}"
+                                        >Perpanjang</button>` :
                                         '<span class="extend-used-label">Sudah Diperpanjang</span>'
                                     }
-                                    <button class="btn-kembalikan btn-sm" onclick="prosesAksi('delete', ${buku.id_detail}, 'kembalikan')">Kembalikan</button>
+                                    <button
+                                        type="button"
+                                        class="btn-kembalikan btn-sm"
+                                        data-action-peminjaman="kembalikan"
+                                        data-id="${escapeAttr(buku.id_detail)}"
+                                        data-judul="${escapeAttr(buku.judul)}"
+                                        data-id-eksemplar="${escapeAttr(buku.id_eksemplar)}"
+                                        data-status="${escapeAttr(buku.status_teks)}"
+                                        data-denda="${escapeAttr(buku.denda_teks)}"
+                                    >Kembalikan</button>
                                 </div>
                             </td>
                         </tr>
@@ -184,6 +208,28 @@ document.addEventListener('DOMContentLoaded', function () {
                 });
             });
     }
+
+    bodiTabel.addEventListener('click', function (event) {
+        const button = event.target.closest('[data-action-peminjaman]');
+        if (!button) return;
+
+        if (button.dataset.actionPeminjaman === 'perpanjang') {
+            bukaPopupPerpanjangPeminjaman(
+                button.dataset.id,
+                button.dataset.judul,
+                button.dataset.idEksemplar
+            );
+            return;
+        }
+
+        bukaPopupKembalikanBuku(
+            button.dataset.id,
+            button.dataset.judul,
+            button.dataset.idEksemplar,
+            button.dataset.status,
+            button.dataset.denda
+        );
+    });
 
     // 3. Menghubungkan Tombol Detail di Tabel
     document.querySelectorAll('.js-tombol-detail').forEach(btn => {
@@ -201,38 +247,9 @@ document.addEventListener('DOMContentLoaded', function () {
     document.getElementById('btnTutupModalX').onclick = tutupModal;
 
     // 5. Popup Tambah Peminjaman (Logika Sederhana)
-    const popupTambah = document.getElementById('popupPeminjaman');
     document.getElementById('btnBukaPopup').onclick = () => {
-        popupTambah.classList.add('active');
-        document.body.classList.add('modal-open');
+        bukaPopup('popupPeminjaman');
     };
 });
 
-/**
- * Fungsi pembantu untuk mengirim perintah Kembali atau Perpanjang
- */
-function prosesAksi(folder, id, tipe) {
-    const pesan = (tipe === 'kembalikan') ? 'Yakin ingin mengembalikan buku ini?' : 'Yakin ingin memperpanjang buku ini?';
-    if (!confirm(pesan)) return;
-
-    // Membuat form bayangan untuk mengirim data POST
-    const form = document.createElement('form');
-    form.method = 'POST';
-    form.action = 'actions/peminjaman/' + folder + '.php';
-
-    const inputId = document.createElement('input');
-    inputId.type = 'hidden';
-    inputId.name = 'id';
-    inputId.value = id;
-
-    const inputAction = document.createElement('input');
-    inputAction.type = 'hidden';
-    inputAction.name = 'action';
-    inputAction.value = (tipe === 'kembalikan') ? 'kembalikan_peminjaman' : 'perpanjang_peminjaman';
-
-    form.appendChild(inputId);
-    form.appendChild(inputAction);
-    document.body.appendChild(form);
-    form.submit();
-}
 </script>

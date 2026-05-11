@@ -163,10 +163,12 @@ class Buku
     public function syncCopy($idBuku)
     {
         $sql = "UPDATE buku
-                SET copy = (SELECT COUNT(*) FROM eksemplar WHERE id_buku = ?)
+                SET copy = (SELECT COUNT(*) FROM eksemplar WHERE id_buku = ?),
+                    total_stok = (SELECT COUNT(*) FROM eksemplar WHERE id_buku = ?),
+                    stok_tersedia = (SELECT COUNT(*) FROM eksemplar WHERE id_buku = ? AND status = 'tersedia')
                 WHERE id_buku = ?";
         $stmt = $this->conn->prepare($sql);
-        $stmt->bind_param("ii", $idBuku, $idBuku);
+        $stmt->bind_param("iiii", $idBuku, $idBuku, $idBuku, $idBuku);
         return $stmt->execute();
     }
 

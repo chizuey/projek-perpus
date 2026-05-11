@@ -29,7 +29,7 @@ class ReservasiController
     private static function getIdAdmin(): int
     {
         self::startSession();
-        return (int) ($_SESSION['id_user'] ?? 0);
+        return (int) ($_SESSION['id_admin'] ?? $_SESSION['id_user'] ?? 0);
     }
 
     // =========================================================================
@@ -102,6 +102,10 @@ class ReservasiController
     {
         self::startSession();
         
+        if (empty($_SESSION['id_anggota']) && !empty($_SESSION['id_user'])) {
+            $_SESSION['id_anggota'] = $_SESSION['id_user'];
+        }
+
         if (empty($_SESSION['id_anggota'])) {
             return ['success' => false, 'message' => 'Anda harus login terlebih dahulu'];
         }

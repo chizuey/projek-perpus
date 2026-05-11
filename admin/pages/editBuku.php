@@ -137,7 +137,7 @@ if (!function_exists('eEditBuku')) {
             <button type="submit" class="btn-tambah-copy">Tambah Eksemplar</button>
         </form>
 
-        <form method="post" action="actions/buku/delete_eksemplar.php" onsubmit="return confirm('Yakin ingin menghapus eksemplar yang dipilih?')">
+        <form method="post" action="actions/buku/delete_eksemplar.php" id="hapusEksemplarPickerForm" data-id-buku="<?= (int) $bookId; ?>">
             <input type="hidden" name="action" value="delete_eksemplar">
             <input type="hidden" name="id" value="<?= (int) $bookId; ?>">
 
@@ -165,3 +165,30 @@ if (!function_exists('eEditBuku')) {
         </form>
     </div>
 </main>
+
+<?php include __DIR__ . '/../popup/hapus_eksemplar.php'; ?>
+
+<script>
+document.addEventListener('DOMContentLoaded', function () {
+    const pickerForm = document.getElementById('hapusEksemplarPickerForm');
+    if (!pickerForm) return;
+
+    pickerForm.addEventListener('submit', function (event) {
+        event.preventDefault();
+
+        const checked = Array.from(
+            pickerForm.querySelectorAll('input[name="eksemplar_ids[]"]:checked')
+        );
+
+        if (checked.length === 0) {
+            alert('Pilih minimal satu eksemplar yang tersedia.');
+            return;
+        }
+
+        bukaPopupHapusEksemplar(
+            pickerForm.dataset.idBuku,
+            checked.map(input => input.value)
+        );
+    });
+});
+</script>
