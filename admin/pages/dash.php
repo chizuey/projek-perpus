@@ -17,38 +17,45 @@ function dashScalar(mysqli $conn, string $sql): int
 $total_buku = dashScalar($conn, 'SELECT COUNT(*) FROM buku');
 $total_stok = dashScalar($conn, 'SELECT COALESCE(SUM(total_stok), 0) FROM buku');
 $tersedia = dashScalar($conn, 'SELECT COALESCE(SUM(stok_tersedia), 0) FROM buku');
-$dipinjam = dashScalar($conn, "SELECT COUNT(*) FROM peminjaman WHERE status_pinjam IN ('borrowed', 'overdue')");
-$terlambat = dashScalar($conn, "SELECT COUNT(*) FROM peminjaman WHERE status_pinjam = 'overdue'");
+$dipinjam = dashScalar($conn, "SELECT COUNT(*) FROM detail_peminjaman WHERE status_pengembalian = 'dipinjam'");
+$terlambat = dashScalar($conn, "SELECT COUNT(*)
+    FROM detail_peminjaman dp
+    JOIN peminjaman p ON p.id_peminjaman = dp.id_peminjaman
+    WHERE dp.status_pengembalian = 'dipinjam'
+      AND p.batas_waktu < CURDATE()");
 $total_anggota = dashScalar($conn, 'SELECT COUNT(*) FROM anggota');
+$total_transaksi = dashScalar($conn, 'SELECT COUNT(*) FROM peminjaman');
 
 $logs_recent = [];
 $result = $conn->query(
-    "SELECT p.id_peminjaman, p.tanggal_pinjam, p.tanggal_jatuh_tempo,
-            p.tanggal_kembali, p.status_pinjam,
+    "SELECT p.id_peminjaman, p.tanggal_peminjaman, p.batas_waktu,
+            dp.id_detail, dp.tanggal_kembali, dp.status_pengembalian,
             a.nama_anggota, b.judul
      FROM peminjaman p
      JOIN anggota a ON a.id_anggota = p.id_anggota
-     JOIN buku b ON b.id_buku = p.id_buku
+     JOIN detail_peminjaman dp ON dp.id_peminjaman = p.id_peminjaman
+     JOIN eksemplar e ON e.id_eksemplar = dp.id_eksemplar
+     JOIN buku b ON b.id_buku = e.id_buku
      WHERE p.laporan_hidden_at IS NULL
-     ORDER BY p.id_peminjaman DESC
+     ORDER BY dp.id_detail DESC
      LIMIT 10"
 );
 
 while ($result && $row = $result->fetch_assoc()) {
     $status = 'Belum Kembali';
 
-    if (($row['status_pinjam'] ?? '') === 'returned' || !empty($row['tanggal_kembali'])) {
+    if (($row['status_pengembalian'] ?? '') === 'kembali' || !empty($row['tanggal_kembali'])) {
         $status = 'Dikembalikan';
-    } elseif (($row['status_pinjam'] ?? '') === 'overdue') {
+    } elseif (strtotime((string) ($row['batas_waktu'] ?? '')) < strtotime(date('Y-m-d'))) {
         $status = 'Terlambat';
     }
 
     $logs_recent[] = [
-        'source_id' => 'pjm_db_' . (int) ($row['id_peminjaman'] ?? 0),
+        'source_id' => 'pjm_db_' . (int) ($row['id_peminjaman'] ?? 0) . '_dtl_' . (int) ($row['id_detail'] ?? 0),
         'peminjam' => $row['nama_anggota'] ?? '',
         'judul_buku' => $row['judul'] ?? '',
-        'tgl_pinjam' => $row['tanggal_pinjam'] ?? '',
-        'tgl_jatuh_tempo' => $row['tanggal_jatuh_tempo'] ?? '',
+        'tgl_pinjam' => $row['tanggal_peminjaman'] ?? '',
+        'tgl_jatuh_tempo' => $row['batas_waktu'] ?? '',
         'status' => $status,
     ];
 }
@@ -59,7 +66,7 @@ for ($i = 5; $i >= 0; $i--) {
     $ts = strtotime("-$i months");
     $key = date('Y-m', $ts);
     $label = date('M', $ts);
-    $stmt = $conn->prepare("SELECT COUNT(*) AS total FROM peminjaman WHERE DATE_FORMAT(tanggal_pinjam, '%Y-%m') = ?");
+    $stmt = $conn->prepare("SELECT COUNT(*) AS total FROM peminjaman WHERE DATE_FORMAT(tanggal_peminjaman, '%Y-%m') = ?");
     $stmt->bind_param('s', $key);
     $stmt->execute();
     $row = $stmt->get_result()->fetch_assoc();
@@ -189,7 +196,7 @@ $admin_jabatan = $_SESSION['jabatan'] ?? 'Admin Perpustakaan';
                     </div>
                     <div class="admin-stats">
                         <div class="admin-stat-item">
-                            <span class="admin-stat-val"><?= $dipinjam + dashScalar($conn, "SELECT COUNT(*) FROM peminjaman WHERE status_pinjam = 'returned'") ?></span>
+                            <span class="admin-stat-val"><?= $total_transaksi ?></span>
                             <span class="admin-stat-lbl">Total Transaksi</span>
                         </div>
                         <div class="admin-stat-item">

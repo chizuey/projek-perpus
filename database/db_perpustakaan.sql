@@ -94,11 +94,6 @@ CREATE TABLE peminjaman (
     tanggal_peminjaman DATE NOT NULL,
     batas_waktu DATE NOT NULL,
     laporan_hidden_at TIMESTAMP NULL DEFAULT NULL,
-    id_buku INT DEFAULT NULL,
-    tanggal_pinjam DATE DEFAULT NULL,
-    tanggal_jatuh_tempo DATE DEFAULT NULL,
-    tanggal_kembali DATE DEFAULT NULL,
-    status_pinjam ENUM('borrowed', 'returned', 'overdue') NOT NULL DEFAULT 'borrowed',
     created_at TIMESTAMP NULL DEFAULT CURRENT_TIMESTAMP,
     updated_at TIMESTAMP NULL DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP,
     FOREIGN KEY (id_anggota) REFERENCES anggota(id_anggota)
@@ -106,10 +101,7 @@ CREATE TABLE peminjaman (
         ON DELETE RESTRICT,
     FOREIGN KEY (id_admin) REFERENCES admin(id_admin)
         ON UPDATE CASCADE
-        ON DELETE RESTRICT,
-    FOREIGN KEY (id_buku) REFERENCES buku(id_buku)
-        ON UPDATE CASCADE
-        ON DELETE SET NULL
+        ON DELETE RESTRICT
 );
 
 CREATE TABLE detail_peminjaman (
@@ -207,12 +199,12 @@ INSERT INTO eksemplar (id_eksemplar, id_buku, status, created_at, updated_at) VA
 (8, 4, 'tersedia', '2026-05-09 05:29:08', '2026-05-09 05:29:08');
 
 INSERT INTO peminjaman
-(id_peminjaman, id_anggota, id_admin, tanggal_peminjaman, batas_waktu, laporan_hidden_at, id_buku, tanggal_pinjam, tanggal_jatuh_tempo, tanggal_kembali, status_pinjam, created_at, updated_at)
+(id_peminjaman, id_anggota, id_admin, tanggal_peminjaman, batas_waktu, laporan_hidden_at, created_at, updated_at)
 VALUES
-(1, 1, 1, '2026-05-01', '2026-05-08', NULL, 1, '2026-05-01', '2026-05-08', '2026-05-09', 'returned', '2026-05-09 05:29:08', '2026-05-09 05:29:08'),
-(2, 2, 1, '2026-05-03', '2026-05-10', NULL, 2, '2026-05-03', '2026-05-10', '2026-05-09', 'returned', '2026-05-09 05:29:08', '2026-05-09 05:29:08'),
-(3, 1, 1, '2026-05-09', '2026-05-16', NULL, 1, '2026-05-09', '2026-05-16', '2026-05-09', 'returned', '2026-05-09 05:30:53', '2026-05-09 05:30:53'),
-(4, 1, 1, '2026-05-09', '2026-05-23', NULL, 1, '2026-05-09', '2026-05-23', NULL, 'borrowed', '2026-05-09 06:07:36', '2026-05-09 06:07:49');
+(1, 1, 1, '2026-05-01', '2026-05-08', NULL, '2026-05-09 05:29:08', '2026-05-09 05:29:08'),
+(2, 2, 1, '2026-05-03', '2026-05-10', NULL, '2026-05-09 05:29:08', '2026-05-09 05:29:08'),
+(3, 1, 1, '2026-05-09', '2026-05-16', NULL, '2026-05-09 05:30:53', '2026-05-09 05:30:53'),
+(4, 1, 1, '2026-05-09', '2026-05-23', NULL, '2026-05-09 06:07:36', '2026-05-09 06:07:49');
 
 INSERT INTO detail_peminjaman
 (id_detail, id_peminjaman, id_eksemplar, tanggal_kembali, status_pengembalian, extended_at, created_at, updated_at)
