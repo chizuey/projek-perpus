@@ -101,26 +101,3 @@ class UserController
         return $data;
     }
 }
-            // Extract numeric denda
-            $dendaNumeric = (int)str_replace(['Rp ', '.', ','], '', $meta['denda']);
-            $totalDenda += $dendaNumeric;
-        }
-
-        // Sync total denda to database
-        if ($totalDenda != $profile['total_denda']) {
-            $this->anggotaModel->updateDenda($idUser, $totalDenda);
-            $profile['total_denda'] = $totalDenda;
-        }
-
-        return [
-            'profile' => $profile,
-            'activeLoans' => $activeLoans,
-            'history' => $history,
-            'stats' => [
-                'totalBuku' => $totalBukuDipinjam,
-                'totalKeterlambatan' => $riwayatKeterlambatan,
-                'totalDenda' => $totalDenda
-            ]
-        ];
-    }
-}
