@@ -27,7 +27,10 @@
                         <span class="bd-status-text">Tersedia</span>
                         <span class="bd-status-count">2</span>
                     </div>
-                    <button class="bd-btn-reservasi">RESERVASI</button>
+                    <form id="formReservasi" class="reservasi-form">
+                        <input type="hidden" name="id_buku" id="popIdBuku" value="">
+                        <button type="button" class="bd-btn-reservasi" onclick="submitReservasi(event)">RESERVASI</button>
+                    </form>
                 </div>
             </div>
         </div>
@@ -36,10 +39,11 @@
 
 <script>
 
-function bukaPopup(judul, kategori, img, deskripsi) {
+function bukaPopup(idBuku, judul, kategori, img, deskripsi) {
     const modal = document.getElementById('modalDetail');
 
     if (modal) {
+        document.getElementById('popIdBuku').value = idBuku || '';
         document.getElementById('popTitle').innerText = judul || "Judul Tidak Tersedia";
         document.getElementById('popKategori').innerText = kategori || "Umum";
         document.getElementById('popImg').src = img || "../public/img/buku.png";
@@ -62,6 +66,50 @@ function tutupPopup() {
         modal.style.display = 'none';
         document.body.style.overflow = 'auto'; // Kembalikan scroll body
     }
+}
+
+
+function submitReservasi(event) {
+    event.preventDefault();
+    
+    const idBuku = document.getElementById('popIdBuku').value;
+    
+    if (!idBuku) {
+        alert('ID Buku tidak ditemukan');
+        return;
+    }
+
+    // Show loading state
+    const btn = event.target;
+    const originalText = btn.innerText;
+    btn.innerText = 'Memproses...';
+    btn.disabled = true;
+
+    // Submit via AJAX
+    const formData = new FormData();
+    formData.append('id_buku', idBuku);
+
+    fetch('actions/reservasi/create.php', {
+        method: 'POST',
+        body: formData
+    })
+    .then(response => response.json())
+    .then(data => {
+        btn.innerText = originalText;
+        btn.disabled = false;
+
+        if (data.success) {
+            alert(data.message);
+            tutupPopup();
+        } else {
+            alert('Error: ' + data.message);
+        }
+    })
+    .catch(error => {
+        btn.innerText = originalText;
+        btn.disabled = false;
+        alert('Error: ' + error.message);
+    });
 }
 
 

@@ -5,6 +5,7 @@
   <title>Perpustakaan Polije</title>
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <link rel="stylesheet" href="/projek-perpus/public/css/style.css?v=<?php echo time(); ?>">
+  <link rel="stylesheet" href="/projek-perpus/public/css/stylekoleksi.css?v=<?php echo time(); ?>">
 
   <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.0/css/all.min.css">
 </head>
@@ -80,8 +81,14 @@ secara digital.</p>
     </div>
 
     <div class="book-grid">
-        <?php foreach ($newestBooks as $b): ?>
-            <div class="book-card">
+        <?php foreach ($newestBooks as $b): 
+            $id_pop    = (int)($b['id'] ?? $b['id_buku'] ?? 0);
+            $titel_pop = addslashes(htmlspecialchars($b['judul']));
+            $kat_pop   = htmlspecialchars($b['kategori'] ?? 'Umum');
+            $desk_pop  = addslashes(htmlspecialchars($b['deskripsi'] ?? 'Tidak ada deskripsi.'));
+            $img_pop   = !empty($b['cover']) ? '../' . htmlspecialchars($b['cover']) : 'user/gambar/buku.png';
+        ?>
+            <div class="book-card" style="cursor: pointer;" onclick="bukaPopup(<?= $id_pop ?>, '<?= $titel_pop ?>', '<?= $kat_pop ?>', '<?= $img_pop ?>', '<?= $desk_pop ?>')">
                 <div class="book-cover">
                     <img src="../<?= !empty($b['cover']) ? htmlspecialchars($b['cover']) : 'user/gambar/buku.png'; ?>" alt="<?= htmlspecialchars($b['judul']); ?>">
                 </div>
@@ -102,8 +109,14 @@ secara digital.</p>
     </div>
 
     <div class="book-grid">
-        <?php foreach ($popularBooks as $b): ?>
-            <div class="book-card">
+        <?php foreach ($popularBooks as $b): 
+            $id_pop    = (int)($b['id'] ?? $b['id_buku'] ?? 0);
+            $titel_pop = addslashes(htmlspecialchars($b['judul']));
+            $kat_pop   = htmlspecialchars($b['kategori'] ?? 'Umum');
+            $desk_pop  = addslashes(htmlspecialchars($b['deskripsi'] ?? 'Tidak ada deskripsi.'));
+            $img_pop   = !empty($b['cover']) ? '../' . htmlspecialchars($b['cover']) : 'user/gambar/buku.png';
+        ?>
+            <div class="book-card" style="cursor: pointer;" onclick="bukaPopup(<?= $id_pop ?>, '<?= $titel_pop ?>', '<?= $kat_pop ?>', '<?= $img_pop ?>', '<?= $desk_pop ?>')">
                 <div class="book-cover">
                     <img src="../<?= !empty($b['cover']) ? htmlspecialchars($b['cover']) : 'user/gambar/buku.png'; ?>" alt="<?= htmlspecialchars($b['judul']); ?>">
                 </div>
@@ -117,6 +130,7 @@ secara digital.</p>
 </section>
 
 <?php include 'foot.php'; ?>
+<?php include 'modal_detail.php'; ?>
 
 </body>
 </html>

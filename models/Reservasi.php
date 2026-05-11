@@ -139,6 +139,36 @@ class Reservasi
     }
 
     // =========================================================================
+    // CREATE RESERVASI (USER)
+    // =========================================================================
+
+    /**
+     * User membuat reservasi buku baru — status otomatis "menunggu"
+     */
+    public function create(int $idAnggota, int $idBuku): bool
+    {
+        // Cek apakah sudah ada reservasi aktif untuk buku yang sama
+        $stmt = $this->conn->prepare(
+            'SELECT id_reservasi FROM reservasi
+             WHERE id_anggota = ? AND id_buku = ? AND status IN ("menunggu", "disetujui")'
+        );
+        $stmt->bind_param('ii', $idAnggota, $idBuku);
+        $stmt->execute();
+        if ($stmt->get_result()->fetch_assoc()) {
+            return false; // Sudah ada reservasi aktif
+        }
+
+        $today = date('Y-m-d');
+        $stmt = $this->conn->prepare(
+            'INSERT INTO reservasi (id_anggota, id_buku, tanggal_reservasi, status)
+             VALUES (?, ?, ?, "menunggu")'
+        );
+        $stmt->bind_param('iis', $idAnggota, $idBuku, $today);
+        $stmt->execute();
+        return $stmt->affected_rows > 0;
+    }
+
+    // =========================================================================
     // PAGINATION
     // =========================================================================
 

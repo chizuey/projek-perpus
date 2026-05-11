@@ -13,6 +13,7 @@ $dashboardData = $userController->dashboard($_SESSION['id_user']);
 
 $profile = $dashboardData['profile'];
 $activeLoans = $dashboardData['activeLoans'];
+$activeReservations = $dashboardData['activeReservations'] ?? [];
 $history = $dashboardData['history'];
 $stats = $dashboardData['stats'];
 
@@ -102,18 +103,33 @@ $jurusan_tampil = $profile['jurusan'];
 
         <div class="section-card">
             <h3>Reservasi Buku</h3>
-            <div class="book-item">
-                <div class="book-cover"></div>
-                <div class="book-detail">
-                    <div class="book-title">Sistem Basis Data Lanjut</div>
-                    <div class="book-author">Polije Press</div>
-                    <div class="book-meta">🗓️ Reservasi pada 8 Nov 2023</div>
-                </div>
-                <div class="status-labels">
-                    <span class="status-tag tag-wait">Menunggu Konfirmasi</span>
-                </div>
-            </div>
-            <a href="#" class="see-all" style="margin-top: 70px;">Lihat semua</a>
+            <?php if (empty($activeReservations)): ?>
+                <p style="font-size: 13px; color: var(--text-muted); text-align: center; margin-top: 20px;">Anda tidak memiliki reservasi aktif.</p>
+            <?php else: ?>
+                <?php foreach (array_slice($activeReservations, 0, 3) as $res): 
+                    $statusLabel = $res['status'] === 'menunggu' ? 'Menunggu Konfirmasi' : 'Disetujui';
+                    $statusClass = $res['status'] === 'menunggu' ? 'tag-wait' : 'tag-safe';
+                ?>
+                    <div class="book-item">
+                        <div class="book-cover">
+                            <?php if ($res['cover']): ?>
+                                <img src="../<?php echo $res['cover']; ?>" style="width:100%; height:100%; object-fit:cover; border-radius:4px;">
+                            <?php endif; ?>
+                        </div>
+                        <div class="book-detail">
+                            <div class="book-title"><?php echo htmlspecialchars($res['judul']); ?></div>
+                            <div class="book-author"><?php echo htmlspecialchars($res['penulis']); ?></div>
+                            <div class="book-meta">🗓️ Reservasi pada <?php echo date('d M Y', strtotime($res['tanggal_reservasi'])); ?></div>
+                        </div>
+                        <div class="status-labels">
+                            <span class="status-tag <?php echo $statusClass; ?>"><?php echo $statusLabel; ?></span>
+                        </div>
+                    </div>
+                <?php endforeach; ?>
+                <?php if (count($activeReservations) > 3): ?>
+                    <a href="#" class="see-all">Lihat semua (<?php echo count($activeReservations); ?>)</a>
+                <?php endif; ?>
+            <?php endif; ?>
         </div>
     </div>
 
