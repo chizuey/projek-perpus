@@ -28,11 +28,11 @@ $popularBooks = $bukuModel->getPopular(6);
 untuk mendukung proses belajar mengajar. Temukan inspirasi
 dan pengetahuan tanpa batas.
             
-            <div class="search-container">
+            <form class="search-container" id="searchForm" method="GET" action="koleksi.php">
                 <i class="fas fa-search search-icon"></i>
-                <input type="text" placeholder="Cari judul buku atau penulis...">
-                <button class="btn-search">Cari Buku</button>
-            </div>
+                <input type="text" name="q" id="searchInput" placeholder="Cari judul buku atau penulis...">
+                <button type="submit" class="btn-search">Cari Buku</button>
+            </form>
         </div>
 
         <div class="hero-image">
@@ -51,8 +51,8 @@ dan pengetahuan tanpa batas.
 
    <div class="feature-card">
         <div class="icon-box blue"><img src="gambar/akses.png"></div>
-        <h3>Katalog Buku Ter-update</h3>
-        <p>Cari dan temukan ketersediaan buku favorit Anda dengan mudah melalui sistem katalog digital kami.
+        <h3>Akses Katalog</h3>
+        <p>Cari dan temukan berbagai koleksi buku dengan mudah melalui sistem digital.</p>
    </div>
 
    <div class="feature-card">
@@ -76,7 +76,7 @@ secara digital.</p>
 <section class="container book-section">
     <div class="section-header">
         <h2>Koleksi Terbaru</h2>
-        <a href="#" class="view-all">Lihat Semua <i class="fas fa-chevron-right" style="font-size: 10px;"></i></a>
+        
     </div>
 
     <div class="book-grid">
@@ -98,7 +98,7 @@ secara digital.</p>
 <section class="container book-section">
     <div class="section-header">
         <h2>Buku Terpopuler</h2>
-        <a href="#" class="view-all">Lihat Semua <i class="fas fa-chevron-right" style="font-size: 10px;"></i></a>
+        
     </div>
 
     <div class="book-grid">

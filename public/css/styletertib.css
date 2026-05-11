@@ -685,7 +685,7 @@
   height: 36px;
   background-color: #dbeafe;
   border-radius: 18px;
-  border: 2px solid;
+  border: 0px solid;
   border-color: #ffffff;
   display: flex;
   align-items: center;
@@ -714,7 +714,7 @@
   font-family: "Inter-Bold", Helvetica;
   font-weight: 700;
   color: #0050ad;
-  font-size: 16px;
+  font-size: px;
   text-align: center;
   letter-spacing: 0;
   line-height: 24px;

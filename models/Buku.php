@@ -17,7 +17,8 @@ class Buku
     // ============================================================
     public function all()
     {
-        $sql = "SELECT buku.*, kategori.nama_kategori, 
+        $sql = "SELECT buku.*, kategori.nama_kategori,
+                       (SELECT COUNT(*) FROM eksemplar WHERE id_buku = buku.id_buku) as total_eksemplar,
                        (SELECT COUNT(*) FROM eksemplar WHERE id_buku = buku.id_buku AND status = 'tersedia') as stok_tersedia
                 FROM buku
                 LEFT JOIN kategori ON buku.id_kategori = kategori.id_kategori
@@ -31,7 +32,7 @@ class Buku
             $row['penulis'] = $row['penulis'];
             $row['tahun'] = $row['tahun_terbit'];
             $row['kategori'] = $row['nama_kategori'];
-            $row['stok'] = $row['copy']; // 'copy' adalah total stok fisik
+            $row['stok'] = $row['total_eksemplar'];
             $data[] = $row;
         }
         return $data;
@@ -43,7 +44,8 @@ class Buku
     // ============================================================
     public function find($id)
     {
-        $sql = "SELECT buku.*, kategori.nama_kategori
+        $sql = "SELECT buku.*, kategori.nama_kategori,
+                       (SELECT COUNT(*) FROM eksemplar WHERE id_buku = buku.id_buku) as total_eksemplar
                 FROM buku
                 LEFT JOIN kategori ON buku.id_kategori = kategori.id_kategori
                 WHERE buku.id_buku = $id";
@@ -54,7 +56,7 @@ class Buku
             $row['id'] = $row['id_buku'];
             $row['tahun'] = $row['tahun_terbit'];
             $row['kategori'] = $row['nama_kategori'];
-            $row['stok'] = $row['copy'];
+            $row['stok'] = $row['total_eksemplar'];
         }
         return $row;
     }
@@ -66,7 +68,7 @@ class Buku
     public function create($data)
     {
         $id_kategori = $this->getKategoriId($data['kategori']);
-        $copy_count = (int)$data['stok'];
+        $copy_count = max(1, (int)$data['stok']);
         
         $sql = "INSERT INTO buku (isbn, judul, penulis, penerbit, tahun_terbit, copy, id_kategori, cover) 
                 VALUES (?, ?, ?, ?, ?, ?, ?, ?)";
@@ -82,6 +84,7 @@ class Buku
             for ($i = 0; $i < $copy_count; $i++) {
                 $this->conn->query("INSERT INTO eksemplar (id_buku, status) VALUES ($id_buku, 'tersedia')");
             }
+            $this->syncCopy($id_buku);
             return true;
         }
         return false;
@@ -94,35 +97,77 @@ class Buku
     public function update($id, $data)
     {
         $id_kategori = $this->getKategoriId($data['kategori']);
-        $new_copy_count = (int)$data['stok'];
-        
-        // Ambil jumlah copy lama
-        $res = $this->conn->query("SELECT copy FROM buku WHERE id_buku = $id");
-        $old_copy_count = $res->fetch_assoc()['copy'];
 
-        $sql = "UPDATE buku SET isbn=?, judul=?, penulis=?, penerbit=?, tahun_terbit=?, copy=?, id_kategori=?, cover=? WHERE id_buku=?";
+        $sql = "UPDATE buku SET isbn=?, judul=?, penulis=?, penerbit=?, tahun_terbit=?, id_kategori=?, cover=? WHERE id_buku=?";
         $stmt = $this->conn->prepare($sql);
-        $stmt->bind_param("sssssiisi", 
+        $stmt->bind_param("sssssisi",
             $data['isbn'], $data['judul'], $data['penulis'], $data['penerbit'], $data['tahun'], 
-            $new_copy_count, $id_kategori, $data['cover'], $id
+            $id_kategori, $data['cover'], $id
         );
-        
-        if ($stmt->execute()) {
-            // Jika jumlah copy bertambah, tambah eksemplar
-            if ($new_copy_count > $old_copy_count) {
-                $diff = $new_copy_count - $old_copy_count;
-                for ($i = 0; $i < $diff; $i++) {
-                    $this->conn->query("INSERT INTO eksemplar (id_buku, status) VALUES ($id, 'tersedia')");
-                }
-            } 
-            // Jika berkurang, hapus eksemplar yang sedang 'tersedia' (sederhana)
-            elseif ($new_copy_count < $old_copy_count) {
-                $diff = $old_copy_count - $new_copy_count;
-                $this->conn->query("DELETE FROM eksemplar WHERE id_buku = $id AND status = 'tersedia' LIMIT $diff");
-            }
-            return true;
+
+        return $stmt->execute();
+    }
+
+    public function eksemplarByBuku($id)
+    {
+        $sql = "SELECT id_eksemplar, status
+                FROM eksemplar
+                WHERE id_buku = ?
+                ORDER BY id_eksemplar ASC";
+        $stmt = $this->conn->prepare($sql);
+        $stmt->bind_param("i", $id);
+        $stmt->execute();
+        $result = $stmt->get_result();
+
+        $data = [];
+        while ($row = $result->fetch_assoc()) {
+            $data[] = $row;
         }
-        return false;
+        return $data;
+    }
+
+    public function addEksemplar($id)
+    {
+        $sql = "INSERT INTO eksemplar (id_buku, status) VALUES (?, 'tersedia')";
+        $stmt = $this->conn->prepare($sql);
+        $stmt->bind_param("i", $id);
+        $success = $stmt->execute();
+        $this->syncCopy($id);
+        return $success;
+    }
+
+    public function deleteEksemplar($idBuku, $ids)
+    {
+        $ids = array_map('intval', (array)$ids);
+        $ids = array_filter($ids, fn($id) => $id > 0);
+        if (empty($ids)) {
+            throw new Exception('Pilih minimal satu ID eksemplar.');
+        }
+
+        $deleted = 0;
+        foreach ($ids as $idEksemplar) {
+            $sql = "DELETE FROM eksemplar WHERE id_eksemplar = ? AND id_buku = ? AND status = 'tersedia'";
+            $stmt = $this->conn->prepare($sql);
+            $stmt->bind_param("ii", $idEksemplar, $idBuku);
+            $stmt->execute();
+            $deleted += $stmt->affected_rows;
+        }
+
+        $this->syncCopy($idBuku);
+        if ($deleted === 0) {
+            throw new Exception('Eksemplar gagal dihapus. Hanya eksemplar tersedia yang bisa dihapus.');
+        }
+        return true;
+    }
+
+    public function syncCopy($idBuku)
+    {
+        $sql = "UPDATE buku
+                SET copy = (SELECT COUNT(*) FROM eksemplar WHERE id_buku = ?)
+                WHERE id_buku = ?";
+        $stmt = $this->conn->prepare($sql);
+        $stmt->bind_param("ii", $idBuku, $idBuku);
+        return $stmt->execute();
     }
 
     // ============================================================

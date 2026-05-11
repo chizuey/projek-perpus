@@ -65,7 +65,7 @@ class BukuController
             'errorsTambahBuku' => isset($_SESSION['errors']) ? $_SESSION['errors'] : [],
             'oldTambahBuku' => isset($_SESSION['old']) ? $_SESSION['old'] : [
                 'judul' => '', 'penulis' => '', 'penerbit' => '', 'tahun' => '', 
-                'tempat_terbit' => '', 'isbn' => '', 'kategori' => '', 'sinopsis' => '', 'stok' => 1
+                'isbn' => '', 'kategori' => '', 'stok' => 1
             ],
             'kategoriList' => $this->model->kategoriOptions()
         ];
@@ -105,12 +105,17 @@ class BukuController
             exit;
         }
 
-        return [
+        $state = [
             'errorsEditBuku' => isset($_SESSION['errors']) ? $_SESSION['errors'] : [],
+            'successEditBuku' => isset($_SESSION['success']) ? $_SESSION['success'] : '',
             'oldEditBuku' => isset($_SESSION['old']) ? $_SESSION['old'] : $book,
             'kategoriList' => $this->model->kategoriOptions(),
+            'eksemplarList' => $this->model->eksemplarByBuku($id),
             'bookId' => $id
         ];
+
+        unset($_SESSION['errors'], $_SESSION['success'], $_SESSION['old']);
+        return $state;
     }
 
     public function update($post, $files)
@@ -138,6 +143,36 @@ class BukuController
         $id = $post['id'];
         $this->model->delete($id);
         header('Location: ../../index.php?menu=databuku');
+        exit;
+    }
+
+    public function addEksemplar($post)
+    {
+        if (session_status() === PHP_SESSION_NONE) session_start();
+
+        $id = (int)($post['id'] ?? 0);
+        if ($id > 0) {
+            $this->model->addEksemplar($id);
+            $_SESSION['success'] = 'Eksemplar berhasil ditambahkan.';
+        }
+
+        header('Location: ../../index.php?menu=editbuku&id=' . $id);
+        exit;
+    }
+
+    public function deleteEksemplar($post)
+    {
+        if (session_status() === PHP_SESSION_NONE) session_start();
+
+        $id = (int)($post['id'] ?? 0);
+        try {
+            $this->model->deleteEksemplar($id, $post['eksemplar_ids'] ?? []);
+            $_SESSION['success'] = 'Eksemplar terpilih berhasil dihapus.';
+        } catch (Exception $e) {
+            $_SESSION['errors'] = [$e->getMessage()];
+        }
+
+        header('Location: ../../index.php?menu=editbuku&id=' . $id);
         exit;
     }
 

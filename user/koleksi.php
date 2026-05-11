@@ -49,7 +49,7 @@ $hasActiveFilter = ($search !== '' || $kategori !== '' || $tahun !== '');
     <div class="hero-section-koleksi">
         <div class="hero-content-koleksi">
             <div class="hero-icon-koleksi">
-                <img src="gambar/koleksi.png" alt="Icon Koleksi">
+                <img src="../public/img/Books.png" alt="Icon Koleksi">
             </div>
             <h1 class="hero-title-koleksi">Koleksi Buku</h1>
             <p class="hero-subtitle-koleksi">Perpustakaan POLIJE</p>

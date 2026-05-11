@@ -85,6 +85,12 @@ body {
     color: #991b1b;
 }
 
+.form-success {
+    background-color: #ecfdf3;
+    border-color: #bbf7d0;
+    color: #166534;
+}
+
 /* =====================
    PANEL CARD
 ===================== */
@@ -139,6 +145,10 @@ body {
     display: grid;
     grid-template-columns: 1fr 1fr;
     gap: 0 1rem;
+}
+
+.form-row-2 > div:only-child {
+    max-width: calc(50% - 0.5rem);
 }
 
 /* =====================
@@ -340,6 +350,89 @@ body {
     transition: background 0.15s;
 }
 .btn-tambah-copy:hover { background-color: #003f8a; }
+
+.eksemplar-actions,
+.eksemplar-inline-form {
+    display: flex;
+    align-items: center;
+    gap: 0.75rem;
+    margin-bottom: 0.75rem;
+}
+
+.btn-hapus-eksemplar {
+    height: 33px;
+    padding: 0 1.1rem;
+    background-color: #ffffff;
+    border: 1px solid #fecaca;
+    border-radius: 7px;
+    font-family: 'Inter-Bold', Helvetica, sans-serif;
+    font-size: 0.8rem;
+    color: #b91c1c;
+    cursor: pointer;
+    display: inline-flex;
+    align-items: center;
+    gap: 4px;
+    transition: background 0.15s;
+}
+
+.btn-hapus-eksemplar:hover {
+    background-color: #fef2f2;
+}
+
+.eksemplar-help {
+    margin: -0.25rem 0 0.9rem;
+    color: #64748b;
+    font-family: 'Inter-Regular', Helvetica, sans-serif;
+    font-size: 0.8rem;
+}
+
+.eksemplar-grid {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 0.5rem;
+    margin-bottom: 1rem;
+}
+
+.eksemplar-item {
+    min-height: 34px;
+    padding: 0.35rem 0.7rem;
+    border: 1px solid #c8d4e4;
+    border-radius: 17px;
+    display: inline-flex;
+    align-items: center;
+    gap: 0.45rem;
+    background: #ffffff;
+    color: #334155;
+    cursor: pointer;
+    font-family: 'Inter-Regular', Helvetica, sans-serif;
+    font-size: 0.78rem;
+}
+
+.eksemplar-item input {
+    margin: 0;
+}
+
+.eksemplar-item small {
+    color: #64748b;
+}
+
+.eksemplar-item:has(input:checked) {
+    border-color: #0050ad;
+    background: #eef6ff;
+    color: #003f8a;
+}
+
+.eksemplar-item.disabled {
+    opacity: 0.62;
+    cursor: not-allowed;
+    background: #f8fafc;
+}
+
+.eksemplar-empty {
+    color: #64748b;
+    font-family: 'Inter-Regular', Helvetica, sans-serif;
+    font-size: 0.82rem;
+}
 .copy-list-row {
     background-color: #f7f7f7;
     border: 1px solid #e0e0e0;
