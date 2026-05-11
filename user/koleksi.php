@@ -40,13 +40,12 @@ $hasActiveFilter = ($search !== '' || $kategori !== '' || $tahun !== '');
     <title>Koleksi - Perpustakaan Polije</title>
     <link rel="stylesheet" href="../public/css/style.css?v=6">
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.0/css/all.min.css">
-    <link rel="stylesheet" href="../public/css/stylekoleksi.css?v=2">
+    <link rel="stylesheet" href="../public/css/stylekoleksi.css?v=<?= time(); ?>">
 </head>
 <body>
 <?php include 'navbar.php'; ?>
 
 <div class="koleksi-page">
-    <!-- Hero Section (konsisten dengan profil & lokasi) -->
     <div class="hero-section-koleksi">
         <div class="hero-content-koleksi">
             <div class="hero-icon-koleksi">
@@ -57,10 +56,7 @@ $hasActiveFilter = ($search !== '' || $kategori !== '' || $tahun !== '');
         </div>
     </div>
 
-    <!-- Header: Search + Filter -->
     <div class="koleksi-header">
-
-        <!-- Search Box -->
         <form method="get" action="koleksi.php" class="koleksi-search-wrapper">
             <?php if ($kategori !== ''): ?>
                 <input type="hidden" name="kategori" value="<?= htmlspecialchars($kategori); ?>">
@@ -75,10 +71,8 @@ $hasActiveFilter = ($search !== '' || $kategori !== '' || $tahun !== '');
             </div>
         </form>
 
-        <!-- Filter Row -->
         <div class="koleksi-filter-row">
             <span class="filter-label">Filter:</span>
-
             <select id="filterKategori" onchange="applyFilters()">
                 <option value="">Kategori</option>
                 <?php foreach ($kategoriOptions as $kat): ?>
@@ -101,13 +95,9 @@ $hasActiveFilter = ($search !== '' || $kategori !== '' || $tahun !== '');
         </div>
     </div>
 
-    <!-- Book Grid -->
     <div class="koleksi-grid-wrapper">
         <div class="koleksi-info">
             Menampilkan <strong><?= count($books); ?></strong> dari <strong><?= $total; ?></strong> buku
-            <?php if ($search !== ''): ?>
-                untuk pencarian "<strong><?= htmlspecialchars($search); ?></strong>"
-            <?php endif; ?>
         </div>
 
         <div class="koleksi-grid">
@@ -117,8 +107,14 @@ $hasActiveFilter = ($search !== '' || $kategori !== '' || $tahun !== '');
                     <p>Tidak ada buku ditemukan.</p>
                 </div>
             <?php else: ?>
-                <?php foreach ($books as $b): ?>
-                    <div class="koleksi-card">
+                <?php foreach ($books as $b): 
+                    // VARIABEL POPUP (ADD INI)
+                    $titel_pop = addslashes(htmlspecialchars($b['judul']));
+                    $kat_pop   = htmlspecialchars($b['kategori']);
+                    $desk_pop  = addslashes(htmlspecialchars($b['deskripsi'] ?? 'Tidak ada deskripsi.'));
+                    $img_pop   = !empty($b['cover']) ? '../' . htmlspecialchars($b['cover']) : 'gambar/buku.png';
+                ?>
+                    <div class="koleksi-card" style="cursor: pointer;" onclick="bukaPopup('<?= $titel_pop ?>', '<?= $kat_pop ?>', '<?= $img_pop ?>', '<?= $desk_pop ?>')">
                         <div class="koleksi-card-cover">
                             <img src="../<?= !empty($b['cover']) ? htmlspecialchars($b['cover']) : 'user/gambar/buku.png'; ?>" alt="<?= htmlspecialchars($b['judul']); ?>">
                         </div>
@@ -139,7 +135,6 @@ $hasActiveFilter = ($search !== '' || $kategori !== '' || $tahun !== '');
             <?php endif; ?>
         </div>
 
-        <!-- Pagination -->
         <?php if ($totalPages > 1): ?>
             <div class="koleksi-pagination">
                 <?php if ($currentPage > 1): ?>
@@ -184,6 +179,7 @@ $hasActiveFilter = ($search !== '' || $kategori !== '' || $tahun !== '');
     </div>
 </div>
 
+<?php include 'modal_detail.php'; ?>
 <?php include 'foot.php'; ?>
 
 <script>
@@ -191,8 +187,6 @@ function applyFilters() {
     const kategori = document.getElementById('filterKategori').value;
     const tahun = document.getElementById('filterTahun').value;
     const params = new URLSearchParams(window.location.search);
-    
-    // Keep search query
     const q = params.get('q') || '';
     
     const newParams = new URLSearchParams();
