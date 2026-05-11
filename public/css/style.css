@@ -22,50 +22,59 @@
 .header-navbar {
     width: 100%;
     background: #fff;
-    border-bottom: 1px solid rgba(0,0,0,.08);
+    /* Border lebih tipis agar clean */
+    border-bottom: 1px solid rgba(0,0,0,.05);
     display: flex;
     justify-content: center;
     position: sticky;
     top: 0;
     z-index: 1000;
+    /* Shadow halus agar navbar terasa melayang */
+    box-shadow: 0 4px 12px rgba(0,0,0,0.03);
 }
 
 .header-navbar .container {
     width: 100%;
     max-width: 1440px;
-    height: 62px;
+    /* Tinggi dikurangi agar tidak kebesaran */
+    height: 52px; 
     margin: 0 auto;
     padding: 0 40px;
     display: grid;
-    grid-template-columns: auto 1fr auto;
+    /* Grid 3 kolom dengan lebar kiri & kanan yang sama agar menu benar di tengah */
+    grid-template-columns: 280px 1fr 280px; 
     align-items: center;
 }
 
 .logo-section {
     display: flex;
     align-items: center;
-    gap: 12px;
+    gap: 14px;
+    justify-self: start;
+    cursor: pointer;
 }
-.logo-section { justify-self: start; }
 
 .logo-gambar {
-    width: 32px;
+    /* Ukuran diperbesar sedikit dari 32px karena kamu bilang logo figma-nya kecil */
+    width: 32px; 
     height: 32px;
     object-fit: contain;
+    /* Menjaga kualitas gambar export */
+    image-rendering: -webkit-optimize-contrast; 
 }
 
 .brand-name {
-    font-size: 18px;
+    font-size: 19px;
     font-weight: 700;
     color: #0050ad;
-    white-space: nowrap;
+    letter-spacing: -0.2px;
 }
 
 .nav-menu {
     list-style: none;
     display: flex;
     align-items: center;
-    gap: 32px;
+    gap: 3px;
     justify-content: center;
 }
 
@@ -73,31 +82,36 @@
     text-decoration: none;
     color: #000000;
     font-size: 15px;
-    font-weight: 500;
+    font-weight: 400; 
     display: flex;
     align-items: center;
     gap: 6px;
-    padding: 24px 0;
-    transition: 0.2s;
+    padding: 8px 18px; 
+    border-radius: 8px;
+    transition: all 0.2s ease;
 }
-.nav-link:hover { color: #1a3fe6; }
+
+.nav-link:hover {
+    color: #0050ad;
+    background: #f0f7ff; 
+}
 
 .dropdown { position: relative; }
 
 .dropdown-menu {
     position: absolute;
-    top: 100%;
+    top: calc(100% + 5px);
     left: 50%;
     transform: translateX(-50%) translateY(10px);
     background: #fff;
-    min-width: 200px;
-    border-radius: 12px;
-    box-shadow: 0 10px 25px rgba(0,0,0,.1);
-    border: 1px solid rgba(0,0,0,.05);
-    padding: 10px 0;
+    min-width: 220px;
+    border-radius: 14px;
+    box-shadow: 0 15px 35px rgba(0,0,0,.12);
+    border: 1px solid rgba(0,0,0,.06);
+    padding: 12px;
     opacity: 0;
     visibility: hidden;
-    transition: 0.25s;
+    transition: 0.25s cubic-bezier(0.4, 0, 0.2, 1);
 }
 
 .dropdown:hover .dropdown-menu {
@@ -108,47 +122,53 @@
 
 .dropdown-menu li a {
     display: block;
-    padding: 12px 20px;
+    padding: 10px 16px;
     text-decoration: none;
     color: #0b2545;
     font-size: 14px;
+    font-weight: 500;
+    border-radius: 8px;
     transition: 0.2s;
 }
+
 .dropdown-menu li a:hover {
-    background: #eff6ff;
-    color: #0050ad;
+    background: #0050ad;
+    color: #fff; 
 }
 
-.chevron { transition: 0.3s; }
+.chevron { 
+    transition: 0.3s; 
+    opacity: 0.6;
+}
 .dropdown:hover .chevron { transform: rotate(180deg); }
 
 .profile-section {
     display: flex;
     justify-content: flex-end;
-    min-width: 40px;
+    align-items: center;
+    justify-self: end;
 }
-.profile-section { justify-self: end; }
 
 .profile-btn {
-    width: 42px;
-    height: 42px;
-    border-radius: 50%;
-    background: #fff;
-    border: 1px solid rgba(0,0,0,.1);
+    width: 44px;
+    height: 44px;
+    border-radius: 12px; 
+    background: #f8fafc;
+    border: 1px solid #e2e8f0;
     color: #0b2545;
     display: flex;
     align-items: center;
     justify-content: center;
-    transition: 0.2s;
-    box-shadow: 0 2px 4px rgba(0,0,0,.05);
-}
-.profile-btn:hover {
-    border-color: #0050ad;
-    background: #f0f4f8;
-    color: #0050ad;
-    transform: scale(1.05);
+    transition: all 0.3s ease;
 }
 
+.profile-btn:hover {
+    border-color: #0050ad;
+    background: #fff;
+    color: #0050ad;
+    box-shadow: 0 4px 12px rgba(0,80,173,0.15);
+    transform: translateY(-2px);
+}
 /* ================= FOOTER ================= */
 .footer {
     background: #0e345a;
@@ -319,10 +339,29 @@ button:focus-visible {
     outline: 2px solid var(--brand-accent);
 }
 
+* {
+    margin: 0;
+    padding: 0;
+    box-sizing: border-box;
+}
+
 .container {
     max-width: 1200px;
     margin: 0 auto;
-    padding: 0 24px;
+    padding: 0 5px; 
+    width: 100%;
+}
+
+button:focus-visible {
+    outline: 2px solid var(--brand-accent);
+    outline-offset: 2px;
+}
+
+.container {
+    max-width: 1200px;
+    margin: 0 auto;
+    padding: 0 0px; 
+    width: 100%;
 }
 
 /* ================= HERO ================= */

@@ -24,6 +24,7 @@ $allowedMenus = [
         'file' => 'pages/databuku.php',
         'styles' => [
             '../public/css/databuku.css',
+            '../public/css/kategori.css',
         ],
     ],
     'laporan' => [
@@ -36,6 +37,14 @@ $allowedMenus = [
         'file' => 'pages/tambah.php',
         'styles' => [
             '../public/css/tambah.css'
+        ]
+    ],
+    'kategori' => [
+        'file' => 'pages/kategori.php',
+        'styles' => [
+            '../public/css/databuku.css',
+            '../public/css/tambah.css',
+            '../public/css/kategori.css'
         ]
     ],
     'editbuku' => [

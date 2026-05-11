@@ -32,23 +32,34 @@ if (!function_exists('eTambahBuku')) {
         <div class="panel-card mb-3">
             <div class="panel-title">Input Data Buku</div>
 
-            <label class="form-label-custom" for="judul">Judul Buku</label>
-            <input class="form-input-custom" id="judul" name="judul" type="text" placeholder="Masukkan judul buku..." value="<?= eTambahBuku($oldTambahBuku['judul']); ?>" required>
+            <div class="form-row-2">
+                <div>
+                    <label class="form-label-custom" for="judul">Judul Buku</label>
+                    <input class="form-input-custom" id="judul" name="judul" type="text" placeholder="Masukkan judul buku..." value="<?= eTambahBuku($oldTambahBuku['judul']); ?>" required>
+                </div>
+                <div>
+                    <label class="form-label-custom" for="penulis">Penulis</label>
+                    <input class="form-input-custom" id="penulis" name="penulis" type="text" placeholder="Masukkan nama penulis..." value="<?= eTambahBuku($oldTambahBuku['penulis']); ?>" required>
+                </div>
+            </div>
 
-            <label class="form-label-custom" for="penulis">Penulis</label>
-            <input class="form-input-custom" id="penulis" name="penulis" type="text" placeholder="Masukkan nama penulis..." value="<?= eTambahBuku($oldTambahBuku['penulis']); ?>" required>
+            <div class="form-row-2">
+                <div>
+                    <label class="form-label-custom" for="penerbit">Penerbit</label>
+                    <input class="form-input-custom" id="penerbit" name="penerbit" type="text" placeholder="Masukkan nama penerbit..." value="<?= eTambahBuku($oldTambahBuku['penerbit']); ?>" required>
+                </div>
+                <div>
+                    <label class="form-label-custom" for="isbn">ISBN</label>
+                    <input class="form-input-custom" id="isbn" name="isbn" type="text" placeholder="cth: 978-3-16-148410-0" value="<?= eTambahBuku($oldTambahBuku['isbn']); ?>">
+                </div>
+            </div>
 
-            <label class="form-label-custom" for="penerbit">Penerbit</label>
-            <input class="form-input-custom" id="penerbit" name="penerbit" type="text" placeholder="Masukkan nama penerbit..." value="<?= eTambahBuku($oldTambahBuku['penerbit']); ?>" required>
-
-            <label class="form-label-custom" for="tahun">Tahun Terbit</label>
-            <input class="form-input-custom" id="tahun" name="tahun" type="number" min="0" placeholder="cth: 2023" value="<?= eTambahBuku($oldTambahBuku['tahun']); ?>" required>
-
-            <label class="form-label-custom" for="tempat_terbit">Tempat Terbit</label>
-            <input class="form-input-custom" id="tempat_terbit" name="tempat_terbit" type="text" placeholder="cth: Jakarta" value="<?= eTambahBuku($oldTambahBuku['tempat_terbit']); ?>">
-
-            <label class="form-label-custom" for="isbn">ISBN</label>
-            <input class="form-input-custom" id="isbn" name="isbn" type="text" placeholder="cth: 978-3-16-148410-0" value="<?= eTambahBuku($oldTambahBuku['isbn']); ?>">
+            <div class="form-row-2">
+                <div>
+                    <label class="form-label-custom" for="tahun">Tahun Terbit</label>
+                    <input class="form-input-custom" id="tahun" name="tahun" type="number" min="0" placeholder="cth: 2023" value="<?= eTambahBuku($oldTambahBuku['tahun']); ?>" required>
+                </div>
+            </div>
 
             <span class="kategori-label">Kategori :</span>
             <div class="kategori-grid">
@@ -76,16 +87,19 @@ if (!function_exists('eTambahBuku')) {
             </label>
             <input type="file" id="cover" name="cover" accept="image/*" class="cover-file-input">
 
-            <label class="synopsis-label" for="sinopsis">Deskripsi/Sinopsis :</label>
-            <textarea class="synopsis-area" id="sinopsis" name="sinopsis" placeholder="Masukkan deskripsi atau sinopsis buku..."><?= eTambahBuku($oldTambahBuku['sinopsis']); ?></textarea>
-
-            <button type="submit" class="btn-tambahkan">Tambahkan</button>
+            <div class="form-actions" style="margin-top: 1rem;">
+                <button type="submit" class="btn-tambahkan">Tambahkan</button>
+                <a href="?menu=databuku" class="btn-batal-form" style="text-decoration: none; display: inline-flex; align-items: center; justify-content: center;">Batal</a>
+            </div>
         </div>
 
         <div class="panel-card">
-            <div class="copy-panel-title">Copy Buku</div>
-            <label class="form-label-custom" for="stok">Jumlah Copy / Stok</label>
-            <input class="form-input-custom stock-input" id="stok" name="stok" type="number" min="1" value="<?= (int) $oldTambahBuku['stok']; ?>" required>
+            <div class="copy-panel-title">Eksemplar Buku</div>
+            <input type="hidden" id="stok" name="stok" value="<?= (int) $oldTambahBuku['stok']; ?>">
+            <div class="eksemplar-actions">
+                <button type="button" class="btn-tambah-copy" id="btnTambahEksemplar">Tambah Eksemplar</button>
+                <button type="button" class="btn-hapus-eksemplar" id="btnHapusEksemplar">Hapus Eksemplar</button>
+            </div>
             <div class="copy-list-row" id="copyPreview" aria-live="polite"></div>
         </div>
     </form>
@@ -96,6 +110,8 @@ if (!function_exists('eTambahBuku')) {
 document.addEventListener('DOMContentLoaded', function () {
     const stokInput = document.getElementById('stok');
     const copyPreview = document.getElementById('copyPreview');
+    const btnTambah = document.getElementById('btnTambahEksemplar');
+    const btnHapus = document.getElementById('btnHapusEksemplar');
 
     // Menampilkan preview badge copy berdasarkan input stok.
     function renderCopyPreview() {
@@ -104,27 +120,28 @@ document.addEventListener('DOMContentLoaded', function () {
         }
 
         const total = Math.max(1, parseInt(stokInput.value || '1', 10));
-        const visible = Math.min(total, 12);
         copyPreview.innerHTML = '';
 
-        for (let index = 1; index <= visible; index++) {
+        for (let index = 1; index <= total; index++) {
             const badge = document.createElement('span');
             badge.className = 'copy-badge';
-            badge.textContent = 'b' + String(index).padStart(3, '0');
-            copyPreview.appendChild(badge);
-        }
-
-        if (total > visible) {
-            const badge = document.createElement('span');
-            badge.className = 'copy-badge';
-            badge.textContent = '+' + (total - visible);
+            badge.textContent = 'Eksemplar baru ' + index;
             copyPreview.appendChild(badge);
         }
     }
 
-    if (stokInput) {
-        stokInput.addEventListener('input', renderCopyPreview);
+    if (btnTambah) btnTambah.onclick = function () {
+        stokInput.value = Math.max(1, parseInt(stokInput.value || '1', 10)) + 1;
         renderCopyPreview();
-    }
+    };
+
+    if (btnHapus) btnHapus.onclick = function () {
+        const total = Math.max(1, parseInt(stokInput.value || '1', 10));
+        if (total <= 1) return;
+        stokInput.value = total - 1;
+        renderCopyPreview();
+    };
+
+    renderCopyPreview();
 });
 </script>

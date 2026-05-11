@@ -44,22 +44,41 @@
                 </div>
 
                 <div class="form-group">
-                    <label for="popup_buku">Buku</label>
-                    <select id="popup_buku" name="buku" required>
-                        <option value="">Pilih Buku</option>
-                        <?php foreach ($opsiBuku as $opsi): ?>
-                            <?php
-                            $judul = $opsi['judul'] ?? '';
-                            $stok = (int) ($opsi['stok'] ?? 0);
-                            $selected = (($oldInput['buku'] ?? '') === $judul) ? 'selected' : '';
-                            ?>
-                            <option value="<?= e($judul); ?>" <?= $selected; ?>>
-                                <?= e($judul); ?> (Stok: <?= $stok; ?>)
-                            </option>
-                        <?php endforeach; ?>
-                    </select>
+                    <label for="buku1">ID Eksemplar 1 (Wajib)</label>
+                    <input 
+                        type="text" 
+                        name="buku1" 
+                        id="buku1" 
+                        placeholder="Masukkan ID Eksemplar (Baris 1)" 
+                        class="form-control"
+                        value="<?= e($oldInput['buku1'] ?? ''); ?>"
+                        required
+                    >
                 </div>
 
+                <div class="form-group">
+                    <label for="buku2">ID Eksemplar 2 (Opsional)</label>
+                    <input 
+                        type="text" 
+                        name="buku2" 
+                        id="buku2" 
+                        placeholder="Masukkan ID Eksemplar (Baris 2)" 
+                        class="form-control"
+                        value="<?= e($oldInput['buku2'] ?? ''); ?>"
+                    >
+                </div>
+
+                <div class="form-group">
+                    <label for="buku3">ID Eksemplar 3 (Opsional)</label>
+                    <input 
+                        type="text" 
+                        name="buku3" 
+                        id="buku3" 
+                        placeholder="Masukkan ID Eksemplar (Baris 3)" 
+                        class="form-control"
+                        value="<?= e($oldInput['buku3'] ?? ''); ?>"
+                    >
+                </div>
                 <?php
                 $tglPinjamValue = !empty($oldInput['tgl_pinjam']) ? $oldInput['tgl_pinjam'] : todayDate();
                 $tglKembaliValue = !empty($oldInput['tgl_kembali']) ? $oldInput['tgl_kembali'] : defaultTanggalKembali();
@@ -96,3 +115,22 @@
         </form>
     </div>
 </div>
+
+<script>
+// Logika untuk menutup popup peminjaman
+document.addEventListener('DOMContentLoaded', function() {
+    const popup = document.getElementById('popupPeminjaman');
+    const btnClose = document.getElementById('closePopupPeminjaman');
+    const btnBatal = document.getElementById('batalPopupPeminjaman');
+    const pesanError = <?= json_encode(!empty($errors) ? implode(' ', $errors) : ''); ?>;
+
+    const tutupPopup = () => {
+        popup.classList.remove('active');
+        document.body.classList.remove('modal-open');
+    };
+
+    if (btnClose) btnClose.onclick = tutupPopup;
+    if (btnBatal) btnBatal.onclick = tutupPopup;
+    if (pesanError) alert(pesanError);
+});
+</script>

@@ -4,495 +4,254 @@ require_once __DIR__ . '/../config/database.php';
 
 class Peminjaman
 {
-    private static ?mysqli $conn = null;
+    private $conn;
 
-    public static function db(): mysqli
+    public function __construct()
     {
-        if (!self::$conn) {
-            self::$conn = (new Database())->getConnection();
-        }
-
-        return self::$conn;
+        $this->conn = (new Database())->getConnection();
     }
 
-    public static function todayDate(): string
+    public function all($search = '')
     {
-        return date('Y-m-d');
-    }
-
-    public static function defaultTanggalKembali(): string
-    {
-        return date('Y-m-d', strtotime('+7 days'));
-    }
-
-    public static function updateOverdueStatuses(): void
-    {
-        self::db()->query(
-            "UPDATE peminjaman
-             SET status_pinjam = 'overdue'
-             WHERE status_pinjam = 'borrowed'
-               AND tanggal_kembali IS NULL
-               AND tanggal_jatuh_tempo < CURDATE()"
-        );
-    }
-
-    public static function loadActive(string $search = ''): array
-    {
-        self::updateOverdueStatuses();
-
-        $sql = "SELECT p.id_peminjaman, p.tanggal_pinjam, p.tanggal_jatuh_tempo,
-                       p.tanggal_kembali, p.status_pinjam, p.extended_at,
-                       a.kode_anggota, a.nama_anggota, b.judul
+        // Menampilkan 1 baris per transaksi peminjaman (Header)
+        $sql = "SELECT p.*, a.nim, a.nama
                 FROM peminjaman p
                 JOIN anggota a ON a.id_anggota = p.id_anggota
-                JOIN buku b ON b.id_buku = p.id_buku
-                WHERE p.status_pinjam IN ('borrowed', 'overdue')";
-        $params = [];
-
-        if ($search !== '') {
-            $sql .= " AND (a.kode_anggota LIKE ? OR a.nama_anggota LIKE ? OR b.judul LIKE ?)";
-            $like = '%' . $search . '%';
-            $params = [$like, $like, $like];
+                WHERE EXISTS (SELECT 1 FROM detail_peminjaman dp WHERE dp.id_peminjaman = p.id_peminjaman AND dp.status_pengembalian = 'dipinjam')";
+        
+        if ($search) {
+            $sql .= " AND (a.nim LIKE '%$search%' OR a.nama LIKE '%$search%')";
         }
-
-        $sql .= ' ORDER BY p.id_peminjaman DESC';
-
-        if ($params) {
-            $stmt = self::db()->prepare($sql);
-            $stmt->bind_param('sss', ...$params);
-            $stmt->execute();
-            $result = $stmt->get_result();
-        } else {
-            $result = self::db()->query($sql);
-        }
-
-        $rows = [];
+        
+        $sql .= " ORDER BY p.id_peminjaman DESC";
+        $result = $this->conn->query($sql);
+        
+        $data = [];
         while ($row = $result->fetch_assoc()) {
-            $rows[] = self::mapPeminjamanRow($row);
+            $row['id'] = $row['id_peminjaman'];
+            $data[] = $row;
         }
-
-        return $rows;
+        return $data;
     }
 
-    public static function getOpsiBuku(): array
+    public function getDetails($idPeminjaman)
     {
-        $result = self::db()->query(
-            "SELECT judul, stok_tersedia, total_stok
-             FROM buku
-             ORDER BY judul ASC"
-        );
-        $opsi = [];
-
+        $sql = "SELECT dp.*, b.judul, e.id_eksemplar, p.batas_waktu
+                FROM detail_peminjaman dp
+                JOIN eksemplar e ON e.id_eksemplar = dp.id_eksemplar
+                JOIN buku b ON b.id_buku = e.id_buku
+                JOIN peminjaman p ON p.id_peminjaman = dp.id_peminjaman
+                WHERE dp.id_peminjaman = $idPeminjaman";
+        $result = $this->conn->query($sql);
+        
+        $details = [];
         while ($row = $result->fetch_assoc()) {
-            $opsi[] = [
-                'judul' => $row['judul'] ?? '',
-                'stok' => max(0, (int) ($row['stok_tersedia'] ?? 0)),
-                'stok_total' => max(0, (int) ($row['total_stok'] ?? 0)),
-            ];
+            $meta = $this->getMeta($row);
+            $row['status_teks'] = $meta['status'];
+            $row['denda_teks'] = $meta['denda'];
+            $details[] = $row;
+        }
+        return $details;
+    }
+
+    public function create($nim, $nama, $id_eksemplar_array, $adminId)
+    {
+        $id_anggota = $this->getAnggotaId($nim, $nama);
+        
+        // Cek jumlah buku yang sedang dipinjam
+        $res_count = $this->conn->query("SELECT COUNT(*) as active_count 
+                                        FROM detail_peminjaman dp 
+                                        JOIN peminjaman p ON p.id_peminjaman = dp.id_peminjaman 
+                                        WHERE p.id_anggota = $id_anggota AND dp.status_pengembalian = 'dipinjam'");
+        $active_count = $res_count->fetch_assoc()['active_count'];
+        
+        $new_count = count(array_filter($id_eksemplar_array));
+        
+        if (($active_count + $new_count) > 3) {
+            throw new Exception("Batas maksimal peminjaman adalah 3 buku. Saat ini sudah meminjam $active_count buku.");
         }
 
-        return $opsi;
-    }
+        $tgl_pinjam = date('Y-m-d');
+        $tgl_jatuh_tempo = date('Y-m-d', strtotime('+7 days'));
 
-    public static function isBukuValid(string $buku): bool
-    {
-        return self::findBukuByJudul($buku) !== null;
-    }
-
-    public static function getSisaStokBuku(string $buku): int
-    {
-        $row = self::findBukuByJudul($buku);
-        return $row ? max(0, (int) $row['stok_tersedia']) : 0;
-    }
-
-    public static function countAktifByNim(string $nim): int
-    {
-        $stmt = self::db()->prepare(
-            "SELECT COUNT(*) AS total
-             FROM peminjaman p
-             JOIN anggota a ON a.id_anggota = p.id_anggota
-             WHERE a.kode_anggota = ?
-               AND p.status_pinjam IN ('borrowed', 'overdue')"
-        );
-        $stmt->bind_param('s', $nim);
-        $stmt->execute();
-        $row = $stmt->get_result()->fetch_assoc();
-
-        return (int) ($row['total'] ?? 0);
-    }
-
-    public static function createBorrow(string $nim, string $nama, string $buku, int $adminId): void
-    {
-        $conn = self::db();
-        $book = self::findBukuByJudul($buku);
-
-        if (!$book || (int) $book['stok_tersedia'] < 1) {
-            throw new RuntimeException('Stok buku tidak tersedia.');
-        }
-
-        $conn->begin_transaction();
+        $this->conn->begin_transaction();
 
         try {
-            $anggotaId = self::findOrCreateAnggota($nim, $nama);
-            $bookId = (int) $book['id_buku'];
-            $tglPinjam = self::todayDate();
-            $tglJatuhTempo = self::defaultTanggalKembali();
-            $status = 'borrowed';
-
-            $stmt = $conn->prepare(
-                "INSERT INTO peminjaman
-                    (id_anggota, id_buku, id_admin, tanggal_pinjam, tanggal_jatuh_tempo, status_pinjam)
-                 VALUES (?, ?, ?, ?, ?, ?)"
-            );
-            $stmt->bind_param('iiisss', $anggotaId, $bookId, $adminId, $tglPinjam, $tglJatuhTempo, $status);
+            $sql_header = "INSERT INTO peminjaman (id_anggota, id_admin, tanggal_peminjaman, batas_waktu) VALUES (?, ?, ?, ?)";
+            $stmt = $this->conn->prepare($sql_header);
+            $stmt->bind_param("iiss", $id_anggota, $adminId, $tgl_pinjam, $tgl_jatuh_tempo);
             $stmt->execute();
+            $id_peminjaman = $this->conn->insert_id;
 
-            $stmt = $conn->prepare(
-                "UPDATE buku
-                 SET stok_tersedia = GREATEST(stok_tersedia - 1, 0)
-                 WHERE id_buku = ?"
-            );
-            $stmt->bind_param('i', $bookId);
-            $stmt->execute();
+            $count = 0;
+            foreach ($id_eksemplar_array as $id_eksemplar) {
+                if (empty($id_eksemplar)) continue;
 
-            $conn->commit();
-        } catch (Throwable $e) {
-            $conn->rollback();
-            throw $e;
-        }
-    }
+                $res_eks = $this->conn->query("SELECT id_eksemplar FROM eksemplar WHERE id_eksemplar = " . (int)$id_eksemplar . " AND status = 'tersedia'");
+                if ($res_eks->num_rows > 0) {
+                    $sql_detail = "INSERT INTO detail_peminjaman (id_peminjaman, id_eksemplar, status_pengembalian) VALUES (?, ?, 'dipinjam')";
+                    $stmt_detail = $this->conn->prepare($sql_detail);
+                    $stmt_detail->bind_param("ii", $id_peminjaman, $id_eksemplar);
+                    $stmt_detail->execute();
 
-    public static function extend(int $id): void
-    {
-        $stmt = self::db()->prepare(
-            "SELECT tanggal_jatuh_tempo
-             FROM peminjaman
-             WHERE id_peminjaman = ?
-               AND status_pinjam IN ('borrowed', 'overdue')
-               AND extended_at IS NULL"
-        );
-        $stmt->bind_param('i', $id);
-        $stmt->execute();
-        $row = $stmt->get_result()->fetch_assoc();
-
-        if (!$row) {
-            return;
-        }
-
-        $newDueDate = self::tambahTujuhHari((string) $row['tanggal_jatuh_tempo']);
-        $extendedAt = self::todayDate();
-        $status = strtotime($newDueDate) < strtotime(self::todayDate()) ? 'overdue' : 'borrowed';
-
-        $stmt = self::db()->prepare(
-            "UPDATE peminjaman
-             SET tanggal_jatuh_tempo = ?, extended_at = ?, status_pinjam = ?
-             WHERE id_peminjaman = ?"
-        );
-        $stmt->bind_param('sssi', $newDueDate, $extendedAt, $status, $id);
-        $stmt->execute();
-    }
-
-    public static function returnBook(int $id): void
-    {
-        $conn = self::db();
-        $conn->begin_transaction();
-
-        try {
-            $stmt = $conn->prepare(
-                "SELECT id_buku
-                 FROM peminjaman
-                 WHERE id_peminjaman = ?
-                   AND status_pinjam IN ('borrowed', 'overdue')
-                 FOR UPDATE"
-            );
-            $stmt->bind_param('i', $id);
-            $stmt->execute();
-            $row = $stmt->get_result()->fetch_assoc();
-
-            if (!$row) {
-                $conn->commit();
-                return;
+                    $this->conn->query("UPDATE eksemplar SET status = 'dipinjam' WHERE id_eksemplar = " . (int)$id_eksemplar);
+                    $count++;
+                }
             }
 
-            $bookId = (int) $row['id_buku'];
-            $today = self::todayDate();
-            $status = 'returned';
+            if ($count === 0) throw new Exception("Tidak ada buku yang berhasil dipinjam.");
 
-            $stmt = $conn->prepare(
-                "UPDATE peminjaman
-                 SET tanggal_kembali = ?, status_pinjam = ?
-                 WHERE id_peminjaman = ?"
-            );
-            $stmt->bind_param('ssi', $today, $status, $id);
-            $stmt->execute();
-
-            $stmt = $conn->prepare(
-                "UPDATE buku
-                 SET stok_tersedia = LEAST(stok_tersedia + 1, total_stok)
-                 WHERE id_buku = ?"
-            );
-            $stmt->bind_param('i', $bookId);
-            $stmt->execute();
-
-            $conn->commit();
-        } catch (Throwable $e) {
-            $conn->rollback();
-            throw $e;
-        }
-    }
-
-    public static function hideReports(array $ids): void
-    {
-        $ids = array_values(array_filter(array_map('intval', $ids), fn($id) => $id > 0));
-
-        if (!$ids) {
-            return;
-        }
-
-        $placeholders = implode(',', array_fill(0, count($ids), '?'));
-        $types = str_repeat('i', count($ids));
-        $stmt = self::db()->prepare(
-            "UPDATE peminjaman
-             SET laporan_hidden_at = NOW()
-             WHERE id_peminjaman IN ($placeholders)"
-        );
-        $stmt->bind_param($types, ...$ids);
-        $stmt->execute();
-    }
-
-    public static function reportRows(string $statusFilter, string $startDate, string $endDate, string $keyword, bool $includeHidden = false): array
-    {
-        self::updateOverdueStatuses();
-
-        $sql = "SELECT p.id_peminjaman, p.tanggal_pinjam, p.tanggal_jatuh_tempo,
-                       p.tanggal_kembali, p.status_pinjam,
-                       a.kode_anggota, a.nama_anggota, b.judul,
-                       d.hari_terlambat, d.jumlah_denda
-                FROM peminjaman p
-                JOIN anggota a ON a.id_anggota = p.id_anggota
-                JOIN buku b ON b.id_buku = p.id_buku
-                LEFT JOIN denda d ON d.id_peminjaman = p.id_peminjaman
-                WHERE 1 = 1";
-        $types = '';
-        $params = [];
-
-        if (!$includeHidden) {
-            $sql .= ' AND p.laporan_hidden_at IS NULL';
-        }
-
-        if ($startDate !== '') {
-            $sql .= ' AND p.tanggal_pinjam >= ?';
-            $types .= 's';
-            $params[] = $startDate;
-        }
-
-        if ($endDate !== '') {
-            $sql .= ' AND p.tanggal_pinjam <= ?';
-            $types .= 's';
-            $params[] = $endDate;
-        }
-
-        if ($keyword !== '') {
-            $sql .= ' AND (a.kode_anggota LIKE ? OR a.nama_anggota LIKE ? OR b.judul LIKE ?)';
-            $like = '%' . $keyword . '%';
-            $types .= 'sss';
-            array_push($params, $like, $like, $like);
-        }
-
-        $sql .= ' ORDER BY p.id_peminjaman DESC';
-
-        if ($params) {
-            $stmt = self::db()->prepare($sql);
-            $stmt->bind_param($types, ...$params);
-            $stmt->execute();
-            $result = $stmt->get_result();
-        } else {
-            $result = self::db()->query($sql);
-        }
-
-        $rows = [];
-        while ($row = $result->fetch_assoc()) {
-            $mapped = self::mapReportRow($row);
-
-            if ($statusFilter !== 'Semua' && $mapped['status'] !== $statusFilter) {
-                continue;
-            }
-
-            $rows[] = $mapped;
-        }
-
-        return $rows;
-    }
-
-    public static function hitungMeta(array $item): array
-    {
-        $jatuhTempo = (string) ($item['tanggal_jatuh_tempo'] ?? $item['tanggal_kembali'] ?? '');
-        $returnedAt = (string) ($item['returned_at'] ?? '');
-        $status = self::statusLabel((string) ($item['status_pinjam'] ?? 'borrowed'), $returnedAt, $jatuhTempo);
-        $lateDays = self::lateDays($jatuhTempo, $returnedAt);
-
-        return [
-            'status' => $status === 'Belum Kembali' ? 'Dipinjam' : $status,
-            'terlambat' => $lateDays > 0 ? $lateDays . ' hari' : '-',
-            'denda' => 'Rp ' . number_format($lateDays * 500, 0, ',', '.'),
-            'late_days' => $lateDays,
-        ];
-    }
-
-    public static function canPerpanjang(array $item): bool
-    {
-        return empty($item['returned_at']) && empty($item['extended_at']);
-    }
-
-    public static function tambahTujuhHari(string $tanggal): string
-    {
-        try {
-            return (new DateTimeImmutable($tanggal))->modify('+7 days')->format('Y-m-d');
+            $this->conn->commit();
+            return true;
         } catch (Exception $e) {
-            return self::defaultTanggalKembali();
+            $this->conn->rollback();
+            // Rethrow exception to be caught by controller
+            throw $e;
         }
     }
 
-    public static function perPageOptions(): array
+    public function extend($idDetail)
     {
-        return [5, 7, 10, 15, 20];
+        // Perpanjang dilakukan PER BUKU (detail), tapi karena batas_waktu di header, 
+        // kita perbarui header dan tandai detailnya sudah pernah diperpanjang.
+        $res = $this->conn->query("SELECT p.id_peminjaman, p.batas_waktu 
+                                  FROM detail_peminjaman dp 
+                                  JOIN peminjaman p ON p.id_peminjaman = dp.id_peminjaman 
+                                  WHERE dp.id_detail = $idDetail");
+        if ($row = $res->fetch_assoc()) {
+            $id_peminjaman = $row['id_peminjaman'];
+            $new_date = date('Y-m-d', strtotime($row['batas_waktu'] . ' +7 days'));
+            
+            $sql = "UPDATE peminjaman SET batas_waktu = ? WHERE id_peminjaman = ?";
+            $stmt = $this->conn->prepare($sql);
+            $stmt->bind_param("si", $new_date, $id_peminjaman);
+            $stmt->execute();
+            
+            $this->conn->query("UPDATE detail_peminjaman SET extended_at = NOW() WHERE id_detail = $idDetail");
+            return true;
+        }
+        return false;
     }
 
-    public static function normalizePerPage($value, int $default = 7): int
+    public function returnBook($idDetail)
     {
-        $value = (int) $value;
-        return in_array($value, self::perPageOptions(), true) ? $value : $default;
+        $res = $this->conn->query("SELECT id_eksemplar FROM detail_peminjaman WHERE id_detail = $idDetail");
+        if ($row = $res->fetch_assoc()) {
+            $id_eksemplar = $row['id_eksemplar'];
+            $today = date('Y-m-d');
+            
+            $sql = "UPDATE detail_peminjaman SET tanggal_kembali = ?, status_pengembalian = 'kembali' WHERE id_detail = ?";
+            $stmt = $this->conn->prepare($sql);
+            $stmt->bind_param("si", $today, $idDetail);
+            $stmt->execute();
+            
+            $this->conn->query("UPDATE eksemplar SET status = 'tersedia' WHERE id_eksemplar = $id_eksemplar");
+            return true;
+        }
+        return false;
     }
 
-    public static function paginationItems(int $currentPage, int $totalPages): array
+    public function getOpsiBuku()
     {
-        $items = [];
-        $lastWasDots = false;
+        $res = $this->conn->query("SELECT e.id_eksemplar, b.judul 
+                                  FROM eksemplar e 
+                                  JOIN buku b ON e.id_buku = b.id_buku 
+                                  WHERE e.status = 'tersedia' 
+                                  ORDER BY b.judul ASC");
+        $data = [];
+        while ($row = $res->fetch_assoc()) {
+            $data[] = $row;
+        }
+        return $data;
+    }
 
-        for ($i = 1; $i <= $totalPages; $i++) {
-            if ($i === 1 || $i === $totalPages || abs($i - $currentPage) <= 1) {
-                $items[] = $i;
-                $lastWasDots = false;
-                continue;
-            }
+    private function getAnggotaId($nim, $nama)
+    {
+        $nim = $this->conn->real_escape_string($nim);
+        $res = $this->conn->query("SELECT id_anggota FROM anggota WHERE nim = '$nim'");
+        if ($row = $res->fetch_assoc()) {
+            return $row['id_anggota'];
+        }
+        
+        $dummy_email = $nim . '@student.com';
+        $dummy_pass = password_hash('123456', PASSWORD_DEFAULT);
+        $jurusan_default = '-';
+        $sql = "INSERT INTO anggota (nim, nama, email, password, jurusan) VALUES (?, ?, ?, ?, ?)";
+        $stmt = $this->conn->prepare($sql);
+        $stmt->bind_param("sssss", $nim, $nama, $dummy_email, $dummy_pass, $jurusan_default);
+        $stmt->execute();
+        return $this->conn->insert_id;
+    }
 
-            if (!$lastWasDots) {
-                $items[] = '...';
-                $lastWasDots = true;
-            }
+    public function getMeta($item)
+    {
+        $jatuh_tempo = strtotime($item['batas_waktu'] ?? $item['tanggal_kembali'] ?? '');
+        $tgl_kembali = !empty($item['tanggal_kembali']) ? strtotime($item['tanggal_kembali']) : time();
+        
+        $terlambat = 0;
+        if ($jatuh_tempo && $tgl_kembali > $jatuh_tempo) {
+            $diff = $tgl_kembali - $jatuh_tempo;
+            $terlambat = floor($diff / (60 * 60 * 24));
         }
 
-        return $items;
-    }
-
-    public static function firstAdminId(): int
-    {
-        $result = self::db()->query('SELECT id_admin FROM admin ORDER BY id_admin ASC LIMIT 1');
-        $row = $result->fetch_assoc();
-
-        return max(1, (int) ($row['id_admin'] ?? 1));
-    }
-
-    private static function findBukuByJudul(string $judul): ?array
-    {
-        $stmt = self::db()->prepare('SELECT id_buku, stok_tersedia FROM buku WHERE judul = ? LIMIT 1');
-        $stmt->bind_param('s', $judul);
-        $stmt->execute();
-        $row = $stmt->get_result()->fetch_assoc();
-
-        return $row ?: null;
-    }
-
-    private static function findOrCreateAnggota(string $nim, string $nama): int
-    {
-        $stmt = self::db()->prepare('SELECT id_anggota, nama_anggota FROM anggota WHERE kode_anggota = ? LIMIT 1');
-        $stmt->bind_param('s', $nim);
-        $stmt->execute();
-        $row = $stmt->get_result()->fetch_assoc();
-
-        if ($row) {
-            if (trim((string) $row['nama_anggota']) !== $nama) {
-                $stmt = self::db()->prepare('UPDATE anggota SET nama_anggota = ? WHERE id_anggota = ?');
-                $id = (int) $row['id_anggota'];
-                $stmt->bind_param('si', $nama, $id);
-                $stmt->execute();
-            }
-
-            return (int) $row['id_anggota'];
+        $status = 'Dipinjam';
+        if (!empty($item['tanggal_kembali'])) {
+            $status = ($terlambat > 0) ? 'Terlambat' : 'Selesai';
+        } elseif ($terlambat > 0) {
+            $status = 'Terlambat';
         }
-
-        $stmt = self::db()->prepare('INSERT INTO anggota (kode_anggota, nama_anggota) VALUES (?, ?)');
-        $stmt->bind_param('ss', $nim, $nama);
-        $stmt->execute();
-
-        return (int) self::db()->insert_id;
-    }
-
-    private static function mapPeminjamanRow(array $row): array
-    {
-        return [
-            'id' => (string) ($row['id_peminjaman'] ?? ''),
-            'id_peminjaman' => (int) ($row['id_peminjaman'] ?? 0),
-            'nim' => $row['kode_anggota'] ?? '',
-            'nama' => $row['nama_anggota'] ?? '',
-            'buku' => $row['judul'] ?? '',
-            'tanggal_pinjam' => $row['tanggal_pinjam'] ?? '',
-            'tanggal_kembali' => $row['tanggal_jatuh_tempo'] ?? '',
-            'tanggal_jatuh_tempo' => $row['tanggal_jatuh_tempo'] ?? '',
-            'returned_at' => $row['tanggal_kembali'] ?? null,
-            'extended_at' => $row['extended_at'] ?? null,
-            'status_pinjam' => $row['status_pinjam'] ?? 'borrowed',
-        ];
-    }
-
-    private static function mapReportRow(array $row): array
-    {
-        $status = self::statusLabel((string) ($row['status_pinjam'] ?? ''), (string) ($row['tanggal_kembali'] ?? ''), (string) ($row['tanggal_jatuh_tempo'] ?? ''));
-        $lateDays = self::lateDays((string) ($row['tanggal_jatuh_tempo'] ?? ''), (string) ($row['tanggal_kembali'] ?? ''));
-        $denda = isset($row['jumlah_denda']) ? (float) $row['jumlah_denda'] : ($lateDays * 500);
 
         return [
-            'id' => (int) ($row['id_peminjaman'] ?? 0),
-            'source_id' => 'pjm_db_' . (int) ($row['id_peminjaman'] ?? 0),
-            'tanggal' => $row['tanggal_pinjam'] ?? '',
-            'peminjam' => $row['nama_anggota'] ?? '',
-            'judul_buku' => $row['judul'] ?? '',
-            'tgl_pinjam' => $row['tanggal_pinjam'] ?? '',
-            'tgl_jatuh_tempo' => $row['tanggal_jatuh_tempo'] ?? '',
-            'tgl_kembali' => $row['tanggal_kembali'] ?? '',
             'status' => $status,
-            'hari_terlambat' => $lateDays,
-            'denda_nominal' => $denda,
+            'terlambat' => $terlambat > 0 ? $terlambat . ' hari' : '-',
+            'denda' => 'Rp ' . number_format($terlambat * 500, 0, ',', '.')
         ];
     }
 
-    private static function statusLabel(string $status, string $tanggalKembali, string $jatuhTempo): string
+    public function reportRows($statusFilter, $startDate, $endDate, $keyword)
     {
-        if ($status === 'returned' || $tanggalKembali !== '') {
-            return 'Dikembalikan';
+        // Format Laporan: Nama Peminjam, ID Eksemplar, Tgl Pinjam, Denda, Status
+        $sql = "SELECT dp.*, p.tanggal_peminjaman, p.batas_waktu, a.nama as peminjam, e.id_eksemplar, b.judul
+                FROM detail_peminjaman dp
+                JOIN peminjaman p ON p.id_peminjaman = dp.id_peminjaman
+                JOIN anggota a ON a.id_anggota = p.id_anggota
+                JOIN eksemplar e ON e.id_eksemplar = dp.id_eksemplar
+                JOIN buku b ON b.id_buku = e.id_buku
+                WHERE p.laporan_hidden_at IS NULL";
+        
+        if ($startDate) {
+            $startDate = $this->conn->real_escape_string($startDate);
+            $sql .= " AND p.tanggal_peminjaman >= '$startDate'";
         }
-
-        if ($status === 'overdue' || ($jatuhTempo !== '' && strtotime($jatuhTempo) < strtotime(self::todayDate()))) {
-            return 'Terlambat';
+        if ($endDate) {
+            $endDate = $this->conn->real_escape_string($endDate);
+            $sql .= " AND p.tanggal_peminjaman <= '$endDate'";
         }
-
-        return 'Belum Kembali';
+        if ($keyword) {
+            $keyword = $this->conn->real_escape_string($keyword);
+            $sql .= " AND (a.nama LIKE '%$keyword%' OR b.judul LIKE '%$keyword%')";
+        }
+        
+        $sql .= " ORDER BY dp.id_detail DESC";
+        $result = $this->conn->query($sql);
+        
+        $rows = [];
+        while ($row = $result->fetch_assoc()) {
+            $meta = $this->getMeta($row);
+            $row['status'] = $meta['status'];
+            $row['denda'] = $meta['denda'];
+            
+            if ($statusFilter !== 'Semua' && $row['status'] !== $statusFilter) continue;
+            
+            $rows[] = $row;
+        }
+        return $rows;
     }
 
-    private static function lateDays(string $jatuhTempo, string $tanggalKembali = ''): int
+    public function hideReports($ids)
     {
-        if ($jatuhTempo === '') {
-            return 0;
-        }
-
-        $endDate = $tanggalKembali !== '' ? $tanggalKembali : self::todayDate();
-        $jatuhTempoTime = strtotime($jatuhTempo);
-        $endTime = strtotime($endDate);
-
-        if (!$jatuhTempoTime || !$endTime || $endTime <= $jatuhTempoTime) {
-            return 0;
-        }
-
-        return (int) floor(($endTime - $jatuhTempoTime) / 86400);
+        if (empty($ids)) return;
+        $idList = implode(',', $ids);
+        $this->conn->query("UPDATE peminjaman SET laporan_hidden_at = NOW() WHERE id_peminjaman IN ($idList)");
     }
 }

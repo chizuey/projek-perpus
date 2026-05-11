@@ -190,23 +190,34 @@
     display: none;
 }
 
-.export-button {
-    min-width: 170px;
-    padding: 0 14px;
+.btn-export {
     display: inline-flex;
     align-items: center;
-    gap: 10px;
-    text-decoration: none;
-    color: #1d2939;
-    font-size: 14px;
+    justify-content: center;
+    gap: 8px;
+    padding: 0 20px;
+    height: 38px;
+    border-radius: 6px;
+    font-size: 13px;
     font-weight: 600;
-    white-space: nowrap;
+    text-decoration: none;
+    transition: all 0.2s ease;
+    border: 1px solid var(--line);
+    min-width: 160px;
 }
 
-.export-button svg {
-    width: 18px;
-    height: 18px;
+.btn-csv {
+    background: #fff;
+    color: #198754;
+    border-color: #198754;
 }
+
+.btn-csv:hover {
+    background: #198754;
+    color: #fff;
+}
+
+
 
 .dashboard-cards {
     display: grid;
@@ -381,37 +392,32 @@ tbody td:nth-child(1) {
 
 thead th:nth-child(2),
 tbody td:nth-child(2) {
-    width: 11%;
+    width: 22%; /* Peminjam */
 }
 
 thead th:nth-child(3),
 tbody td:nth-child(3) {
-    width: 15%;
+    width: 14%; /* ID Eksemplar */
 }
 
 thead th:nth-child(4),
 tbody td:nth-child(4) {
-    width: 23%;
+    width: 15%; /* Tgl Pinjam */
 }
 
 thead th:nth-child(5),
 tbody td:nth-child(5) {
-    width: 11%;
+    width: 15%; /* Tgl Kembali */
 }
 
 thead th:nth-child(6),
 tbody td:nth-child(6) {
-    width: 13%;
+    width: 15%; /* Denda */
 }
 
 thead th:nth-child(7),
 tbody td:nth-child(7) {
-    width: 11%;
-}
-
-thead th:nth-child(8),
-tbody td:nth-child(8) {
-    width: 12%;
+    width: 15%; /* Status */
 }
 
 tbody td:nth-child(3),
@@ -736,8 +742,7 @@ body {
 }
 
 .field-group,
-.search-box,
-.export-button {
+.search-box {
     min-height: 38px;
     height: 38px;
     border-radius: 6px;
@@ -746,8 +751,7 @@ body {
 .field-label,
 .status-filter select,
 .date-range input,
-.search-box input,
-.export-button {
+.search-box input {
     font-size: 13px;
 }
 
@@ -763,11 +767,7 @@ body {
     min-width: 310px;
 }
 
-.export-button {
-    min-width: 148px;
-    padding: 0 16px;
-    font-weight: 500;
-}
+
 
 .table-card {
     border-color: #e5e7eb;

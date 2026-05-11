@@ -21,14 +21,13 @@ class Reservasi
         $sql = 'SELECT
                     r.id_reservasi,
                     r.tanggal_reservasi,
-                    r.tanggal_kadaluarsa,
-                    r.status_reservasi,
+                    r.status,
                     a.id_anggota,
-                    a.kode_anggota,
-                    a.nama_anggota,
+                    a.nim,
+                    a.nama as nama_anggota,
                     b.id_buku,
                     b.judul AS judul_buku,
-                    adm.nama_admin
+                    adm.nama as nama_admin
                 FROM reservasi r
                 JOIN anggota a ON r.id_anggota = a.id_anggota
                 JOIN buku    b ON r.id_buku    = b.id_buku
@@ -39,14 +38,14 @@ class Reservasi
         $types  = '';
 
         if ($filterStatus !== '') {
-            $sql    .= ' AND r.status_reservasi = ?';
+            $sql    .= ' AND r.status = ?';
             $params[] = $filterStatus;
             $types  .= 's';
         }
 
         if ($search !== '') {
             $like     = '%' . $search . '%';
-            $sql     .= ' AND (a.kode_anggota LIKE ? OR a.nama_anggota LIKE ? OR b.judul LIKE ?)';
+            $sql     .= ' AND (a.nim LIKE ? OR a.nama LIKE ? OR b.judul LIKE ?)';
             $params[] = $like;
             $params[] = $like;
             $params[] = $like;
@@ -62,13 +61,20 @@ class Reservasi
         }
 
         $stmt->execute();
-        return $stmt->get_result()->fetch_all(MYSQLI_ASSOC);
+        $result = $stmt->get_result();
+        
+        $data = [];
+        while ($row = $result->fetch_assoc()) {
+            $row['kode_anggota'] = $row['nim']; // Untuk kompatibilitas view lama
+            $data[] = $row;
+        }
+        return $data;
     }
 
     public function findById(int $id): ?array
     {
         $stmt = $this->conn->prepare(
-            'SELECT r.*, a.kode_anggota, a.nama_anggota, b.judul AS judul_buku
+            'SELECT r.*, a.nim, a.nama as nama_anggota, b.judul AS judul_buku
              FROM reservasi r
              JOIN anggota a ON r.id_anggota = a.id_anggota
              JOIN buku    b ON r.id_buku    = b.id_buku
@@ -77,6 +83,9 @@ class Reservasi
         $stmt->bind_param('i', $id);
         $stmt->execute();
         $row = $stmt->get_result()->fetch_assoc();
+        if ($row) {
+            $row['kode_anggota'] = $row['nim'];
+        }
         return $row ?: null;
     }
 
@@ -85,14 +94,14 @@ class Reservasi
     // =========================================================================
 
     /**
-     * Konfirmasi reservasi — status: pending → confirmed, isi id_admin.
+     * Konfirmasi reservasi — status: menunggu → disetujui, isi id_admin.
      */
     public function konfirmasi(int $id, int $idAdmin): bool
     {
         $stmt = $this->conn->prepare(
             'UPDATE reservasi
-             SET status_reservasi = "confirmed", id_admin = ?
-             WHERE id_reservasi = ? AND status_reservasi = "pending"'
+             SET status = "disetujui", id_admin = ?
+             WHERE id_reservasi = ? AND status = "menunggu"'
         );
         $stmt->bind_param('ii', $idAdmin, $id);
         $stmt->execute();
@@ -100,14 +109,14 @@ class Reservasi
     }
 
     /**
-     * Batalkan reservasi — status: pending/confirmed → cancelled.
+     * Batalkan reservasi — status: menunggu/disetujui → dibatalkan.
      */
     public function batalkan(int $id): bool
     {
         $stmt = $this->conn->prepare(
             'UPDATE reservasi
-             SET status_reservasi = "cancelled"
-             WHERE id_reservasi = ? AND status_reservasi IN ("pending", "confirmed")'
+             SET status = "dibatalkan"
+             WHERE id_reservasi = ? AND status IN ("menunggu", "disetujui")'
         );
         $stmt->bind_param('i', $id);
         $stmt->execute();
@@ -115,18 +124,18 @@ class Reservasi
     }
 
     /**
-     * Tandai reservasi yang sudah lewat kadaluarsa → expired.
+     * Selesaikan reservasi — status: disetujui → selesai (saat buku diambil).
      */
-    public function expireKadaluarsa(): void
+    public function selesaikan(int $id): bool
     {
-        $today = date('Y-m-d');
-        $stmt  = $this->conn->prepare(
+        $stmt = $this->conn->prepare(
             'UPDATE reservasi
-             SET status_reservasi = "expired"
-             WHERE tanggal_kadaluarsa < ? AND status_reservasi IN ("pending","confirmed")'
+             SET status = "selesai"
+             WHERE id_reservasi = ? AND status = "disetujui"'
         );
-        $stmt->bind_param('s', $today);
+        $stmt->bind_param('i', $id);
         $stmt->execute();
+        return $stmt->affected_rows > 0;
     }
 
     // =========================================================================

@@ -4,257 +4,361 @@ require_once __DIR__ . '/../config/database.php';
 
 class Buku
 {
-    private mysqli $conn;
+    private $conn;
 
-    public function __construct(?mysqli $conn = null)
+    public function __construct()
     {
-        $this->conn = $conn ?: (new Database())->getConnection();
+        $this->conn = (new Database())->getConnection();
     }
 
-    public function all(): array
+    // ============================================================
+    // ADMIN - Data Buku (admin/pages/databuku.php)
+    // Mengambil semua buku untuk tabel daftar buku di halaman admin
+    // ============================================================
+    public function all()
     {
-        $sql = "SELECT b.id_buku, b.isbn, b.judul, b.pengarang, b.tahun_terbit,
-                       b.stok_tersedia, b.total_stok, b.cover_buku,
-                       k.nama_kategori, p.nama_penerbit
-                FROM buku b
-                JOIN kategori k ON k.id_kategori = b.id_kategori
-                JOIN penerbit p ON p.id_penerbit = b.id_penerbit
-                ORDER BY b.id_buku DESC";
-
+        $sql = "SELECT buku.*, kategori.nama_kategori,
+                       (SELECT COUNT(*) FROM eksemplar WHERE id_buku = buku.id_buku) as total_eksemplar,
+                       (SELECT COUNT(*) FROM eksemplar WHERE id_buku = buku.id_buku AND status = 'tersedia') as stok_tersedia
+                FROM buku
+                LEFT JOIN kategori ON buku.id_kategori = kategori.id_kategori
+                ORDER BY buku.id_buku DESC";
         $result = $this->conn->query($sql);
-        $rows = [];
-
+        
+        $data = [];
         while ($row = $result->fetch_assoc()) {
-            $rows[] = $this->mapRow($row);
+            // Mapping agar sesuai dengan tampilan lama
+            $row['id'] = $row['id_buku'];
+            $row['penulis'] = $row['penulis'];
+            $row['tahun'] = $row['tahun_terbit'];
+            $row['kategori'] = $row['nama_kategori'];
+            $row['stok'] = $row['total_eksemplar'];
+            $data[] = $row;
         }
-
-        return $rows;
+        return $data;
     }
 
-    public function find(int $id): ?array
+    // ============================================================
+    // ADMIN - Edit Buku (admin/pages/editBuku.php)
+    // Mengambil data satu buku berdasarkan ID untuk form edit
+    // ============================================================
+    public function find($id)
     {
-        $stmt = $this->conn->prepare(
-            "SELECT b.id_buku, b.isbn, b.judul, b.pengarang, b.tahun_terbit,
-                    b.stok_tersedia, b.total_stok, b.cover_buku,
-                    k.nama_kategori, p.nama_penerbit
-             FROM buku b
-             JOIN kategori k ON k.id_kategori = b.id_kategori
-             JOIN penerbit p ON p.id_penerbit = b.id_penerbit
-             WHERE b.id_buku = ?"
-        );
-        $stmt->bind_param('i', $id);
-        $stmt->execute();
-        $row = $stmt->get_result()->fetch_assoc();
-
-        return $row ? $this->mapRow($row) : null;
-    }
-
-    public function create(array $data): int
-    {
-        $kategoriId = $this->findOrCreateKategori((string) ($data['kategori'] ?? 'Umum'));
-        $penerbitId = $this->findOrCreatePenerbit((string) ($data['penerbit'] ?? 'Tidak diketahui'));
-        $isbn = $this->nullableString($data['isbn'] ?? null);
-        $judul = trim((string) ($data['judul'] ?? ''));
-        $pengarang = trim((string) ($data['penulis'] ?? $data['pengarang'] ?? ''));
-        $tahun = $this->nullableYear($data['tahun'] ?? null);
-        $stok = max(0, (int) ($data['stok'] ?? $data['total_stok'] ?? 0));
-        $cover = $this->nullableString($data['cover_buku'] ?? $data['cover'] ?? null);
-
-        $stmt = $this->conn->prepare(
-            "INSERT INTO buku
-                (isbn, judul, pengarang, tahun_terbit, stok_tersedia, total_stok, cover_buku, id_kategori, id_penerbit)
-             VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?)"
-        );
-        $stmt->bind_param(
-            'sssiiisii',
-            $isbn,
-            $judul,
-            $pengarang,
-            $tahun,
-            $stok,
-            $stok,
-            $cover,
-            $kategoriId,
-            $penerbitId
-        );
-        $stmt->execute();
-
-        return (int) $this->conn->insert_id;
-    }
-
-    public function update(int $id, array $data): void
-    {
-        $current = $this->find($id);
-
-        if (!$current) {
-            return;
+        $sql = "SELECT buku.*, kategori.nama_kategori,
+                       (SELECT COUNT(*) FROM eksemplar WHERE id_buku = buku.id_buku) as total_eksemplar
+                FROM buku
+                LEFT JOIN kategori ON buku.id_kategori = kategori.id_kategori
+                WHERE buku.id_buku = $id";
+        $result = $this->conn->query($sql);
+        $row = $result->fetch_assoc();
+        
+        if ($row) {
+            $row['id'] = $row['id_buku'];
+            $row['tahun'] = $row['tahun_terbit'];
+            $row['kategori'] = $row['nama_kategori'];
+            $row['stok'] = $row['total_eksemplar'];
         }
-
-        $kategori = trim((string) ($data['kategori'] ?? '')) ?: (string) $current['kategori'];
-        $kategoriId = $this->findOrCreateKategori($kategori);
-        $penerbitId = $this->findOrCreatePenerbit((string) ($data['penerbit'] ?? $current['penerbit']));
-        $isbn = $this->nullableString($data['isbn'] ?? $current['isbn']);
-        $judul = trim((string) ($data['judul'] ?? $current['judul']));
-        $pengarang = trim((string) ($data['penulis'] ?? $data['pengarang'] ?? $current['penulis']));
-        $tahun = $this->nullableYear($data['tahun'] ?? $current['tahun']);
-        $totalStok = max(0, (int) ($data['stok'] ?? $current['total_stok']));
-        $dipinjam = $this->activeBorrowCountById($id);
-        $stokTersedia = max(0, $totalStok - $dipinjam);
-        $cover = $this->nullableString($data['cover_buku'] ?? $data['cover'] ?? $current['cover']);
-
-        $stmt = $this->conn->prepare(
-            "UPDATE buku
-             SET isbn = ?, judul = ?, pengarang = ?, tahun_terbit = ?,
-                 stok_tersedia = ?, total_stok = ?, cover_buku = ?,
-                 id_kategori = ?, id_penerbit = ?
-             WHERE id_buku = ?"
-        );
-        $stmt->bind_param(
-            'sssiiisiii',
-            $isbn,
-            $judul,
-            $pengarang,
-            $tahun,
-            $stokTersedia,
-            $totalStok,
-            $cover,
-            $kategoriId,
-            $penerbitId,
-            $id
-        );
-        $stmt->execute();
+        return $row;
     }
 
-    public function delete(int $id): void
+    // ============================================================
+    // ADMIN - Tambah Buku (admin/pages/tambah.php)
+    // Menyimpan data buku baru + generate eksemplar fisik
+    // ============================================================
+    public function create($data)
     {
-        $stmt = $this->conn->prepare('DELETE FROM buku WHERE id_buku = ?');
-        $stmt->bind_param('i', $id);
-        $stmt->execute();
-    }
-
-    public function kategoriOptions(): array
-    {
-        $result = $this->conn->query('SELECT nama_kategori FROM kategori ORDER BY nama_kategori ASC');
-        $kategori = [];
-
-        while ($row = $result->fetch_assoc()) {
-            $nama = trim((string) ($row['nama_kategori'] ?? ''));
-
-            if ($nama !== '') {
-                $kategori[] = $nama;
+        $id_kategori = $this->getKategoriId($data['kategori']);
+        $copy_count = max(1, (int)$data['stok']);
+        
+        $sql = "INSERT INTO buku (isbn, judul, penulis, penerbit, tahun_terbit, copy, id_kategori, cover) 
+                VALUES (?, ?, ?, ?, ?, ?, ?, ?)";
+        $stmt = $this->conn->prepare($sql);
+        $stmt->bind_param("sssssiis", 
+            $data['isbn'], $data['judul'], $data['penulis'], $data['penerbit'], $data['tahun'], 
+            $copy_count, $id_kategori, $data['cover']
+        );
+        
+        if ($stmt->execute()) {
+            $id_buku = $this->conn->insert_id;
+            // Generate eksemplar fisik sesuai jumlah copy
+            for ($i = 0; $i < $copy_count; $i++) {
+                $this->conn->query("INSERT INTO eksemplar (id_buku, status) VALUES ($id_buku, 'tersedia')");
             }
+            $this->syncCopy($id_buku);
+            return true;
         }
-
-        return $kategori;
+        return false;
     }
 
-    public function countByTitle(string $judul, ?int $exceptId = null): int
+    // ============================================================
+    // ADMIN - Edit Buku (admin/pages/editBuku.php)
+    // Memperbarui data buku + sesuaikan jumlah eksemplar
+    // ============================================================
+    public function update($id, $data)
     {
-        $judul = trim($judul);
+        $id_kategori = $this->getKategoriId($data['kategori']);
 
-        if ($exceptId) {
-            $stmt = $this->conn->prepare('SELECT COUNT(*) AS total FROM buku WHERE LOWER(judul) = LOWER(?) AND id_buku <> ?');
-            $stmt->bind_param('si', $judul, $exceptId);
-        } else {
-            $stmt = $this->conn->prepare('SELECT COUNT(*) AS total FROM buku WHERE LOWER(judul) = LOWER(?)');
-            $stmt->bind_param('s', $judul);
-        }
-
-        $stmt->execute();
-        $row = $stmt->get_result()->fetch_assoc();
-
-        return (int) ($row['total'] ?? 0);
-    }
-
-    private function findOrCreateKategori(string $nama): int
-    {
-        $nama = trim($nama) ?: 'Umum';
-        $stmt = $this->conn->prepare('SELECT id_kategori FROM kategori WHERE nama_kategori = ? LIMIT 1');
-        $stmt->bind_param('s', $nama);
-        $stmt->execute();
-        $row = $stmt->get_result()->fetch_assoc();
-
-        if ($row) {
-            return (int) $row['id_kategori'];
-        }
-
-        $stmt = $this->conn->prepare('INSERT INTO kategori (nama_kategori) VALUES (?)');
-        $stmt->bind_param('s', $nama);
-        $stmt->execute();
-
-        return (int) $this->conn->insert_id;
-    }
-
-    private function findOrCreatePenerbit(string $nama): int
-    {
-        $nama = trim($nama) ?: 'Tidak diketahui';
-        $stmt = $this->conn->prepare('SELECT id_penerbit FROM penerbit WHERE nama_penerbit = ? LIMIT 1');
-        $stmt->bind_param('s', $nama);
-        $stmt->execute();
-        $row = $stmt->get_result()->fetch_assoc();
-
-        if ($row) {
-            return (int) $row['id_penerbit'];
-        }
-
-        $stmt = $this->conn->prepare('INSERT INTO penerbit (nama_penerbit) VALUES (?)');
-        $stmt->bind_param('s', $nama);
-        $stmt->execute();
-
-        return (int) $this->conn->insert_id;
-    }
-
-    private function activeBorrowCountById(int $id): int
-    {
-        $stmt = $this->conn->prepare(
-            "SELECT COUNT(*) AS total
-             FROM peminjaman
-             WHERE id_buku = ? AND status_pinjam IN ('borrowed', 'overdue')"
+        $sql = "UPDATE buku SET isbn=?, judul=?, penulis=?, penerbit=?, tahun_terbit=?, id_kategori=?, cover=? WHERE id_buku=?";
+        $stmt = $this->conn->prepare($sql);
+        $stmt->bind_param("sssssisi",
+            $data['isbn'], $data['judul'], $data['penulis'], $data['penerbit'], $data['tahun'], 
+            $id_kategori, $data['cover'], $id
         );
-        $stmt->bind_param('i', $id);
+
+        return $stmt->execute();
+    }
+
+    public function eksemplarByBuku($id)
+    {
+        $sql = "SELECT id_eksemplar, status
+                FROM eksemplar
+                WHERE id_buku = ?
+                ORDER BY id_eksemplar ASC";
+        $stmt = $this->conn->prepare($sql);
+        $stmt->bind_param("i", $id);
+        $stmt->execute();
+        $result = $stmt->get_result();
+
+        $data = [];
+        while ($row = $result->fetch_assoc()) {
+            $data[] = $row;
+        }
+        return $data;
+    }
+
+    public function addEksemplar($id)
+    {
+        $sql = "INSERT INTO eksemplar (id_buku, status) VALUES (?, 'tersedia')";
+        $stmt = $this->conn->prepare($sql);
+        $stmt->bind_param("i", $id);
+        $success = $stmt->execute();
+        $this->syncCopy($id);
+        return $success;
+    }
+
+    public function deleteEksemplar($idBuku, $ids)
+    {
+        $ids = array_map('intval', (array)$ids);
+        $ids = array_filter($ids, fn($id) => $id > 0);
+        if (empty($ids)) {
+            throw new Exception('Pilih minimal satu ID eksemplar.');
+        }
+
+        $deleted = 0;
+        foreach ($ids as $idEksemplar) {
+            $sql = "DELETE FROM eksemplar WHERE id_eksemplar = ? AND id_buku = ? AND status = 'tersedia'";
+            $stmt = $this->conn->prepare($sql);
+            $stmt->bind_param("ii", $idEksemplar, $idBuku);
+            $stmt->execute();
+            $deleted += $stmt->affected_rows;
+        }
+
+        $this->syncCopy($idBuku);
+        if ($deleted === 0) {
+            throw new Exception('Eksemplar gagal dihapus. Hanya eksemplar tersedia yang bisa dihapus.');
+        }
+        return true;
+    }
+
+    public function syncCopy($idBuku)
+    {
+        $sql = "UPDATE buku
+                SET copy = (SELECT COUNT(*) FROM eksemplar WHERE id_buku = ?)
+                WHERE id_buku = ?";
+        $stmt = $this->conn->prepare($sql);
+        $stmt->bind_param("ii", $idBuku, $idBuku);
+        return $stmt->execute();
+    }
+
+    // ============================================================
+    // ADMIN - Data Buku (admin/pages/databuku.php)
+    // Menghapus buku (eksemplar ikut terhapus via CASCADE)
+    // ============================================================
+    public function delete($id)
+    {
+        // Eksemplar akan terhapus otomatis karena CONSTRAINT ON DELETE CASCADE di database
+        $sql = "DELETE FROM buku WHERE id_buku = $id";
+        return $this->conn->query($sql);
+    }
+
+    // ============================================================
+    // ADMIN - Tambah & Edit Buku + USER - Koleksi
+    // Mengambil daftar nama kategori untuk dropdown filter/form
+    // ============================================================
+    public function kategoriOptions()
+    {
+        $result = $this->conn->query("SELECT nama_kategori FROM kategori");
+        $options = [];
+        while ($row = $result->fetch_assoc()) {
+            $options[] = $row['nama_kategori'];
+        }
+        return $options;
+    }
+
+    // ============================================================
+    // INTERNAL - Dipakai oleh create() dan update()
+    // Mencari ID kategori, jika belum ada maka buat baru
+    // ============================================================
+    private function getKategoriId($nama)
+    {
+        $nama = $this->conn->real_escape_string($nama);
+        $res = $this->conn->query("SELECT id_kategori FROM kategori WHERE nama_kategori = '$nama'");
+        if ($row = $res->fetch_assoc()) {
+            return $row['id_kategori'];
+        }
+        $this->conn->query("INSERT INTO kategori (nama_kategori) VALUES ('$nama')");
+        return $this->conn->insert_id;
+    }
+
+    // ============================================================
+    // ADMIN - Validasi Tambah & Edit Buku
+    // Mengecek apakah judul buku sudah ada (untuk cegah duplikat)
+    // ============================================================
+    public function countByTitle($judul, $exceptId = null)
+    {
+        $sql = "SELECT COUNT(*) as total FROM buku WHERE judul = ?";
+        if ($exceptId) $sql .= " AND id_buku != ?";
+        
+        $stmt = $this->conn->prepare($sql);
+        if ($exceptId) {
+            $stmt->bind_param("si", $judul, $exceptId);
+        } else {
+            $stmt->bind_param("s", $judul);
+        }
         $stmt->execute();
         $row = $stmt->get_result()->fetch_assoc();
-
-        return (int) ($row['total'] ?? 0);
+        return $row['total'];
     }
 
-    private function nullableString($value): ?string
+    // ============================================================
+    // USER - Beranda (user/beranda.php)
+    // Mengambil buku paling sering dipinjam untuk section Terpopuler
+    // ============================================================
+    public function getPopular($limit = 6)
     {
-        $value = trim((string) ($value ?? ''));
-        return $value === '' ? null : $value;
+        $sql = "SELECT b.*, k.nama_kategori, 
+                       (SELECT COUNT(*) FROM eksemplar e 
+                        JOIN detail_peminjaman dp ON e.id_eksemplar = dp.id_eksemplar 
+                        WHERE e.id_buku = b.id_buku) as loan_count
+                FROM buku b
+                LEFT JOIN kategori k ON b.id_kategori = k.id_kategori
+                ORDER BY loan_count DESC
+                LIMIT $limit";
+        $result = $this->conn->query($sql);
+        
+        $data = [];
+        while ($row = $result->fetch_assoc()) {
+            $row['id'] = $row['id_buku'];
+            $row['kategori'] = $row['nama_kategori'];
+            $data[] = $row;
+        }
+        return $data;
     }
 
-    private function nullableYear($value): ?int
+    // ============================================================
+    // USER - Beranda (user/beranda.php)
+    // Mengambil buku terbaru untuk section Koleksi Terbaru
+    // ============================================================
+    public function getNewest($limit = 6)
     {
-        $value = trim((string) ($value ?? ''));
-        return ctype_digit($value) ? (int) $value : null;
+        $sql = "SELECT b.*, k.nama_kategori
+                FROM buku b
+                LEFT JOIN kategori k ON b.id_kategori = k.id_kategori
+                ORDER BY b.id_buku DESC
+                LIMIT $limit";
+        $result = $this->conn->query($sql);
+        
+        $data = [];
+        while ($row = $result->fetch_assoc()) {
+            $row['id'] = $row['id_buku'];
+            $row['kategori'] = $row['nama_kategori'];
+            $data[] = $row;
+        }
+        return $data;
     }
-
-    private function mapRow(array $row): array
+    // ============================================================
+    // USER - Koleksi (user/koleksi.php)
+    // Pencarian & filter buku dengan pagination untuk halaman koleksi
+    // ============================================================
+    public function searchKoleksi($search = '', $kategori = '', $tahun = '', $page = 1, $perPage = 15)
     {
-        $id = (int) ($row['id_buku'] ?? 0);
-        $totalStok = max(0, (int) ($row['total_stok'] ?? 0));
-        $stokTersedia = max(0, (int) ($row['stok_tersedia'] ?? 0));
-        $dipinjam = max(0, $totalStok - $stokTersedia);
-        $cover = (string) ($row['cover_buku'] ?? '');
+        $where = [];
+        $params = [];
+        $types = '';
+
+        if ($search !== '') {
+            $where[] = "(b.judul LIKE ? OR b.penulis LIKE ?)";
+            $like = '%' . $search . '%';
+            $params[] = $like;
+            $params[] = $like;
+            $types .= 'ss';
+        }
+        if ($kategori !== '') {
+            $where[] = "k.nama_kategori = ?";
+            $params[] = $kategori;
+            $types .= 's';
+        }
+        if ($tahun !== '') {
+            $where[] = "b.tahun_terbit = ?";
+            $params[] = $tahun;
+            $types .= 's';
+        }
+
+        $whereClause = count($where) > 0 ? 'WHERE ' . implode(' AND ', $where) : '';
+
+        // Count total
+        $countSql = "SELECT COUNT(*) as total FROM buku b LEFT JOIN kategori k ON b.id_kategori = k.id_kategori $whereClause";
+        $stmtCount = $this->conn->prepare($countSql);
+        if ($types !== '') {
+            $stmtCount->bind_param($types, ...$params);
+        }
+        $stmtCount->execute();
+        $total = $stmtCount->get_result()->fetch_assoc()['total'];
+
+        // Fetch page
+        $offset = ($page - 1) * $perPage;
+        $dataSql = "SELECT b.*, k.nama_kategori,
+                           (SELECT COUNT(*) FROM eksemplar WHERE id_buku = b.id_buku AND status = 'tersedia') as stok_tersedia
+                    FROM buku b
+                    LEFT JOIN kategori k ON b.id_kategori = k.id_kategori
+                    $whereClause
+                    ORDER BY b.id_buku DESC
+                    LIMIT $perPage OFFSET $offset";
+        $stmtData = $this->conn->prepare($dataSql);
+        if ($types !== '') {
+            $stmtData->bind_param($types, ...$params);
+        }
+        $stmtData->execute();
+        $result = $stmtData->get_result();
+
+        $data = [];
+        while ($row = $result->fetch_assoc()) {
+            $row['id'] = $row['id_buku'];
+            $row['kategori'] = $row['nama_kategori'];
+            $row['tahun'] = $row['tahun_terbit'];
+            $data[] = $row;
+        }
 
         return [
-            'id' => $id,
-            'id_buku' => $id,
-            'isbn' => $row['isbn'] ?? '',
-            'judul' => $row['judul'] ?? '',
-            'penulis' => $row['pengarang'] ?? '',
-            'pengarang' => $row['pengarang'] ?? '',
-            'penerbit' => $row['nama_penerbit'] ?? '',
-            'tahun' => $row['tahun_terbit'] ?? '',
-            'tahun_terbit' => $row['tahun_terbit'] ?? '',
-            'kategori' => $row['nama_kategori'] ?? '',
-            'stok' => $totalStok,
-            'total_stok' => $totalStok,
-            'stok_tersedia' => $stokTersedia,
-            'dipinjam' => $dipinjam,
-            'cover' => $cover,
-            'cover_buku' => $cover,
+            'data' => $data,
+            'total' => $total,
+            'totalPages' => max(1, ceil($total / $perPage)),
+            'currentPage' => $page,
+            'perPage' => $perPage
         ];
+    }
+
+    // ============================================================
+    // USER - Koleksi (user/koleksi.php)
+    // Mengambil daftar tahun terbit unik untuk dropdown filter
+    // ============================================================
+    public function getTahunOptions()
+    {
+        $result = $this->conn->query("SELECT DISTINCT tahun_terbit FROM buku WHERE tahun_terbit IS NOT NULL AND tahun_terbit != '' ORDER BY tahun_terbit DESC");
+        $options = [];
+        while ($row = $result->fetch_assoc()) {
+            $options[] = $row['tahun_terbit'];
+        }
+        return $options;
     }
 }

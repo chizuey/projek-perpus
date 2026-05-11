@@ -33,6 +33,11 @@ if (!function_exists('eEditBuku')) {
             <?= eEditBuku(implode(' ', $errorsEditBuku)); ?>
         </div>
     <?php endif; ?>
+    <?php if (!empty($successEditBuku)): ?>
+        <div class="form-alert form-success">
+            <?= eEditBuku($successEditBuku); ?>
+        </div>
+    <?php endif; ?>
 
     <!-- Form update buku, proses submit ditangani update.php -->
     <form method="POST" action="actions/buku/update.php" enctype="multipart/form-data">
@@ -48,23 +53,34 @@ if (!function_exists('eEditBuku')) {
         <div class="panel-card mb-3">
             <div class="panel-title">Edit Data Buku</div>
 
-            <label class="form-label-custom" for="judul">Judul Buku</label>
-            <input class="form-input-custom" id="judul" name="judul" type="text" placeholder="Masukkan judul buku..." value="<?= eEditBuku($oldEditBuku['judul']); ?>" required>
+            <div class="form-row-2">
+                <div>
+                    <label class="form-label-custom" for="judul">Judul Buku</label>
+                    <input class="form-input-custom" id="judul" name="judul" type="text" placeholder="Masukkan judul buku..." value="<?= eEditBuku($oldEditBuku['judul']); ?>" required>
+                </div>
+                <div>
+                    <label class="form-label-custom" for="penulis">Penulis</label>
+                    <input class="form-input-custom" id="penulis" name="penulis" type="text" placeholder="Masukkan nama penulis..." value="<?= eEditBuku($oldEditBuku['penulis']); ?>" required>
+                </div>
+            </div>
 
-            <label class="form-label-custom" for="penulis">Penulis</label>
-            <input class="form-input-custom" id="penulis" name="penulis" type="text" placeholder="Masukkan nama penulis..." value="<?= eEditBuku($oldEditBuku['penulis']); ?>" required>
+            <div class="form-row-2">
+                <div>
+                    <label class="form-label-custom" for="penerbit">Penerbit</label>
+                    <input class="form-input-custom" id="penerbit" name="penerbit" type="text" placeholder="Masukkan nama penerbit..." value="<?= eEditBuku($oldEditBuku['penerbit']); ?>" required>
+                </div>
+                <div>
+                    <label class="form-label-custom" for="isbn">ISBN</label>
+                    <input class="form-input-custom" id="isbn" name="isbn" type="text" placeholder="cth: 978-3-16-148410-0" value="<?= eEditBuku($oldEditBuku['isbn']); ?>">
+                </div>
+            </div>
 
-            <label class="form-label-custom" for="penerbit">Penerbit</label>
-            <input class="form-input-custom" id="penerbit" name="penerbit" type="text" placeholder="Masukkan nama penerbit..." value="<?= eEditBuku($oldEditBuku['penerbit']); ?>" required>
-
-            <label class="form-label-custom" for="tahun">Tahun Terbit</label>
-            <input class="form-input-custom" id="tahun" name="tahun" type="number" min="0" placeholder="cth: 2023" value="<?= eEditBuku($oldEditBuku['tahun']); ?>" required>
-
-            <label class="form-label-custom" for="tempat_terbit">Tempat Terbit</label>
-            <input class="form-input-custom" id="tempat_terbit" name="tempat_terbit" type="text" placeholder="cth: Jakarta" value="<?= eEditBuku($oldEditBuku['tempat_terbit']); ?>">
-
-            <label class="form-label-custom" for="isbn">ISBN</label>
-            <input class="form-input-custom" id="isbn" name="isbn" type="text" placeholder="cth: 978-3-16-148410-0" value="<?= eEditBuku($oldEditBuku['isbn']); ?>">
+            <div class="form-row-2">
+                <div>
+                    <label class="form-label-custom" for="tahun">Tahun Terbit</label>
+                    <input class="form-input-custom" id="tahun" name="tahun" type="number" min="0" placeholder="cth: 2023" value="<?= eEditBuku($oldEditBuku['tahun']); ?>" required>
+                </div>
+            </div>
 
             <span class="kategori-label">Kategori :</span>
             <div class="kategori-grid">
@@ -86,61 +102,66 @@ if (!function_exists('eEditBuku')) {
                 <?php endforeach; ?>
             </div>
 
-            <span class="cover-section-title">Input Cover Buku</span>
-            <label class="cover-upload-area" for="cover">
-                <span class="cover-upload-hint">Klik untuk upload cover (kosongkan jika tidak ingin mengubah)</span>
-            </label>
-            <input type="file" id="cover" name="cover" accept="image/*" class="cover-file-input">
+            <span class="cover-section-title">Cover Buku</span>
+            <div class="cover-edit-wrapper" style="display: flex; gap: 20px; align-items: flex-start; margin-bottom: 1.1rem;">
+                <?php if (!empty($oldEditBuku['cover'])): ?>
+                    <div class="current-cover">
+                        <span style="font-size: 0.7rem; color: #666; display: block; margin-bottom: 5px;">Cover Saat Ini:</span>
+                        <img src="../<?= eEditBuku($oldEditBuku['cover']); ?>" alt="Cover" style="width: 80px; height: 110px; object-fit: cover; border-radius: 6px; border: 1px solid #ddd;">
+                    </div>
+                <?php endif; ?>
+                
+                <div class="upload-new-cover">
+                    <span style="font-size: 0.7rem; color: #666; display: block; margin-bottom: 5px;">Ganti Cover:</span>
+                    <label class="cover-upload-area" for="cover" style="margin-bottom: 0;">
+                        <span class="cover-upload-hint">Klik untuk upload cover baru</span>
+                    </label>
+                    <input type="file" id="cover" name="cover" accept="image/*" class="cover-file-input">
+                </div>
+            </div>
 
-            <label class="synopsis-label" for="sinopsis">Deskripsi/Sinopsis :</label>
-            <textarea class="synopsis-area" id="sinopsis" name="sinopsis" placeholder="Masukkan deskripsi atau sinopsis buku..."><?= eEditBuku($oldEditBuku['sinopsis']); ?></textarea>
-
-            <button type="submit" class="btn-tambahkan">Simpan Perubahan</button>
-        </div>
-
-        <div class="panel-card">
-            <div class="copy-panel-title">Copy Buku</div>
-            <label class="form-label-custom" for="stok">Jumlah Copy / Stok</label>
-            <input class="form-input-custom stock-input" id="stok" name="stok" type="number" min="1" value="<?= (int) $oldEditBuku['stok']; ?>" required>
-            <div class="copy-list-row" id="copyPreview" aria-live="polite"></div>
+            <div class="form-actions" style="margin-top: 1rem;">
+                <button type="submit" class="btn-tambahkan">Simpan Perubahan</button>
+                <a href="?menu=databuku" class="btn-batal-form" style="text-decoration: none; display: inline-flex; align-items: center; justify-content: center;">Batal</a>
+            </div>
         </div>
     </form>
+
+    <div class="panel-card">
+        <div class="copy-panel-title">Eksemplar Buku</div>
+        <p class="eksemplar-help">Klik ID eksemplar untuk memilih, lalu klik Hapus Eksemplar.</p>
+
+        <form method="post" action="actions/buku/add_eksemplar.php" class="eksemplar-inline-form">
+            <input type="hidden" name="action" value="add_eksemplar">
+            <input type="hidden" name="id" value="<?= (int) $bookId; ?>">
+            <button type="submit" class="btn-tambah-copy">Tambah Eksemplar</button>
+        </form>
+
+        <form method="post" action="actions/buku/delete_eksemplar.php" onsubmit="return confirm('Yakin ingin menghapus eksemplar yang dipilih?')">
+            <input type="hidden" name="action" value="delete_eksemplar">
+            <input type="hidden" name="id" value="<?= (int) $bookId; ?>">
+
+            <div class="eksemplar-grid">
+                <?php if (empty($eksemplarList)): ?>
+                    <span class="eksemplar-empty">Belum ada eksemplar.</span>
+                <?php else: ?>
+                    <?php foreach ($eksemplarList as $eksemplar): ?>
+                        <?php $isTersedia = $eksemplar['status'] === 'tersedia'; ?>
+                        <label class="eksemplar-item <?= $isTersedia ? '' : 'disabled'; ?>">
+                            <input
+                                type="checkbox"
+                                name="eksemplar_ids[]"
+                                value="<?= (int) $eksemplar['id_eksemplar']; ?>"
+                                <?= $isTersedia ? '' : 'disabled'; ?>
+                            >
+                            <span>ID <?= (int) $eksemplar['id_eksemplar']; ?></span>
+                            <small><?= eEditBuku($eksemplar['status']); ?></small>
+                        </label>
+                    <?php endforeach; ?>
+                <?php endif; ?>
+            </div>
+
+            <button type="submit" class="btn-hapus-eksemplar">Hapus Eksemplar</button>
+        </form>
+    </div>
 </main>
-
-<!-- Script preview jumlah copy/stok buku -->
-<script>
-document.addEventListener('DOMContentLoaded', function () {
-    const stokInput = document.getElementById('stok');
-    const copyPreview = document.getElementById('copyPreview');
-
-    // Menampilkan preview badge copy berdasarkan input stok.
-    function renderCopyPreview() {
-        if (!stokInput || !copyPreview) {
-            return;
-        }
-
-        const total = Math.max(1, parseInt(stokInput.value || '1', 10));
-        const visible = Math.min(total, 12);
-        copyPreview.innerHTML = '';
-
-        for (let index = 1; index <= visible; index++) {
-            const badge = document.createElement('span');
-            badge.className = 'copy-badge';
-            badge.textContent = 'b' + String(index).padStart(3, '0');
-            copyPreview.appendChild(badge);
-        }
-
-        if (total > visible) {
-            const badge = document.createElement('span');
-            badge.className = 'copy-badge';
-            badge.textContent = '+' + (total - visible);
-            copyPreview.appendChild(badge);
-        }
-    }
-
-    if (stokInput) {
-        stokInput.addEventListener('input', renderCopyPreview);
-        renderCopyPreview();
-    }
-});
-</script>

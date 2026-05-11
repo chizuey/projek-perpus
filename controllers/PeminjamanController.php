@@ -4,238 +4,208 @@ require_once __DIR__ . '/../models/Peminjaman.php';
 
 class PeminjamanController
 {
-    public const MENU = 'peminjaman';
+    private $model;
 
-    public static function index(): array
+    public function __construct()
     {
-        self::startSession();
+        $this->model = new Peminjaman();
+    }
 
-        $flash = $_SESSION['peminjaman_flash'] ?? [];
-        unset($_SESSION['peminjaman_flash']);
+    public function index()
+    {
+        if (session_status() === PHP_SESSION_NONE) session_start();
 
-        $openPopup = !empty($flash['open_popup']);
-        $errors = $flash['errors'] ?? [];
-        $oldInput = $flash['old_input'] ?? [
-            'nim' => '',
-            'nama' => '',
-            'buku' => '',
-            'tgl_pinjam' => '',
-            'tgl_kembali' => '',
-        ];
+        $search = isset($_GET['q']) ? trim($_GET['q']) : '';
+        $perPage = isset($_GET['per_page']) ? (int)$_GET['per_page'] : 7;
+        $currentPage = isset($_GET['page']) ? (int)$_GET['page'] : 1;
+        $openPopup = isset($_SESSION['open_popup']);
+        $errors = isset($_SESSION['errors']) ? $_SESSION['errors'] : [];
+        $oldInput = isset($_SESSION['old']) ? $_SESSION['old'] : ['nim' => '', 'nama' => '', 'buku1' => ''];
 
-        $search = trim($_GET['q'] ?? '');
-        $perPage = Peminjaman::normalizePerPage($_GET['per_page'] ?? 7);
-        $dataPeminjaman = Peminjaman::loadActive($search);
-        $filteredData = $dataPeminjaman;
-
-        $totalData = count($filteredData);
-        $totalPages = max(1, (int) ceil($totalData / $perPage));
-        $currentPage = min(max(1, (int) ($_GET['page'] ?? 1)), $totalPages);
+        $dataHeader = $this->model->all($search);
+        
+        $totalData = count($dataHeader);
+        $totalPages = ceil($totalData / $perPage);
+        if ($totalPages < 1) $totalPages = 1;
+        
         $offset = ($currentPage - 1) * $perPage;
+        $pageData = array_slice($dataHeader, $offset, $perPage);
+
+        unset($_SESSION['open_popup'], $_SESSION['errors'], $_SESSION['old']);
 
         return [
             'openPopup' => $openPopup,
             'errors' => $errors,
             'oldInput' => $oldInput,
-            'dataPeminjaman' => $dataPeminjaman,
             'search' => $search,
             'perPage' => $perPage,
-            'filteredData' => $filteredData,
             'totalData' => $totalData,
             'totalPages' => $totalPages,
             'currentPage' => $currentPage,
             'offset' => $offset,
-            'pageData' => array_slice($filteredData, $offset, $perPage),
-            'startDisplay' => $totalData > 0 ? $offset + 1 : 0,
-            'endDisplay' => $totalData > 0 ? min($offset + $perPage, $totalData) : 0,
-            'paginationItems' => Peminjaman::paginationItems($currentPage, $totalPages),
-            'opsiBuku' => Peminjaman::getOpsiBuku(),
+            'pageData' => $pageData,
+            'startDisplay' => ($totalData > 0) ? $offset + 1 : 0,
+            'endDisplay' => min($offset + $perPage, $totalData),
+            'paginationItems' => $this->getPaginationItems($currentPage, $totalPages),
+            'opsiBuku' => $this->model->getOpsiBuku()
         ];
     }
 
-    public static function store(array $post): void
+    public function details($id)
     {
-        self::startSession();
-
-        $nim = trim($post['nim'] ?? '');
-        $nama = trim($post['nama'] ?? '');
-        $buku = trim($post['buku'] ?? '');
-        $tglPinjam = Peminjaman::todayDate();
-        $tglKembali = Peminjaman::defaultTanggalKembali();
-        $errors = [];
-        $oldInput = [
-            'nim' => $nim,
-            'nama' => $nama,
-            'buku' => $buku,
-            'tgl_pinjam' => $tglPinjam,
-            'tgl_kembali' => $tglKembali,
-        ];
-
-        if ($nim === '' || $nama === '' || $buku === '') {
-            $errors[] = 'Semua field wajib diisi.';
-        }
-
-        if ($buku !== '' && !Peminjaman::isBukuValid($buku)) {
-            $errors[] = 'Buku yang dipilih tidak tersedia di daftar buku.';
-        }
-
-        if ($nim !== '' && Peminjaman::countAktifByNim($nim) >= 3) {
-            $errors[] = 'Peminjaman gagal karena peminjam tersebut sedang meminjam 3 buku.';
-        }
-
-        if ($buku !== '' && Peminjaman::isBukuValid($buku)
-            && Peminjaman::getSisaStokBuku($buku) < 1) {
-            $errors[] = 'Peminjaman gagal karena stok buku "' . e($buku) . '" sedang habis.';
-        }
-
-        if (!empty($errors)) {
-            $_SESSION['peminjaman_flash'] = [
-                'open_popup' => true,
-                'errors' => $errors,
-                'old_input' => $oldInput,
-            ];
-            self::redirectTo(['per_page' => Peminjaman::normalizePerPage($post['per_page'] ?? 7)]);
-        }
-
-        $adminId = (int) ($_SESSION['id_admin'] ?? $_SESSION['id_user'] ?? Peminjaman::firstAdminId());
-
-        try {
-            Peminjaman::createBorrow($nim, $nama, $buku, $adminId);
-        } catch (Throwable $e) {
-            $_SESSION['peminjaman_flash'] = [
-                'open_popup' => true,
-                'errors' => ['Peminjaman gagal disimpan ke database.'],
-                'old_input' => $oldInput,
-            ];
-            self::redirectTo(['per_page' => Peminjaman::normalizePerPage($post['per_page'] ?? 7)]);
-        }
-
-        self::redirectTo(['per_page' => Peminjaman::normalizePerPage($post['per_page'] ?? 7)]);
+        return $this->model->getDetails($id);
     }
 
-    public static function extend(array $post): void
+    public function store($post)
     {
-        Peminjaman::extend((int) ($post['id'] ?? 0));
-        self::redirectBackToList($post);
-    }
+        if (session_status() === PHP_SESSION_NONE) session_start();
+        
+        $nim = trim($post['nim']);
+        $nama = trim($post['nama']);
+        
+        $id_eksemplar_array = [];
+        if (!empty($post['buku1'])) $id_eksemplar_array[] = trim($post['buku1']);
+        if (!empty($post['buku2'])) $id_eksemplar_array[] = trim($post['buku2']);
+        if (!empty($post['buku3'])) $id_eksemplar_array[] = trim($post['buku3']);
+        
+        $adminId = 1;
 
-    public static function returnBook(array $post): void
-    {
-        Peminjaman::returnBook((int) ($post['id'] ?? 0));
-        self::redirectBackToList($post);
-    }
-
-    private static function redirectBackToList(array $post): void
-    {
-        $redirectParams = [
-            'page' => max(1, (int) ($post['page'] ?? 1)),
-            'per_page' => Peminjaman::normalizePerPage($post['per_page'] ?? 7),
-        ];
-
-        $search = trim($post['q'] ?? '');
-        if ($search !== '') {
-            $redirectParams['q'] = $search;
+        if (empty($id_eksemplar_array)) {
+            $_SESSION['errors'] = ['Minimal masukkan satu ID Eksemplar.'];
+            $_SESSION['old'] = $post;
+            $_SESSION['open_popup'] = true;
+        } else {
+            try {
+                $this->model->create($nim, $nama, $id_eksemplar_array, $adminId);
+            } catch (Exception $e) {
+                $_SESSION['errors'] = [$e->getMessage()];
+                $_SESSION['old'] = $post;
+                $_SESSION['open_popup'] = true;
+            }
         }
 
-        self::redirectTo($redirectParams);
-    }
-
-    public static function redirectTo(array $params = []): void
-    {
-        $params = array_merge(['menu' => self::MENU], $params);
-        header('Location: ../../?' . http_build_query($params));
+        header('Location: ../../index.php?menu=peminjaman');
         exit;
     }
 
-    private static function startSession(): void
+    public function extend($post)
     {
-        if (session_status() === PHP_SESSION_NONE) {
-            @session_start();
+        $this->model->extend($post['id']);
+        // Redirect back to peminjaman
+        header('Location: ../../index.php?menu=peminjaman');
+        exit;
+    }
+
+    public function returnBook($post)
+    {
+        $this->model->returnBook($post['id']);
+        header('Location: ../../index.php?menu=peminjaman');
+        exit;
+    }
+
+    public function report()
+    {
+        $status = isset($_GET['status']) ? $_GET['status'] : 'Semua';
+        $from = isset($_GET['from']) ? $_GET['from'] : '';
+        $to = isset($_GET['to']) ? $_GET['to'] : '';
+        $q = isset($_GET['q']) ? $_GET['q'] : '';
+
+        // Ambil data untuk tabel (dengan filter status)
+        $data = $this->model->reportRows($status, $from, $to, $q);
+        
+        // Ambil data tanpa filter status untuk menghitung ringkasan (Summary)
+        $allData = $this->model->reportRows('Semua', $from, $to, $q);
+        
+        $summary = [
+            'total' => count($allData),
+            'selesai' => 0,
+            'terlambat' => 0,
+            'dipinjam' => 0
+        ];
+
+        foreach ($allData as $row) {
+            if ($row['status'] === 'Selesai') $summary['selesai']++;
+            elseif ($row['status'] === 'Terlambat') $summary['terlambat']++;
+            elseif ($row['status'] === 'Dipinjam') $summary['dipinjam']++;
         }
+
+        return [
+            'dataTampil' => $data,
+            'summary' => $summary
+        ];
+    }
+
+    private function getPaginationItems($current, $total)
+    {
+        $items = [];
+        for ($i = 1; $i <= $total; $i++) {
+            if ($i == 1 || $i == $total || abs($i - $current) <= 1) {
+                $items[] = $i;
+            } elseif (end($items) !== '...') {
+                $items[] = '...';
+            }
+        }
+        return $items;
     }
 }
 
+// Global helpers for views
 if (!function_exists('e')) {
-    function e($value): string
-    {
-        return htmlspecialchars((string) $value, ENT_QUOTES, 'UTF-8');
+    function e($val) {
+        return htmlspecialchars((string)$val, ENT_QUOTES, 'UTF-8');
     }
 }
 
 if (!function_exists('todayDate')) {
-    function todayDate(): string
-    {
-        return Peminjaman::todayDate();
+    function todayDate() {
+        return date('Y-m-d');
     }
 }
 
 if (!function_exists('defaultTanggalKembali')) {
-    function defaultTanggalKembali(): string
-    {
-        return Peminjaman::defaultTanggalKembali();
-    }
-}
-
-if (!function_exists('getCurrentMenuPeminjaman')) {
-    function getCurrentMenuPeminjaman(): string
-    {
-        return PeminjamanController::MENU;
+    function defaultTanggalKembali() {
+        return date('Y-m-d', strtotime('+7 days'));
     }
 }
 
 if (!function_exists('formatTanggal')) {
-    function formatTanggal($date): string
-    {
-        if (empty($date)) {
-            return '-';
-        }
-
-        $timestamp = strtotime((string) $date);
-        return $timestamp ? date('d M Y', $timestamp) : '-';
+    function formatTanggal($date) {
+        return $date ? date('d M Y', strtotime($date)) : '-';
     }
 }
 
 if (!function_exists('hitungMetaPeminjaman')) {
-    function hitungMetaPeminjaman(array $item): array
-    {
-        return Peminjaman::hitungMeta($item);
+    function hitungMetaPeminjaman($item) {
+        return (new Peminjaman())->getMeta($item);
     }
 }
 
 if (!function_exists('canPerpanjangPeminjaman')) {
-    function canPerpanjangPeminjaman(array $item): bool
-    {
-        return Peminjaman::canPerpanjang($item);
+    function canPerpanjangPeminjaman($item) {
+        return empty($item['tanggal_kembali']) && empty($item['extended_at']);
     }
 }
 
 if (!function_exists('tambahTujuhHariPeminjaman')) {
-    function tambahTujuhHariPeminjaman(string $tanggal): string
-    {
-        return Peminjaman::tambahTujuhHari($tanggal);
+    function tambahTujuhHariPeminjaman($tanggal) {
+        return date('Y-m-d', strtotime($tanggal . ' +7 days'));
     }
 }
 
 if (!function_exists('getPeminjamanPerPageOptions')) {
-    function getPeminjamanPerPageOptions(): array
-    {
-        return Peminjaman::perPageOptions();
+    function getPeminjamanPerPageOptions() {
+        return [5, 7, 10, 15, 20];
     }
 }
 
 if (!function_exists('buildPageUrl')) {
-    function buildPageUrl(int $page, string $search, int $perPage): string
-    {
-        $params = [
-            'menu' => getCurrentMenuPeminjaman(),
-            'page' => $page,
-            'per_page' => $perPage,
-        ];
+    function buildPageUrl($page, $search, $perPage) {
+        return "?menu=peminjaman&page=$page&q=$search&per_page=$perPage";
+    }
+}
 
-        if ($search !== '') {
-            $params['q'] = $search;
-        }
-
-        return '?' . http_build_query($params);
+if (!function_exists('getCurrentMenuPeminjaman')) {
+    function getCurrentMenuPeminjaman() {
+        return 'peminjaman';
     }
 }

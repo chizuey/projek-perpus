@@ -16,6 +16,11 @@ body {
     padding: 20px;
 }
 
+table tbody tr td:nth-child(1),
+table tbody tr td:nth-child(2) {
+    text-transform: uppercase !important;
+}
+
 .datapeminjam-wrapper {
     width: 100%;
     max-width: none;
@@ -166,51 +171,11 @@ body {
     text-overflow: ellipsis;
 }
 
-.datapeminjam-table th:nth-child(1),
-.datapeminjam-table td:nth-child(1) {
-    width: 9%;
-}
-
-.datapeminjam-table th:nth-child(2),
-.datapeminjam-table td:nth-child(2) {
-    width: 11%;
-}
-
-.datapeminjam-table th:nth-child(3),
-.datapeminjam-table td:nth-child(3) {
-    width: 12%;
-}
-
-.datapeminjam-table th:nth-child(4),
-.datapeminjam-table td:nth-child(4) {
-    width: 12%;
-}
-
-.datapeminjam-table th:nth-child(5),
-.datapeminjam-table td:nth-child(5) {
-    width: 12%;
-}
-
-.datapeminjam-table th:nth-child(6),
-.datapeminjam-table td:nth-child(6) {
-    width: 8%;
-}
-
-.datapeminjam-table th:nth-child(7),
-.datapeminjam-table td:nth-child(7) {
-    width: 10%;
-}
-
-.datapeminjam-table th:nth-child(8),
-.datapeminjam-table td:nth-child(8) {
-    width: 8%;
-}
-
-.datapeminjam-table th:nth-child(9),
-.datapeminjam-table td:nth-child(9) {
-    width: 18%;
-    overflow: visible;
-}
+    .datapeminjam-table th:nth-child(1), .datapeminjam-table td:nth-child(1) { width: 15%; } /* NIM */
+    .datapeminjam-table th:nth-child(2), .datapeminjam-table td:nth-child(2) { width: 30%; } /* Nama */
+    .datapeminjam-table th:nth-child(3), .datapeminjam-table td:nth-child(3) { width: 18%; } /* Pinjam */
+    .datapeminjam-table th:nth-child(4), .datapeminjam-table td:nth-child(4) { width: 18%; } /* Kembali */
+    .datapeminjam-table th:nth-child(5), .datapeminjam-table td:nth-child(5) { width: 19%; } /* Aksi */
 
 .datapeminjam-table td:nth-child(2),
 .datapeminjam-table td:nth-child(3) {
@@ -239,12 +204,41 @@ body {
     background: #0d5db8;
 }
 
-.status-dikembalikan {
+.status-selesai {
     background: #1faa4a;
 }
 
 .status-terlambat {
     background: #ef4444;
+}
+
+.btn-detail {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    min-width: 80px;
+    height: 32px;
+    padding: 0 12px;
+    border: 1px solid #dbe2ea;
+    border-radius: 6px;
+    background: #f1f5f9;
+    color: #475569;
+    font-size: 13px;
+    font-weight: 600;
+    cursor: pointer;
+    transition: all 0.2s;
+}
+
+.btn-detail:hover {
+    background: #e2e8f0;
+    border-color: #cbd5e1;
+    color: #1e293b;
+}
+
+.btn-sm {
+    height: 28px !important;
+    min-width: 70px !important;
+    font-size: 11px !important;
 }
 
 .peminjaman-action-group {
@@ -440,13 +434,22 @@ body {
 }
 
 .return-confirm-box {
-    width: 460px;
-    max-width: calc(100vw - 32px);
+    width: 800px;
+    max-width: 95%;
+    max-height: 90vh;
+    display: flex;
+    flex-direction: column;
     overflow: hidden;
     border-radius: 10px;
     background: #ffffff;
     box-shadow: 0 20px 40px rgba(0, 0, 0, 0.18);
     animation: returnPopupFadeIn 0.2s ease;
+}
+
+/* Memastikan tabel di dalam popup tidak kepotong (melebihi lebar box) */
+.return-confirm-body .datapeminjam-table {
+    min-width: 100% !important;
+    table-layout: auto !important;
 }
 
 .return-confirm-header {

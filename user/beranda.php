@@ -11,6 +11,13 @@
 </head>
 <body>
 
+<?php 
+require_once __DIR__ . '/../models/Buku.php';
+$bukuModel = new Buku();
+$newestBooks = $bukuModel->getNewest(6);
+$popularBooks = $bukuModel->getPopular(6);
+?>
+
 <?php include 'navbar.php'; ?>
 
 <!-- HERO -->
@@ -18,7 +25,7 @@
     <div class="container hero-content">
         <div class="hero-text">
             <h1>Selamat Datang di <br><span>Perpustakaan Polije</span></h1>
-            <p>Temukan ribuan judul buku, e-book, jurnal, dan referensi lainnya
+            <p>Temukan berbagai judul dan referensi lainnya
 untuk mendukung proses belajar mengajar. Temukan inspirasi
 dan pengetahuan tanpa batas.
             
@@ -39,8 +46,8 @@ dan pengetahuan tanpa batas.
 <section class="container features">
    <div class="feature-card">
         <div class="icon-box blue"><img src="gambar/koleksi.png"></div>
-        <h3>Koleksi Lengkap</h3>
-        <p>Ribuan buku, e-book, jurnal, dan e-proceding siap mendukung belajar.</p>
+        <h3>Koleksi Buku</h3>
+        <p>Tersedia berbagai macam judul buku cetak dari berbagai kategori untuk mendukung referensi belajar Anda.</p>
    </div>
 
    <div class="feature-card">
@@ -74,20 +81,17 @@ secara digital.</p>
     </div>
 
     <div class="book-grid">
-
-        <!-- 6 ITEM -->
-        <div class="book-card"><div class="book-cover"><img src="gambar/buku.png"></div><div class="book-info"><h4>The Quiet</h4><p>Erika</p></div></div>
-
-        <div class="book-card"><div class="book-cover"><img src="gambar/buku.png"></div><div class="book-info"><h4>Filosofi Teras</h4><p>Henry</p></div></div>
-
-        <div class="book-card"><div class="book-cover"><img src="gambar/buku.png"></div><div class="book-info"><h4>Bumi Manusia</h4><p>Pramoedya</p></div></div>
-
-        <div class="book-card"><div class="book-cover"><img src="gambar/buku.png"></div><div class="book-info"><h4>Atomic Habits</h4><p>James</p></div></div>
-
-        <div class="book-card"><div class="book-cover"><img src="gambar/buku.png"></div><div class="book-info"><h4>Laskar Pelangi</h4><p>Andrea Hirata</p></div></div>
-
-        <div class="book-card"><div class="book-cover"><img src="gambar/buku.png"></div><div class="book-info"><h4>Pulang</h4><p>Tere Liye</p></div></div>
-
+        <?php foreach ($newestBooks as $b): ?>
+            <div class="book-card">
+                <div class="book-cover">
+                    <img src="../<?= !empty($b['cover']) ? htmlspecialchars($b['cover']) : 'user/gambar/buku.png'; ?>" alt="<?= htmlspecialchars($b['judul']); ?>">
+                </div>
+                <div class="book-info">
+                    <h4><?= htmlspecialchars($b['judul']); ?></h4>
+                    <p><?= htmlspecialchars($b['penulis']); ?></p>
+                </div>
+            </div>
+        <?php endforeach; ?>
     </div>
 </section>
 
@@ -99,20 +103,17 @@ secara digital.</p>
     </div>
 
     <div class="book-grid">
-
-        <!-- 6 ITEM -->
-        <div class="book-card"><div class="book-cover"><img src="gambar/buku.png"></div><div class="book-info"><h4>Negeri Bedebah</h4><p>Tere Liye</p></div></div>
-
-        <div class="book-card"><div class="book-cover"><img src="gambar/buku.png"></div><div class="book-info"><h4>Pulang</h4><p>Tere Liye</p></div></div>
-
-        <div class="book-card"><div class="book-cover"><img src="gambar/buku.png"></div><div class="book-info"><h4>Seni Bodo Amat</h4><p>Mark Manson</p></div></div>
-
-        <div class="book-card"><div class="book-cover"><img src="gambar/buku.png"></div><div class="book-info"><h4>NKCTHI</h4><p>Marchella</p></div></div>
-
-        <div class="book-card"><div class="book-cover"><img src="gambar/buku.png"></div><div class="book-info"><h4>Rich Dad Poor Dad</h4><p>Kiyosaki</p></div></div>
-
-        <div class="book-card"><div class="book-cover"><img src="gambar/buku.png"></div><div class="book-info"><h4>Think Big</h4><p>Ben Carson</p></div></div>
-
+        <?php foreach ($popularBooks as $b): ?>
+            <div class="book-card">
+                <div class="book-cover">
+                    <img src="../<?= !empty($b['cover']) ? htmlspecialchars($b['cover']) : 'user/gambar/buku.png'; ?>" alt="<?= htmlspecialchars($b['judul']); ?>">
+                </div>
+                <div class="book-info">
+                    <h4><?= htmlspecialchars($b['judul']); ?></h4>
+                    <p><?= htmlspecialchars($b['penulis']); ?></p>
+                </div>
+            </div>
+        <?php endforeach; ?>
     </div>
 </section>
 
