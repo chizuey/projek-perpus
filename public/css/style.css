@@ -975,3 +975,47 @@ body {
     color: #ef4444;
     font-weight: 600;
 }
+
+/* ================= RESPONSIVE ================= */
+@media (max-width: 992px) {
+    .features { grid-template-columns: repeat(2, 1fr); margin-top: 20px; }
+    .book-grid { grid-template-columns: repeat(4, 1fr); }
+    .schedule-grid { grid-template-columns: repeat(3, 1fr); }
+    .section-about-prof { padding: 0 20px; }
+}
+
+@media (max-width: 768px) {
+    .header-navbar .container {
+        grid-template-columns: 1fr auto;
+        padding: 0 20px;
+    }
+    .nav-menu { 
+        display: none; 
+    }
+    
+    .hero-content { flex-direction: column; text-align: center; }
+    .hero-text h1 { font-size: 2rem; }
+    .search-container { margin: 20px auto; }
+    
+    .features { grid-template-columns: 1fr; margin-top: 20px; }
+    .book-grid { grid-template-columns: repeat(2, 1fr); }
+    
+    .schedule-grid { grid-template-columns: repeat(2, 1fr); }
+    
+    .section-about-prof { flex-direction: column; gap: 40px; }
+    .image-box-prof img { width: 100%; margin: 0; }
+    .text-box-prof { margin: 0; }
+    
+    .visi-misi-container { flex-direction: column; }
+    
+    .map-frame { width: 100%; }
+    .map-wrapper { padding: 0 20px; }
+    
+    .operational-card { padding: 20px; }
+}
+
+@media (max-width: 480px) {
+    .book-grid { grid-template-columns: 1fr; }
+    .schedule-grid { grid-template-columns: 1fr; }
+    .hero-text h1 { font-size: 1.5rem; }
+}

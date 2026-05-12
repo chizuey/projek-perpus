@@ -207,4 +207,5 @@ td { padding: 15px 20px; font-size: 13px; border-bottom: 1px solid #f1f5f9; }
     .grid-sections, .stats-grid { grid-template-columns: 1fr; }
     .profile-card { flex-direction: column; text-align: center; padding-bottom: 80px; }
     .btn-logout-card { left: 50%; transform: translateX(-50%); bottom: 20px; right: auto; }
+    .table-card { overflow-x: auto; }
 }
