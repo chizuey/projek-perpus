@@ -275,7 +275,6 @@ class Peminjaman
         $idBuku = (int)$idBuku;
         $this->conn->query("UPDATE buku
                             SET copy = (SELECT COUNT(*) FROM eksemplar WHERE id_buku = $idBuku),
-                                total_stok = (SELECT COUNT(*) FROM eksemplar WHERE id_buku = $idBuku),
                                 stok_tersedia = (SELECT COUNT(*) FROM eksemplar WHERE id_buku = $idBuku AND status = 'tersedia')
                             WHERE id_buku = $idBuku");
     }

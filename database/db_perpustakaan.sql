@@ -67,7 +67,6 @@ CREATE TABLE buku (
     copy INT NOT NULL DEFAULT 0,
     id_kategori INT NOT NULL,
     cover VARCHAR(255) DEFAULT NULL,
-    total_stok INT NOT NULL DEFAULT 0,
     stok_tersedia INT NOT NULL DEFAULT 0,
     created_at TIMESTAMP NULL DEFAULT CURRENT_TIMESTAMP,
     updated_at TIMESTAMP NULL DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP,
@@ -181,12 +180,12 @@ INSERT INTO kategori (id_kategori, nama_kategori, created_at, updated_at) VALUES
 (4, 'Jaringan', '2026-05-09 05:04:43', '2026-05-09 05:04:43');
 
 INSERT INTO buku
-(id_buku, isbn, judul, penulis, penerbit, tahun_terbit, copy, id_kategori, cover, total_stok, stok_tersedia, created_at, updated_at)
+(id_buku, isbn, judul, penulis, penerbit, tahun_terbit, copy, id_kategori, cover, stok_tersedia, created_at, updated_at)
 VALUES
-(1, '9786020000001', 'Dasar-Dasar PHP', 'Budi Santoso', 'Informatika', '2023', 2, 1, NULL, 2, 1, '2026-05-09 05:29:08', '2026-05-09 05:29:08'),
-(2, '9786020000002', 'MySQL untuk Pemula', 'Andi Wijaya', 'Elex Media', '2022', 3, 2, NULL, 3, 2, '2026-05-09 05:29:08', '2026-05-09 05:29:08'),
-(3, '9786020000003', 'Matematika Diskrit', 'Siti Nurhaliza', 'Graha Ilmu', '2021', 1, 3, NULL, 1, 1, '2026-05-09 05:29:08', '2026-05-09 05:29:08'),
-(4, '9786020000004', 'Konsep Jaringan Komputer', 'Rudi Hartono', 'Andi Offset', '2024', 2, 4, NULL, 2, 2, '2026-05-09 05:29:08', '2026-05-09 05:29:08');
+(1, '9786020000001', 'Dasar-Dasar PHP', 'Budi Santoso', 'Informatika', '2023', 2, 1, NULL, 1, '2026-05-09 05:29:08', '2026-05-09 05:29:08'),
+(2, '9786020000002', 'MySQL untuk Pemula', 'Andi Wijaya', 'Elex Media', '2022', 3, 2, NULL, 2, '2026-05-09 05:29:08', '2026-05-09 05:29:08'),
+(3, '9786020000003', 'Matematika Diskrit', 'Siti Nurhaliza', 'Graha Ilmu', '2021', 1, 3, NULL, 1, '2026-05-09 05:29:08', '2026-05-09 05:29:08'),
+(4, '9786020000004', 'Konsep Jaringan Komputer', 'Rudi Hartono', 'Andi Offset', '2024', 2, 4, NULL, 2, '2026-05-09 05:29:08', '2026-05-09 05:29:08');
 
 INSERT INTO eksemplar (id_eksemplar, id_buku, status, created_at, updated_at) VALUES
 (1, 1, 'dipinjam', '2026-05-09 05:29:08', '2026-05-09 06:07:36'),

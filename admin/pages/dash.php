@@ -15,7 +15,6 @@ function dashScalar(mysqli $conn, string $sql): int
 }
 
 $total_buku = dashScalar($conn, 'SELECT COUNT(*) FROM buku');
-$total_stok = dashScalar($conn, 'SELECT COALESCE(SUM(total_stok), 0) FROM buku');
 $tersedia = dashScalar($conn, 'SELECT COALESCE(SUM(stok_tersedia), 0) FROM buku');
 $dipinjam = dashScalar($conn, "SELECT COUNT(*) FROM detail_peminjaman WHERE status_pengembalian = 'dipinjam'");
 $terlambat = dashScalar($conn, "SELECT COUNT(*)
