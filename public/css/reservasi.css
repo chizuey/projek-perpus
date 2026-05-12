@@ -57,6 +57,26 @@ body {
     border-radius: 99px;
 }
 
+.reservasi-alert {
+    margin-bottom: 14px;
+    padding: 10px 12px;
+    border-radius: 6px;
+    font-size: 13px;
+    font-weight: 600;
+}
+
+.reservasi-alert.alert-success {
+    background: #ecfdf5;
+    color: #047857;
+    border: 1px solid #a7f3d0;
+}
+
+.reservasi-alert.alert-error {
+    background: #fef2f2;
+    color: #b91c1c;
+    border: 1px solid #fecaca;
+}
+
 /* ---- Toolbar ---- */
 .toolbar {
     display: flex;
@@ -225,6 +245,7 @@ body {
 }
 
 .btn-konfirmasi,
+.btn-proses,
 .btn-batal {
     display: inline-flex;
     align-items: center;
@@ -249,6 +270,17 @@ body {
 .btn-konfirmasi:hover {
     background: #dcfce7;
     border-color: #86efac;
+}
+
+.btn-proses {
+    background: #eff6ff;
+    color: #0050ad;
+    border-color: #bfdbfe;
+}
+
+.btn-proses:hover {
+    background: #dbeafe;
+    border-color: #93c5fd;
 }
 
 .btn-batal {

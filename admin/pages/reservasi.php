@@ -25,6 +25,12 @@ $statusLabel = [
         </div>
     </div>
 
+    <?php if (!empty($flashMessage)): ?>
+        <div class="reservasi-alert <?= $flashType === 'success' ? 'alert-success' : 'alert-error'; ?>">
+            <?= eR($flashMessage); ?>
+        </div>
+    <?php endif; ?>
+
     <div class="toolbar">
         <div class="toolbar-left">
             <form method="get" class="search-form">
@@ -92,6 +98,8 @@ $statusLabel = [
                     <th>Judul Buku</th>
                     <th>Tgl Reservasi</th>
                     <th>Kadaluarsa</th>
+                    <th>Stok</th>
+                    <th>ID Eks</th>
                     <th>Status</th>
                     <th>Admin</th>
                     <th>Aksi</th>
@@ -111,6 +119,8 @@ $statusLabel = [
                         <td><?= eR($r['judul_buku'] ?? ''); ?></td>
                         <td><?= fmtTgl($r['tanggal_reservasi'] ?? ''); ?></td>
                         <td><?= fmtTgl($r['tanggal_kadaluarsa'] ?? ''); ?></td>
+                        <td><?= (int)($r['stok_tersedia'] ?? 0); ?></td>
+                        <td><?= !empty($r['id_eksemplar']) ? (int)$r['id_eksemplar'] : '-'; ?></td>
                         <td>
                             <span class="status-badge <?= eR($badge['class']); ?>">
                                 <?= eR($badge['label']); ?>
@@ -149,6 +159,19 @@ $statusLabel = [
                                 <?php elseif ($st === 'disetujui'): ?>
                                     <button
                                         type="button"
+                                        class="btn-proses js-proses-reservasi"
+                                        data-id="<?= (int)$r['id_reservasi']; ?>"
+                                        data-nama="<?= eR($r['nama_anggota'] ?? ''); ?>"
+                                        data-buku="<?= eR($r['judul_buku'] ?? ''); ?>"
+                                        data-page="<?= (int)$currentPage; ?>"
+                                        data-per-page="<?= (int)$perPage; ?>"
+                                        data-q="<?= eR($search); ?>"
+                                        data-status="<?= eR($filterStatus); ?>"
+                                    >
+                                        Proses
+                                    </button>
+                                    <button
+                                        type="button"
                                         class="btn-batal js-batalkan-reservasi"
                                         data-id="<?= (int)$r['id_reservasi']; ?>"
                                         data-nama="<?= eR($r['nama_anggota'] ?? ''); ?>"
@@ -169,7 +192,7 @@ $statusLabel = [
                 <?php endforeach; ?>
             <?php else: ?>
                 <tr>
-                    <td colspan="9" class="empty-row">
+                    <td colspan="11" class="empty-row">
                         <?= $search !== '' || $filterStatus !== ''
                             ? 'Tidak ada data yang cocok dengan filter.'
                             : 'Belum ada data reservasi.'; ?>
@@ -237,6 +260,20 @@ document.addEventListener('DOMContentLoaded', function () {
     document.querySelectorAll('.js-batalkan-reservasi').forEach(function (button) {
         button.onclick = function () {
             bukaPopupBatalkanReservasi(
+                this.dataset.id,
+                this.dataset.nama,
+                this.dataset.buku,
+                this.dataset.page,
+                this.dataset.perPage,
+                this.dataset.q,
+                this.dataset.status
+            );
+        };
+    });
+
+    document.querySelectorAll('.js-proses-reservasi').forEach(function (button) {
+        button.onclick = function () {
+            bukaPopupProsesPeminjamanReservasi(
                 this.dataset.id,
                 this.dataset.nama,
                 this.dataset.buku,

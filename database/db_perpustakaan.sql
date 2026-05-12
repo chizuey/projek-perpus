@@ -78,7 +78,7 @@ CREATE TABLE buku (
 CREATE TABLE eksemplar (
     id_eksemplar INT AUTO_INCREMENT PRIMARY KEY,
     id_buku INT NOT NULL,
-    status ENUM('tersedia', 'dipinjam', 'rusak', 'hilang') NOT NULL DEFAULT 'tersedia',
+    status ENUM('tersedia', 'direservasi', 'dipinjam', 'rusak', 'hilang') NOT NULL DEFAULT 'tersedia',
     created_at TIMESTAMP NULL DEFAULT CURRENT_TIMESTAMP,
     updated_at TIMESTAMP NULL DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP,
     FOREIGN KEY (id_buku) REFERENCES buku(id_buku)
@@ -125,6 +125,7 @@ CREATE TABLE reservasi (
     id_anggota INT NOT NULL,
     id_admin INT DEFAULT NULL,
     id_buku INT NOT NULL,
+    id_eksemplar INT DEFAULT NULL,
     tanggal_reservasi DATE NOT NULL,
     status ENUM('menunggu', 'disetujui', 'dibatalkan', 'selesai') NOT NULL DEFAULT 'menunggu',
     created_at TIMESTAMP NULL DEFAULT CURRENT_TIMESTAMP,
@@ -136,6 +137,9 @@ CREATE TABLE reservasi (
         ON UPDATE CASCADE
         ON DELETE SET NULL,
     FOREIGN KEY (id_buku) REFERENCES buku(id_buku)
+        ON UPDATE CASCADE
+        ON DELETE RESTRICT,
+    FOREIGN KEY (id_eksemplar) REFERENCES eksemplar(id_eksemplar)
         ON UPDATE CASCADE
         ON DELETE RESTRICT
 );
@@ -185,7 +189,7 @@ VALUES
 (1, '9786020000001', 'Dasar-Dasar PHP', 'Budi Santoso', 'Informatika', '2023', 2, 1, NULL, 1, '2026-05-09 05:29:08', '2026-05-09 05:29:08'),
 (2, '9786020000002', 'MySQL untuk Pemula', 'Andi Wijaya', 'Elex Media', '2022', 3, 2, NULL, 2, '2026-05-09 05:29:08', '2026-05-09 05:29:08'),
 (3, '9786020000003', 'Matematika Diskrit', 'Siti Nurhaliza', 'Graha Ilmu', '2021', 1, 3, NULL, 1, '2026-05-09 05:29:08', '2026-05-09 05:29:08'),
-(4, '9786020000004', 'Konsep Jaringan Komputer', 'Rudi Hartono', 'Andi Offset', '2024', 2, 4, NULL, 2, '2026-05-09 05:29:08', '2026-05-09 05:29:08');
+(4, '9786020000004', 'Konsep Jaringan Komputer', 'Rudi Hartono', 'Andi Offset', '2024', 2, 4, NULL, 1, '2026-05-09 05:29:08', '2026-05-09 05:29:08');
 
 INSERT INTO eksemplar (id_eksemplar, id_buku, status, created_at, updated_at) VALUES
 (1, 1, 'dipinjam', '2026-05-09 05:29:08', '2026-05-09 06:07:36'),
@@ -194,7 +198,7 @@ INSERT INTO eksemplar (id_eksemplar, id_buku, status, created_at, updated_at) VA
 (4, 2, 'tersedia', '2026-05-09 05:29:08', '2026-05-09 05:29:08'),
 (5, 2, 'tersedia', '2026-05-09 05:29:08', '2026-05-09 06:07:58'),
 (6, 3, 'tersedia', '2026-05-09 05:29:08', '2026-05-09 05:29:08'),
-(7, 4, 'tersedia', '2026-05-09 05:29:08', '2026-05-09 05:29:08'),
+(7, 4, 'direservasi', '2026-05-09 05:29:08', '2026-05-09 05:29:08'),
 (8, 4, 'tersedia', '2026-05-09 05:29:08', '2026-05-09 05:29:08');
 
 INSERT INTO peminjaman
@@ -215,10 +219,10 @@ VALUES
 (5, 4, 5, '2026-05-09', 'kembali', NULL, '2026-05-09 06:07:36', '2026-05-09 06:07:58');
 
 INSERT INTO reservasi
-(id_reservasi, id_anggota, id_admin, id_buku, tanggal_reservasi, status, created_at, updated_at)
+(id_reservasi, id_anggota, id_admin, id_buku, id_eksemplar, tanggal_reservasi, status, created_at, updated_at)
 VALUES
-(1, 1, NULL, 3, '2026-05-09', 'menunggu', '2026-05-09 05:29:08', '2026-05-09 05:29:08'),
-(2, 2, 1, 4, '2026-05-08', 'disetujui', '2026-05-09 05:29:08', '2026-05-09 05:29:08');
+(1, 1, NULL, 3, NULL, '2026-05-09', 'menunggu', '2026-05-09 05:29:08', '2026-05-09 05:29:08'),
+(2, 2, 1, 4, 7, '2026-05-08', 'disetujui', '2026-05-09 05:29:08', '2026-05-09 05:29:08');
 
 INSERT INTO denda
 (id_denda, id_detail, jumlah_hari_terlambat, tanggal_bayar, created_at, updated_at)

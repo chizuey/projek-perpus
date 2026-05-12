@@ -53,10 +53,16 @@ class ReservasiController
         $totalPages  = max(1, (int) ceil($totalData / $perPage));
         $currentPage = min(max(1, (int) ($_GET['page'] ?? 1)), $totalPages);
         $offset      = ($currentPage - 1) * $perPage;
+        $flashMessage = $_SESSION['reservasi_flash_message'] ?? '';
+        $flashType = $_SESSION['reservasi_flash_type'] ?? '';
+
+        unset($_SESSION['reservasi_flash_message'], $_SESSION['reservasi_flash_type']);
 
         return [
             'dataReservasi'   => $dataReservasi,
             'pageData'        => array_slice($dataReservasi, $offset, $perPage),
+            'flashMessage'    => $flashMessage,
+            'flashType'       => $flashType,
             'search'          => $search,
             'filterStatus'    => $filterStatus,
             'perPage'         => $perPage,
@@ -78,7 +84,12 @@ class ReservasiController
     {
         self::startSession();
         $id = (int) ($post['id'] ?? 0);
-        self::model()->konfirmasi($id, self::getIdAdmin());
+        try {
+            self::model()->konfirmasi($id, self::getIdAdmin());
+            self::setFlash('Reservasi berhasil dikonfirmasi dan eksemplar dikunci.', 'success');
+        } catch (Exception $e) {
+            self::setFlash($e->getMessage(), 'error');
+        }
         self::redirectBackToList($post);
     }
 
@@ -90,7 +101,29 @@ class ReservasiController
     {
         self::startSession();
         $id = (int) ($post['id'] ?? 0);
-        self::model()->batalkan($id);
+        try {
+            self::model()->batalkan($id);
+            self::setFlash('Reservasi berhasil dibatalkan.', 'success');
+        } catch (Exception $e) {
+            self::setFlash($e->getMessage(), 'error');
+        }
+        self::redirectBackToList($post);
+    }
+
+    // =========================================================================
+    // PROSES PEMINJAMAN
+    // =========================================================================
+
+    public static function prosesPeminjaman(array $post): void
+    {
+        self::startSession();
+        $id = (int) ($post['id'] ?? 0);
+        try {
+            self::model()->prosesPeminjaman($id, self::getIdAdmin());
+            self::setFlash('Reservasi berhasil diproses menjadi peminjaman.', 'success');
+        } catch (Exception $e) {
+            self::setFlash($e->getMessage(), 'error');
+        }
         self::redirectBackToList($post);
     }
 
@@ -142,6 +175,12 @@ class ReservasiController
         if (($s = trim($post['q'] ?? '')) !== '')       $params['q']      = $s;
         if (($f = trim($post['status'] ?? '')) !== '')  $params['status'] = $f;
         self::redirectTo($params);
+    }
+
+    private static function setFlash(string $message, string $type): void
+    {
+        $_SESSION['reservasi_flash_message'] = $message;
+        $_SESSION['reservasi_flash_type'] = $type;
     }
 
     public static function redirectTo(array $params = []): void

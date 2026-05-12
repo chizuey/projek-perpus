@@ -54,6 +54,8 @@ CREATE TABLE IF NOT EXISTS buku (
     tahun_terbit YEAR NOT NULL,
     copy INT NOT NULL DEFAULT 0,
     id_kategori INT NOT NULL,
+    cover VARCHAR(255) DEFAULT NULL,
+    stok_tersedia INT NOT NULL DEFAULT 0,
     created_at TIMESTAMP NULL DEFAULT CURRENT_TIMESTAMP,
     updated_at TIMESTAMP NULL DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP,
 
@@ -71,7 +73,7 @@ CREATE TABLE IF NOT EXISTS buku (
 CREATE TABLE IF NOT EXISTS eksemplar (
     id_eksemplar INT AUTO_INCREMENT PRIMARY KEY,
     id_buku INT NOT NULL,
-    status ENUM('tersedia', 'dipinjam', 'rusak', 'hilang') NOT NULL DEFAULT 'tersedia',
+    status ENUM('tersedia', 'direservasi', 'dipinjam', 'rusak', 'hilang') NOT NULL DEFAULT 'tersedia',
     created_at TIMESTAMP NULL DEFAULT CURRENT_TIMESTAMP,
     updated_at TIMESTAMP NULL DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP,
 
@@ -145,6 +147,7 @@ CREATE TABLE IF NOT EXISTS reservasi (
     id_anggota INT NOT NULL,
     id_admin INT NULL,
     id_buku INT NOT NULL,
+    id_eksemplar INT NULL,
     tanggal_reservasi DATE NOT NULL,
     status ENUM('menunggu', 'disetujui', 'dibatalkan', 'selesai') NOT NULL DEFAULT 'menunggu',
     created_at TIMESTAMP NULL DEFAULT CURRENT_TIMESTAMP,
@@ -165,6 +168,12 @@ CREATE TABLE IF NOT EXISTS reservasi (
     CONSTRAINT fk_reservasi_buku
         FOREIGN KEY (id_buku)
         REFERENCES buku(id_buku)
+        ON UPDATE CASCADE
+        ON DELETE RESTRICT,
+
+    CONSTRAINT fk_reservasi_eksemplar
+        FOREIGN KEY (id_eksemplar)
+        REFERENCES eksemplar(id_eksemplar)
         ON UPDATE CASCADE
         ON DELETE RESTRICT
 );
