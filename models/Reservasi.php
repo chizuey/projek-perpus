@@ -323,6 +323,23 @@ class Reservasi
             throw new Exception('Stok buku tidak tersedia.');
         }
 
+        // Cek jumlah buku yang sedang dipinjam
+        $stmt = $this->conn->prepare("SELECT COUNT(*) as active_count FROM detail_peminjaman dp JOIN peminjaman p ON p.id_peminjaman = dp.id_peminjaman WHERE p.id_anggota = ? AND dp.status_pengembalian = 'dipinjam'");
+        $stmt->bind_param('i', $idAnggota);
+        $stmt->execute();
+        $active_count = $stmt->get_result()->fetch_assoc()['active_count'];
+
+        // Cek jumlah buku yang sedang direservasi
+        $stmt = $this->conn->prepare("SELECT COUNT(*) as res_count FROM reservasi WHERE id_anggota = ? AND status IN ('menunggu', 'disetujui')");
+        $stmt->bind_param('i', $idAnggota);
+        $stmt->execute();
+        $reservasi_count = $stmt->get_result()->fetch_assoc()['res_count'];
+
+        $total_buku = $active_count + $reservasi_count + 1;
+        if ($total_buku > 3) {
+            throw new Exception("Batas maksimal peminjaman dan reservasi adalah 3 buku. Saat ini Anda memiliki $active_count pinjaman aktif dan $reservasi_count reservasi aktif.");
+        }
+
         // Cek apakah sudah ada reservasi aktif untuk buku yang sama
         $stmt = $this->conn->prepare(
             'SELECT id_reservasi FROM reservasi

@@ -71,10 +71,14 @@ class Peminjaman
                                         WHERE p.id_anggota = $id_anggota AND dp.status_pengembalian = 'dipinjam'");
         $active_count = $res_count->fetch_assoc()['active_count'];
         
+        // Cek jumlah buku yang sedang direservasi
+        $res_reservasi = $this->conn->query("SELECT COUNT(*) as res_count FROM reservasi WHERE id_anggota = $id_anggota AND status IN ('menunggu', 'disetujui')");
+        $reservasi_count = $res_reservasi->fetch_assoc()['res_count'];
+        
         $new_count = count(array_filter($id_eksemplar_array));
         
-        if (($active_count + $new_count) > 3) {
-            throw new Exception("Batas maksimal peminjaman adalah 3 buku. Saat ini sudah meminjam $active_count buku.");
+        if (($active_count + $reservasi_count + $new_count) > 3) {
+            throw new Exception("Batas maksimal peminjaman dan reservasi gabungan adalah 3 buku. Saat ini meminjam $active_count buku dan $reservasi_count reservasi aktif.");
         }
 
         $tgl_pinjam = date('Y-m-d');
