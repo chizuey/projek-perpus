@@ -133,10 +133,8 @@ secara digital.</p>
                 <p><?= htmlspecialchars($b['penulis']); ?></p>
                 </div>
         </div>
-    <?php endforeach; ?>
-</div>
-</div>
-<?php include 'foot.php'; ?>
+   <?php endforeach; ?>
+    </div> </section> <?php include 'foot.php'; ?>
 <?php include 'modal_detail.php'; ?>
 
 </body>
