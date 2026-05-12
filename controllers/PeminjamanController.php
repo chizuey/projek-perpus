@@ -68,7 +68,7 @@ class PeminjamanController
         if (!empty($post['buku2'])) $id_eksemplar_array[] = trim($post['buku2']);
         if (!empty($post['buku3'])) $id_eksemplar_array[] = trim($post['buku3']);
         
-        $adminId = 1;
+        $adminId = $_SESSION['id_admin'] ?? 0;
 
         if (empty($id_eksemplar_array)) {
             $_SESSION['errors'] = ['Minimal masukkan satu ID Eksemplar.'];
