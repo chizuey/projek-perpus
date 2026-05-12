@@ -15,6 +15,7 @@ if ($adminId < 1) {
 }
 
 $pesan = '';
+$error = '';
 
 if (($_SERVER['REQUEST_METHOD'] ?? 'GET') === 'POST' && ($_POST['aksi'] ?? '') === 'edit' && $adminId > 0) {
     $nama = trim($_POST['nama'] ?? '');
@@ -34,6 +35,38 @@ if (($_SERVER['REQUEST_METHOD'] ?? 'GET') === 'POST' && ($_POST['aksi'] ?? '') =
         $_SESSION['nama'] = $nama;
         $_SESSION['jabatan'] = $jabatan !== '' ? $jabatan : 'Admin Perpustakaan';
         $pesan = 'success';
+    }
+} elseif (($_SERVER['REQUEST_METHOD'] ?? 'GET') === 'POST' && ($_POST['aksi'] ?? '') === 'tambah_admin') {
+    $namaBaru = trim($_POST['nama_admin'] ?? '');
+    $emailBaru = trim($_POST['email_admin'] ?? '');
+    $passwordBaru = $_POST['password_admin'] ?? '';
+    $konfirmasiPassword = $_POST['konfirmasi_password'] ?? '';
+
+    if ($namaBaru === '' || $emailBaru === '' || $passwordBaru === '') {
+        $error = 'Nama, email, dan password wajib diisi.';
+    } elseif ($passwordBaru !== $konfirmasiPassword) {
+        $error = 'Konfirmasi password tidak sama.';
+    } else {
+        $cek = $conn->prepare('SELECT id_admin FROM admin WHERE email = ? LIMIT 1');
+        $cek->bind_param('s', $emailBaru);
+        $cek->execute();
+
+        if ($cek->get_result()->num_rows > 0) {
+            $error = 'Email admin sudah terdaftar.';
+        } else {
+            $hash = password_hash($passwordBaru, PASSWORD_DEFAULT);
+            $role = 'petugas';
+            $jabatanDefault = 'Admin Perpustakaan';
+
+            $stmt = $conn->prepare(
+                'INSERT INTO admin (nama, email, password, role, jabatan_admin)
+                 VALUES (?, ?, ?, ?, ?)'
+            );
+            $stmt->bind_param('sssss', $namaBaru, $emailBaru, $hash, $role, $jabatanDefault);
+            $stmt->execute();
+
+            $pesan = 'admin_created';
+        }
     }
 }
 
@@ -62,6 +95,18 @@ $mode = isset($_GET['edit']) ? 'edit' : 'view';
     <?php if ($pesan === 'success'): ?>
     <div class="alert-success">
         <i class="bi bi-check-circle-fill"></i> Profil berhasil diperbarui.
+    </div>
+    <?php endif; ?>
+
+    <?php if ($pesan === 'admin_created'): ?>
+    <div class="alert-success">
+        <i class="bi bi-check-circle-fill"></i> Akun admin baru berhasil ditambahkan.
+    </div>
+    <?php endif; ?>
+
+    <?php if ($error !== ''): ?>
+    <div class="alert-error">
+        <i class="bi bi-exclamation-circle-fill"></i> <?= htmlspecialchars($error) ?>
     </div>
     <?php endif; ?>
 
@@ -156,4 +201,38 @@ $mode = isset($_GET['edit']) ? 'edit' : 'view';
         <?php endif; ?>
 
     </div>
+
+    <?php if ($mode !== 'edit'): ?>
+    <div class="profile-card">
+        <div class="profile-card-title">Tambah Admin Baru</div>
+
+        <form method="POST" action="?menu=akun" class="edit-form">
+            <input type="hidden" name="aksi" value="tambah_admin">
+
+            <div class="form-field">
+                <label class="form-label"><i class="bi bi-person-plus"></i> Nama Admin</label>
+                <input type="text" name="nama_admin" class="form-input" required>
+            </div>
+
+            <div class="form-field">
+                <label class="form-label"><i class="bi bi-envelope"></i> Email Admin</label>
+                <input type="email" name="email_admin" class="form-input" required>
+            </div>
+
+            <div class="form-field">
+                <label class="form-label"><i class="bi bi-lock"></i> Password</label>
+                <input type="password" name="password_admin" class="form-input" required>
+            </div>
+
+            <div class="form-field" style="margin-bottom:1.25rem;">
+                <label class="form-label"><i class="bi bi-shield-lock"></i> Konfirmasi Password</label>
+                <input type="password" name="konfirmasi_password" class="form-input" required>
+            </div>
+
+            <button type="submit" class="btn-edit-profil">
+                <i class="bi bi-plus-lg"></i> Tambah Admin
+            </button>
+        </form>
+    </div>
+    <?php endif; ?>
 </div>
