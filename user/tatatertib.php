@@ -4,8 +4,8 @@
 <head>
 <meta name="viewport" content="width=device-width, initial-scale=1"/>
 <meta charset="utf-8" />
- <link rel="stylesheet" href="../public/css/style.css?v=1">
-<link rel="stylesheet" href="../public/css/styletertib.css?v=2">
+<link rel="stylesheet" href="../public/css/style.css?v=<?php echo time(); ?>">
+<link rel="stylesheet" href="../public/css/styletertib.css?v=<?php echo time(); ?>">
 </head>
 <body>
 <?php include 'navbar.php'; ?>
