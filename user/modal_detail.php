@@ -43,37 +43,54 @@ function bukaPopup(idBuku, judul, kategori, img, deskripsi, stok) {
     const modal = document.getElementById('modalDetail');
 
     if (modal) {
-        // Set data dasar
-        document.getElementById('popIdBuku').value = idBuku || '';
-        document.getElementById('popTitle').innerText = judul || "Judul Tidak Tersedia";
-        document.getElementById('popKategori').innerText = kategori || "Umum";
-        document.getElementById('popImg').src = img || "../public/img/buku.png";
-    
-        const descText = (deskripsi && deskripsi !== 'null' && deskripsi !== '') 
-                         ? deskripsi 
-                         : "Tidak ada deskripsi untuk buku ini.";
-        document.getElementById('popDesc').innerText = descText;
+        // 1. Isi data ke dalam elemen popup (dengan pengecekan elemen agar tidak crash)
+        const elId = document.getElementById('popIdBuku');
+        const elTitle = document.getElementById('popTitle');
+        const elKategori = document.getElementById('popKategori');
+        const elImg = document.getElementById('popImg');
+        const elDesc = document.getElementById('popDesc');
+        const elStok = document.getElementById('popStok');
+        const elStatus = document.getElementById('popStatusText');
 
-        // UPDATE STOK DAN STATUS (Tambahan Baru)
-        const statusText = document.getElementById('popStatusText');
-        const statusCount = document.getElementById('popStok');
-        
-        // Pastikan stok adalah angka
-        const jumlahStok = parseInt(stok) || 0;
-        
-        if (statusCount) {
-            statusCount.innerText = jumlahStok;
+        if (elId) elId.value = idBuku || '';
+        if (elTitle) elTitle.innerText = judul || "Judul Tidak Tersedia";
+        if (elKategori) elKategori.innerText = kategori || "Umum";
+        if (elImg) elImg.src = img || "../public/img/buku.png";
+        if (elStok) elStok.innerText = stok || '0';
+
+        if (elDesc) {
+            elDesc.innerText = (deskripsi && deskripsi !== 'null' && deskripsi !== '') 
+                               ? deskripsi 
+                               : "Tidak ada deskripsi untuk buku ini.";
         }
 
-        if (statusText) {
+        const jumlahStok = parseInt(stok) || 0;
+
+        // 2. Update Status Teks
+        if (elStatus) {
+            elStatus.innerText = (jumlahStok <= 0) ? "Tidak Tersedia" : "Tersedia";
+            elStatus.style.color = (jumlahStok <= 0) ? "#e11d48" : "#22c55e";
+        }
+
+        // 3. Logika Tombol Reservasi
+        const btnReservasi = document.querySelector('.bd-btn-reservasi');
+        if (btnReservasi) {
             if (jumlahStok <= 0) {
-                statusText.innerText = "Tidak Tersedia";
+                btnReservasi.innerText = "STOK HABIS";
+                btnReservasi.disabled = true;
+                btnReservasi.style.opacity = "0.5";
+                btnReservasi.style.cursor = "not-allowed";
+                btnReservasi.style.backgroundColor = "#94a3b8";
             } else {
-                statusText.innerText = "Tersedia";
+                btnReservasi.innerText = "RESERVASI";
+                btnReservasi.disabled = false;
+                btnReservasi.style.opacity = "1";
+                btnReservasi.style.cursor = "pointer";
+                btnReservasi.style.backgroundColor = ""; 
             }
         }
 
-        // Tampilkan Modal
+        // 4. Tampilkan Popup (Pastikan display flex/block sesuai CSS-mu)
         modal.style.display = 'flex';
         document.body.style.overflow = 'hidden';
     }
@@ -83,28 +100,35 @@ function tutupPopup() {
     const modal = document.getElementById('modalDetail');
     if (modal) {
         modal.style.display = 'none';
-        document.body.style.overflow = 'auto'; // Kembalikan scroll body
+        document.body.style.overflow = 'auto';
     }
 }
-
 
 function submitReservasi(event) {
     event.preventDefault();
     
     const idBuku = document.getElementById('popIdBuku').value;
-    
+    const elStok = document.getElementById('popStok');
+    const stokSekarang = elStok ? parseInt(elStok.innerText) : 0;
+
+    // Proteksi jika stok habis tapi fungsi dipicu
+    if (stokSekarang <= 0) {
+        alert('Maaf, stok buku tidak tersedia.');
+        return;
+    }
+
     if (!idBuku) {
         alert('ID Buku tidak ditemukan');
         return;
     }
 
-    // Show loading state
-    const btn = event.target;
+    // Ambil tombol dengan benar (event.currentTarget lebih aman daripada event.target)
+    const btn = event.currentTarget;
     const originalText = btn.innerText;
+    
     btn.innerText = 'Memproses...';
     btn.disabled = true;
 
-    // Submit via AJAX
     const formData = new FormData();
     formData.append('id_buku', idBuku);
 
@@ -120,6 +144,7 @@ function submitReservasi(event) {
         if (data.success) {
             alert(data.message);
             tutupPopup();
+            location.reload(); 
         } else {
             alert('Error: ' + data.message);
         }
@@ -130,7 +155,6 @@ function submitReservasi(event) {
         alert('Error: ' + error.message);
     });
 }
-
 
 window.addEventListener('click', function(e) {
     const modal = document.getElementById('modalDetail');

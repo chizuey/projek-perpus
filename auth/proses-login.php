@@ -87,12 +87,12 @@ if (isset($_GET['code'])) {
     |--------------------------------------------------------------------------
     */
 
-    $query = mysqli_query(
+ $query = mysqli_query(
         $koneksi,
-        "SELECT * FROM anggota WHERE email = '$email_db' LIMIT 1"
+        "SELECT * FROM anggota WHERE email = '$email_db' OR nim = '$nim_db' LIMIT 1"
     );
 
-    // Kalau sudah ada
+    // Kalau sudah ada (berdasarkan email atau nim)
     if (mysqli_num_rows($query) > 0) {
 
         $data = mysqli_fetch_assoc($query);
@@ -119,7 +119,6 @@ if (isset($_GET['code'])) {
 
         $data = mysqli_fetch_assoc($query_baru);
     }
-
     /*
     |--------------------------------------------------------------------------
     | SESSION LOGIN

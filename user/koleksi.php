@@ -114,7 +114,7 @@ $hasActiveFilter = ($search !== '' || $kategori !== '' || $tahun !== '');
     $kat_pop   = htmlspecialchars($b['kategori']);
     $desk_pop  = addslashes(htmlspecialchars($b['deskripsi'] ?? 'Tidak ada deskripsi.'));
     $img_pop   = !empty($b['cover']) ? '../' . htmlspecialchars($b['cover']) : '../user/gambar/buku.png';
-    $stok_pop  = (int)($b['copy'] ?? 0); // TAMBAHKAN STOK DI SINI
+    $stok_pop = (int)($b['stok_tersedia'] ?? 0); 
 ?>
     <div class="koleksi-card" style="cursor: pointer;" onclick="bukaPopup(<?= $id_pop ?>, '<?= $titel_pop ?>', '<?= $kat_pop ?>', '<?= $img_pop ?>', '<?= $desk_pop ?>', <?= $stok_pop ?>)">
         <div class="koleksi-card-cover">
