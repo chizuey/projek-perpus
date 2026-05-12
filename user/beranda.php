@@ -77,7 +77,6 @@ secara digital.</p>
 <section class="container book-section">
     <div class="section-header">
         <h2>Koleksi Terbaru</h2>
-        
     </div>
 
     <div class="book-grid">
@@ -87,8 +86,12 @@ secara digital.</p>
             $kat_pop   = htmlspecialchars($b['kategori'] ?? 'Umum');
             $desk_pop  = addslashes(htmlspecialchars($b['deskripsi'] ?? 'Tidak ada deskripsi.'));
             $img_pop   = !empty($b['cover']) ? '../' . htmlspecialchars($b['cover']) : 'user/gambar/buku.png';
+            
+            // Tambahkan ini untuk mengambil data stok dari database
+            $stok_new  = (int)($b['stok_tersedia'] ?? 0); 
         ?>
-            <div class="book-card" style="cursor: pointer;" onclick="bukaPopup(<?= $id_pop ?>, '<?= $titel_pop ?>', '<?= $kat_pop ?>', '<?= $img_pop ?>', '<?= $desk_pop ?>')">
+            <div class="book-card" style="cursor: pointer;" 
+                 onclick="bukaPopup(<?= $id_pop ?>, '<?= $titel_pop ?>', '<?= $kat_pop ?>', '<?= $img_pop ?>', '<?= $desk_pop ?>', <?= $stok_new ?>)">
                 <div class="book-cover">
                     <img src="../<?= !empty($b['cover']) ? htmlspecialchars($b['cover']) : 'user/gambar/buku.png'; ?>" alt="<?= htmlspecialchars($b['judul']); ?>">
                 </div>
@@ -100,6 +103,7 @@ secara digital.</p>
         <?php endforeach; ?>
     </div>
 </section>
+
 
 <!-- TERPOPULER -->
 <section class="container book-section">
@@ -108,28 +112,29 @@ secara digital.</p>
         
     </div>
 
-    <div class="book-grid">
-        <?php foreach ($popularBooks as $b): 
-            $id_pop    = (int)($b['id'] ?? $b['id_buku'] ?? 0);
-            $titel_pop = addslashes(htmlspecialchars($b['judul']));
-            $kat_pop   = htmlspecialchars($b['kategori'] ?? 'Umum');
-            $desk_pop  = addslashes(htmlspecialchars($b['deskripsi'] ?? 'Tidak ada deskripsi.'));
-            $img_pop   = !empty($b['cover']) ? '../' . htmlspecialchars($b['cover']) : 'user/gambar/buku.png';
-        ?>
-            <div class="book-card" style="cursor: pointer;" onclick="bukaPopup(<?= $id_pop ?>, '<?= $titel_pop ?>', '<?= $kat_pop ?>', '<?= $img_pop ?>', '<?= $desk_pop ?>')">
-                <div class="book-cover">
-                    <img src="../<?= !empty($b['cover']) ? htmlspecialchars($b['cover']) : 'user/gambar/buku.png'; ?>" alt="<?= htmlspecialchars($b['judul']); ?>">
-                </div>
-                <div class="book-info">
-                    <h4><?= htmlspecialchars($b['judul']); ?></h4>
-                    <p><?= htmlspecialchars($b['penulis']); ?></p>
-                </div>
+ <div class="book-grid">
+    <?php foreach ($popularBooks as $b): 
+        $id_pop    = (int)($b['id'] ?? $b['id_buku'] ?? 0);
+        $titel_pop = addslashes(htmlspecialchars($b['judul']));
+        $kat_pop   = htmlspecialchars($b['kategori'] ?? 'Umum');
+        $desk_pop  = addslashes(htmlspecialchars($b['deskripsi'] ?? 'Tidak ada deskripsi.'));
+        $img_pop   = !empty($b['cover']) ? '../' . htmlspecialchars($b['cover']) : 'user/gambar/buku.png';
+        
+        // Tetap ambil data stok untuk dikirim ke fungsi popup
+        $stok_pop  = (int)($b['stok_tersedia'] ?? 0); 
+    ?>
+        <div class="book-card" style="cursor: pointer;" 
+             onclick="bukaPopup(<?= $id_pop ?>, '<?= $titel_pop ?>', '<?= $kat_pop ?>', '<?= $img_pop ?>', '<?= $desk_pop ?>', <?= $stok_pop ?>)">
+            <div class="book-cover">
+                <img src="../<?= !empty($b['cover']) ? htmlspecialchars($b['cover']) : 'user/gambar/buku.png'; ?>" alt="<?= htmlspecialchars($b['judul']); ?>">
             </div>
-        <?php endforeach; ?>
-    </div>
-</section>
-
-<?php include 'foot.php'; ?>
+            <div class="book-info">
+                <h4><?= htmlspecialchars($b['judul']); ?></h4>
+                <p><?= htmlspecialchars($b['penulis']); ?></p>
+                </div>
+        </div>
+   <?php endforeach; ?>
+    </div> </section> <?php include 'foot.php'; ?>
 <?php include 'modal_detail.php'; ?>
 
 </body>

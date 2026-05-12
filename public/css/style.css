@@ -367,7 +367,7 @@ button:focus-visible {
 /* ================= HERO ================= */
 .hero {
     padding: 10px 0 50px 0px;
-    background: linear-gradient(180deg, #012404 0%, var(--surface-dark) 100%);
+    background: linear-gradient(180deg, #E2F7FF 0%, var(--surface-light) 100%);
 }
 
 .hero-content {

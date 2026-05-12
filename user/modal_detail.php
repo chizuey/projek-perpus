@@ -69,7 +69,7 @@ function bukaPopup(idBuku, judul, kategori, img, deskripsi, stok) {
         // 2. Update Status Teks
         if (elStatus) {
             elStatus.innerText = (jumlahStok <= 0) ? "Tidak Tersedia" : "Tersedia";
-            elStatus.style.color = (jumlahStok <= 0) ? "#e11d48" : "#22c55e";
+            elStatus.style.color = (jumlahStok <= 0) ? "#e11d48" : "#1E3A8A";
         }
 
         // 3. Logika Tombol Reservasi
