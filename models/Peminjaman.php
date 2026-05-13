@@ -1,6 +1,7 @@
 <?php
 
 require_once __DIR__ . '/../config/database.php';
+require_once __DIR__ . '/Denda.php';
 
 class Peminjaman
 {
@@ -148,20 +149,30 @@ class Peminjaman
 
     public function returnBook($idDetail)
     {
-        $res = $this->conn->query("SELECT dp.id_eksemplar, dp.id_peminjaman, e.id_buku
+        $res = $this->conn->query("SELECT dp.id_eksemplar, dp.id_peminjaman, p.batas_waktu, e.id_buku
                                   FROM detail_peminjaman dp
+                                  JOIN peminjaman p ON p.id_peminjaman = dp.id_peminjaman
                                   JOIN eksemplar e ON e.id_eksemplar = dp.id_eksemplar
                                   WHERE dp.id_detail = $idDetail");
         if ($row = $res->fetch_assoc()) {
             $id_eksemplar = $row['id_eksemplar'];
-            $id_peminjaman = $row['id_peminjaman'];
             $id_buku = $row['id_buku'];
             $today = date('Y-m-d');
+            $hariTerlambat = 0;
+
+            if (!empty($row['batas_waktu']) && strtotime($today) > strtotime($row['batas_waktu'])) {
+                $selisih = strtotime($today) - strtotime($row['batas_waktu']);
+                $hariTerlambat = (int) floor($selisih / (60 * 60 * 24));
+            }
             
             $sql = "UPDATE detail_peminjaman SET tanggal_kembali = ?, status_pengembalian = 'kembali' WHERE id_detail = ?";
             $stmt = $this->conn->prepare($sql);
             $stmt->bind_param("si", $today, $idDetail);
             $stmt->execute();
+
+            if ($hariTerlambat > 0) {
+                (new Denda())->save($idDetail, $hariTerlambat);
+            }
             
             $this->conn->query("UPDATE eksemplar SET status = 'tersedia' WHERE id_eksemplar = $id_eksemplar");
             $this->syncStokBuku((int)$id_buku);
