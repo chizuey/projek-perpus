@@ -134,7 +134,8 @@ if (!function_exists('eEditBuku')) {
         <form method="post" action="actions/buku/add_eksemplar.php" class="eksemplar-inline-form">
             <input type="hidden" name="action" value="add_eksemplar">
             <input type="hidden" name="id" value="<?= (int) $bookId; ?>">
-            <button type="submit" class="btn-tambah-copy">Tambah Eksemplar</button>
+            <input type="number" name="jumlah" value="1" min="1" class="form-input-custom" style="width: 100px; margin-bottom: 0;" required>
+            <button type="submit" class="btn-tambah-copy" style="margin-bottom: 0;">Tambah Eksemplar</button>
         </form>
 
         <form method="post" action="actions/buku/delete_eksemplar.php" id="hapusEksemplarPickerForm" data-id-buku="<?= (int) $bookId; ?>">

@@ -19,7 +19,9 @@ class Buku
     {
         $sql = "SELECT buku.*, kategori.nama_kategori,
                        (SELECT COUNT(*) FROM eksemplar WHERE id_buku = buku.id_buku) as total_eksemplar,
-                       (SELECT COUNT(*) FROM eksemplar WHERE id_buku = buku.id_buku AND status = 'tersedia') as stok_tersedia
+                       (SELECT COUNT(*) FROM eksemplar WHERE id_buku = buku.id_buku AND status = 'tersedia') as stok_tersedia,
+                       (SELECT COUNT(*) FROM eksemplar WHERE id_buku = buku.id_buku AND status = 'dipinjam') as dipinjam,
+                       (SELECT COUNT(*) FROM eksemplar WHERE id_buku = buku.id_buku AND status = 'direservasi') as direservasi
                 FROM buku
                 LEFT JOIN kategori ON buku.id_kategori = kategori.id_kategori
                 ORDER BY buku.id_buku DESC";
@@ -126,12 +128,20 @@ class Buku
         return $data;
     }
 
-    public function addEksemplar($id)
+    public function addEksemplar($id, $count = 1)
     {
-        $sql = "INSERT INTO eksemplar (id_buku, status) VALUES (?, 'tersedia')";
-        $stmt = $this->conn->prepare($sql);
-        $stmt->bind_param("i", $id);
-        $success = $stmt->execute();
+        $count = max(1, (int)$count);
+        $success = true;
+        
+        for ($i = 0; $i < $count; $i++) {
+            $sql = "INSERT INTO eksemplar (id_buku, status) VALUES (?, 'tersedia')";
+            $stmt = $this->conn->prepare($sql);
+            $stmt->bind_param("i", $id);
+            if (!$stmt->execute()) {
+                $success = false;
+            }
+        }
+        
         $this->syncCopy($id);
         return $success;
     }

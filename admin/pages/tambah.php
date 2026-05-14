@@ -95,10 +95,10 @@ if (!function_exists('eTambahBuku')) {
 
         <div class="panel-card">
             <div class="copy-panel-title">Eksemplar Buku</div>
-            <input type="hidden" id="stok" name="stok" value="<?= (int) $oldTambahBuku['stok']; ?>">
-            <div class="eksemplar-actions">
-                <button type="button" class="btn-tambah-copy" id="btnTambahEksemplar">Tambah Eksemplar</button>
-                <button type="button" class="btn-hapus-eksemplar" id="btnHapusEksemplar">Hapus Eksemplar</button>
+            <p class="eksemplar-help" style="margin-bottom: 10px;">Tentukan jumlah eksemplar awal untuk buku ini.</p>
+            <div class="eksemplar-actions" style="display: flex; align-items: center; gap: 10px;">
+                <label for="stok" class="form-label-custom" style="margin-bottom: 0;">Jumlah Eksemplar:</label>
+                <input type="number" id="stok" name="stok" value="<?= (int) ($oldTambahBuku['stok'] ?? 1); ?>" min="1" class="form-input-custom" style="width: 100px; margin-bottom: 0;" required>
             </div>
             <div class="copy-list-row" id="copyPreview" aria-live="polite"></div>
         </div>
@@ -110,8 +110,7 @@ if (!function_exists('eTambahBuku')) {
 document.addEventListener('DOMContentLoaded', function () {
     const stokInput = document.getElementById('stok');
     const copyPreview = document.getElementById('copyPreview');
-    const btnTambah = document.getElementById('btnTambahEksemplar');
-    const btnHapus = document.getElementById('btnHapusEksemplar');
+
 
     // Menampilkan preview badge copy berdasarkan input stok.
     function renderCopyPreview() {
@@ -130,17 +129,15 @@ document.addEventListener('DOMContentLoaded', function () {
         }
     }
 
-    if (btnTambah) btnTambah.onclick = function () {
-        stokInput.value = Math.max(1, parseInt(stokInput.value || '1', 10)) + 1;
-        renderCopyPreview();
-    };
-
-    if (btnHapus) btnHapus.onclick = function () {
-        const total = Math.max(1, parseInt(stokInput.value || '1', 10));
-        if (total <= 1) return;
-        stokInput.value = total - 1;
-        renderCopyPreview();
-    };
+    if (stokInput) {
+        stokInput.addEventListener('input', renderCopyPreview);
+        stokInput.addEventListener('change', function() {
+            if (parseInt(this.value) < 1 || isNaN(parseInt(this.value))) {
+                this.value = 1;
+                renderCopyPreview();
+            }
+        });
+    }
 
     renderCopyPreview();
 });

@@ -1,9 +1,4 @@
 <?php
-/**
- * HALAMAN DATA PEMINJAMAN
- * Halaman ini digunakan untuk menampilkan daftar transaksi peminjaman buku.
- */
-
 // 1. Persiapan Data (Memanggil Controller)
 require_once __DIR__ . '/../../controllers/PeminjamanController.php';
 $peminjamanController = new PeminjamanController();

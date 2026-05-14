@@ -151,8 +151,10 @@ class BukuController
         if (session_status() === PHP_SESSION_NONE) session_start();
 
         $id = (int)($post['id'] ?? 0);
+        $jumlah = (int)($post['jumlah'] ?? 1);
+
         if ($id > 0) {
-            $this->model->addEksemplar($id);
+            $this->model->addEksemplar($id, $jumlah);
             $_SESSION['success'] = 'Eksemplar berhasil ditambahkan.';
         }
 

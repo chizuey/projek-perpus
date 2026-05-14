@@ -108,6 +108,8 @@ extract($bukuController->index(), EXTR_SKIP);
                                     class="btn-table-action btn-delete-book js-hapus-buku"
                                     data-id="<?= (int) $book['id']; ?>"
                                     data-judul="<?= eBuku($book['judul']); ?>"
+                                    data-dipinjam="<?= (int) ($book['dipinjam'] ?? 0); ?>"
+                                    data-direservasi="<?= (int) ($book['direservasi'] ?? 0); ?>"
                                     data-page="<?= (int) $currentPage; ?>"
                                     data-q="<?= eBuku($search); ?>"
                                     data-kategori-filter="<?= eBuku($kategoriFilter); ?>"
@@ -185,7 +187,9 @@ document.addEventListener('DOMContentLoaded', function () {
                 this.dataset.page,
                 this.dataset.q,
                 this.dataset.kategoriFilter,
-                this.dataset.perPage
+                this.dataset.perPage,
+                this.dataset.dipinjam,
+                this.dataset.direservasi
             );
         });
     });

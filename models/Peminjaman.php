@@ -83,7 +83,7 @@ class Peminjaman
         }
 
         $tgl_pinjam = date('Y-m-d');
-        $tgl_jatuh_tempo = date('Y-m-d', strtotime('+7 days'));
+        $tgl_jatuh_tempo = date('Y-m-d', strtotime('-1 days'));
 
         $this->conn->begin_transaction();
 
