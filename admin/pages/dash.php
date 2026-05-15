@@ -22,8 +22,8 @@ $terlambat = dashScalar($conn, "SELECT COUNT(*)
     JOIN peminjaman p ON p.id_peminjaman = dp.id_peminjaman
     WHERE dp.status_pengembalian = 'dipinjam'
       AND p.batas_waktu < CURDATE()");
-$total_anggota = dashScalar($conn, 'SELECT COUNT(*) FROM anggota');
-$total_transaksi = dashScalar($conn, 'SELECT COUNT(*) FROM peminjaman');
+$total_admin = dashScalar($conn, 'SELECT COUNT(*) FROM admin');
+$total_transaksi = dashScalar($conn, 'SELECT COUNT(*) FROM peminjaman WHERE DATE(tanggal_peminjaman) = CURDATE()');
 
 $logs_recent = [];
 $result = $conn->query(
@@ -36,8 +36,8 @@ $result = $conn->query(
      JOIN eksemplar e ON e.id_eksemplar = dp.id_eksemplar
      JOIN buku b ON b.id_buku = e.id_buku
      WHERE p.laporan_hidden_at IS NULL
-     ORDER BY dp.id_detail DESC
-     LIMIT 10"
+       AND DATE(p.tanggal_peminjaman) = CURDATE()
+     ORDER BY dp.id_detail DESC"
 );
 
 while ($result && $row = $result->fetch_assoc()) {
@@ -94,7 +94,7 @@ $admin_jabatan = $_SESSION['jabatan'] ?? 'Admin Perpustakaan';
             <div class="stat-card">
                 <div class="stat-info">
                     <span class="stat-value"><?= $tersedia ?></span>
-                    <span class="stat-label">Tersedia</span>
+                    <span class="stat-label">Total Eksemplar Tersedia</span>
                 </div>
                 <div class="stat-icon icon-green"><i class="bi bi-check-circle"></i></div>
             </div>
@@ -118,7 +118,7 @@ $admin_jabatan = $_SESSION['jabatan'] ?? 'Admin Perpustakaan';
 
             <div class="card card-log">
                 <div class="card-header-row">
-                    <h6 class="card-title">Transaksi Terbaru</h6>
+                    <h6 class="card-title">Transaksi Hari Ini</h6>
                     <span class="date-badge"><?= date('d M Y') ?></span>
                 </div>
                 <?php if (empty($logs_recent)): ?>
@@ -194,13 +194,13 @@ $admin_jabatan = $_SESSION['jabatan'] ?? 'Admin Perpustakaan';
                         <span class="admin-role"><?= htmlspecialchars($admin_jabatan) ?></span>
                     </div>
                     <div class="admin-stats">
-                        <div class="admin-stat-item">
+                        <!-- <div class="admin-stat-item">
                             <span class="admin-stat-val"><?= $total_transaksi ?></span>
                             <span class="admin-stat-lbl">Total Transaksi</span>
-                        </div>
+                        </div> -->
                         <div class="admin-stat-item">
-                            <span class="admin-stat-val"><?= $total_anggota ?></span>
-                            <span class="admin-stat-lbl">Anggota</span>
+                            <span class="admin-stat-val"><?= $total_admin ?></span>
+                            <span class="admin-stat-lbl">Total Admin</span>
                         </div>
                     </div>
                 </div>
