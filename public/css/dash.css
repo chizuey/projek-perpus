@@ -339,7 +339,7 @@ body > main.main-content {
    ============================================= */
 .card-admin {
     background: linear-gradient(135deg, #002147 0%, #0050ad 100%);
-    color: #fff;
+    color: #ffffff;
     padding: 20px;
     display: flex;
     flex-direction: column;

@@ -187,24 +187,21 @@ $admin_jabatan = $_SESSION['jabatan'] ?? 'Admin Perpustakaan';
                     </div>
                 </div>
 
-                <div class="card card-admin">
-                    <div class="admin-avatar"><i class="bi bi-person-circle"></i></div>
-                    <div class="admin-info">
-                        <span class="admin-name"><?= htmlspecialchars($admin_nama) ?></span>
-                        <span class="admin-role"><?= htmlspecialchars($admin_jabatan) ?></span>
-                    </div>
-                    <div class="admin-stats">
-                        <!-- <div class="admin-stat-item">
-                            <span class="admin-stat-val"><?= $total_transaksi ?></span>
-                            <span class="admin-stat-lbl">Total Transaksi</span>
-                        </div> -->
-                        <div class="admin-stat-item">
-                            <span class="admin-stat-val"><?= $total_admin ?></span>
-                            <span class="admin-stat-lbl">Total Admin</span>
-                        </div>
-                    </div>
-                </div>
-
+              <div class="card card-admin">
+    <div class="admin-avatar text-white">
+        <i class="bi bi-person-circle"></i>
+    </div>
+    <div class="admin-info text-white">
+        <span class="admin-name"><?= htmlspecialchars($admin_nama) ?></span>
+        <span class="admin-role"><?= htmlspecialchars($admin_jabatan) ?></span>
+    </div>
+    <div class="admin-stats">
+        <div class="admin-stat-item">
+            <span class="admin-stat-val text-white"><?= $total_admin ?></span>
+            <span class="admin-stat-lbl text-white">Total Admin</span>
+        </div>
+    </div>
+</div>
             </div>
         </div>
 
