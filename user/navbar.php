@@ -76,6 +76,19 @@ if (isset($_SESSION['id_user'])) {
                 </svg>
             </a>
         </div>
-
+<div class="menu-toggle" id="mobile-menu">
+    <span></span>
+    <span></span>
+    <span></span>
+</div>
     </div>
 </nav>
+<script>
+        const menuToggle = document.getElementById('mobile-menu');
+        const navMenu = document.querySelector('.nav-menu');
+
+        menuToggle.addEventListener('click', () => {
+            menuToggle.classList.toggle('active');
+            navMenu.classList.toggle('active');
+        });
+    </script>

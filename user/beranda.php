@@ -37,7 +37,7 @@ dan pengetahuan tanpa batas.
         </div>
 
         <div class="hero-image">
-            <img src="gambar/bg-bku.png" alt="">
+           <img src="../public/img/bg-bku2.png" alt="Gambar Latar Perpustakaan">
         </div>
     </div>
 </section>
