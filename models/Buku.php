@@ -112,14 +112,12 @@ class Buku
 
     public function eksemplarByBuku($id)
     {
+        $id = (int)$id;
         $sql = "SELECT id_eksemplar, status
                 FROM eksemplar
-                WHERE id_buku = ?
+                WHERE id_buku = $id
                 ORDER BY id_eksemplar ASC";
-        $stmt = $this->conn->prepare($sql);
-        $stmt->bind_param("i", $id);
-        $stmt->execute();
-        $result = $stmt->get_result();
+        $result = $this->conn->query($sql);
 
         $data = [];
         while ($row = $result->fetch_assoc()) {
@@ -187,9 +185,9 @@ class Buku
     // ============================================================
     public function delete($id)
     {
-        // Eksemplar akan terhapus otomatis karena CONSTRAINT ON DELETE CASCADE di database
         $sql = "DELETE FROM buku WHERE id_buku = $id";
         return $this->conn->query($sql);
+
     }
 
     // ============================================================
@@ -227,17 +225,11 @@ class Buku
     // ============================================================
     public function countByTitle($judul, $exceptId = null)
     {
-        $sql = "SELECT COUNT(*) as total FROM buku WHERE judul = ?";
-        if ($exceptId) $sql .= " AND id_buku != ?";
-        
-        $stmt = $this->conn->prepare($sql);
-        if ($exceptId) {
-            $stmt->bind_param("si", $judul, $exceptId);
-        } else {
-            $stmt->bind_param("s", $judul);
-        }
-        $stmt->execute();
-        $row = $stmt->get_result()->fetch_assoc();
+        $judul = $this->conn->real_escape_string($judul);
+        $sql = "SELECT COUNT(*) as total FROM buku WHERE judul = '$judul'";
+        if ($exceptId) $sql .= " AND id_buku != " . (int)$exceptId;
+
+        $row = $this->conn->query($sql)->fetch_assoc();
         return $row['total'];
     }
 

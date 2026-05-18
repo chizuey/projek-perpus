@@ -14,8 +14,8 @@ function dashScalar(mysqli $conn, string $sql): int
     return (int) array_values($row ?: [0])[0];
 }
 
-$total_buku = dashScalar($conn, 'SELECT COUNT(*) FROM buku');
-$tersedia = dashScalar($conn, 'SELECT COALESCE(SUM(stok_tersedia), 0) FROM buku');
+$total_buku = dashScalar($conn, "SELECT COUNT(*) FROM buku");
+$tersedia = dashScalar($conn, "SELECT COALESCE(SUM(stok_tersedia), 0) FROM buku");
 $dipinjam = dashScalar($conn, "SELECT COUNT(*) FROM detail_peminjaman WHERE status_pengembalian = 'dipinjam'");
 $terlambat = dashScalar($conn, "SELECT COUNT(*)
     FROM detail_peminjaman dp
@@ -65,10 +65,8 @@ for ($i = 5; $i >= 0; $i--) {
     $ts = strtotime("-$i months");
     $key = date('Y-m', $ts);
     $label = date('M', $ts);
-    $stmt = $conn->prepare("SELECT COUNT(*) AS total FROM peminjaman WHERE DATE_FORMAT(tanggal_peminjaman, '%Y-%m') = ?");
-    $stmt->bind_param('s', $key);
-    $stmt->execute();
-    $row = $stmt->get_result()->fetch_assoc();
+    $key = $conn->real_escape_string($key);
+    $row = $conn->query("SELECT COUNT(*) AS total FROM peminjaman WHERE DATE_FORMAT(tanggal_peminjaman, '%Y-%m') = '$key'")->fetch_assoc();
     $bulan_labels[] = $label;
     $bulan_data[] = (int) ($row['total'] ?? 0);
 }

@@ -9,6 +9,44 @@ class Reservasi
         $this->conn = $conn;
     }
 
+    private function fetchAssocFromStmt(mysqli_stmt $stmt): ?array
+    {
+        $meta = $stmt->result_metadata();
+        if (!$meta) return null;
+
+        $row = [];
+        $bind = [];
+        while ($field = $meta->fetch_field()) {
+            $row[$field->name] = null;
+            $bind[] = &$row[$field->name];
+        }
+
+        call_user_func_array([$stmt, 'bind_result'], $bind);
+        if (!$stmt->fetch()) return null;
+
+        return array_map(fn($value) => $value, $row);
+    }
+
+    private function fetchAllFromStmt(mysqli_stmt $stmt): array
+    {
+        $rows = [];
+        $meta = $stmt->result_metadata();
+        if (!$meta) return $rows;
+
+        $row = [];
+        $bind = [];
+        while ($field = $meta->fetch_field()) {
+            $row[$field->name] = null;
+            $bind[] = &$row[$field->name];
+        }
+
+        call_user_func_array([$stmt, 'bind_result'], $bind);
+        while ($stmt->fetch()) {
+            $rows[] = array_map(fn($value) => $value, $row);
+        }
+        return $rows;
+    }
+
     // =========================================================================
     // READ
     // =========================================================================
@@ -64,10 +102,8 @@ class Reservasi
         }
 
         $stmt->execute();
-        $result = $stmt->get_result();
-        
         $data = [];
-        while ($row = $result->fetch_assoc()) {
+        foreach ($this->fetchAllFromStmt($stmt) as $row) {
             $row['kode_anggota'] = $row['nim']; // Untuk kompatibilitas view lama
             $data[] = $row;
         }
@@ -85,7 +121,7 @@ class Reservasi
         );
         $stmt->bind_param('i', $id);
         $stmt->execute();
-        $row = $stmt->get_result()->fetch_assoc();
+        $row = $this->fetchAssocFromStmt($stmt);
         if ($row) {
             $row['kode_anggota'] = $row['nim'];
         }
@@ -112,7 +148,7 @@ class Reservasi
             );
             $stmt->bind_param('i', $id);
             $stmt->execute();
-            $reservasi = $stmt->get_result()->fetch_assoc();
+            $reservasi = $this->fetchAssocFromStmt($stmt);
 
             if (!$reservasi) {
                 throw new Exception('Reservasi tidak ditemukan atau sudah diproses.');
@@ -128,7 +164,7 @@ class Reservasi
             );
             $stmt->bind_param('i', $idBuku);
             $stmt->execute();
-            $eksemplar = $stmt->get_result()->fetch_assoc();
+            $eksemplar = $this->fetchAssocFromStmt($stmt);
 
             if (!$eksemplar) {
                 throw new Exception('Stok tersedia habis. Reservasi belum bisa dikonfirmasi.');
@@ -173,7 +209,7 @@ class Reservasi
             );
             $stmt->bind_param('i', $id);
             $stmt->execute();
-            $reservasi = $stmt->get_result()->fetch_assoc();
+            $reservasi = $this->fetchAssocFromStmt($stmt);
 
             if (!$reservasi) {
                 throw new Exception('Reservasi tidak ditemukan atau sudah selesai.');
@@ -238,7 +274,7 @@ class Reservasi
             );
             $stmt->bind_param('i', $id);
             $stmt->execute();
-            $reservasi = $stmt->get_result()->fetch_assoc();
+            $reservasi = $this->fetchAssocFromStmt($stmt);
 
             if (!$reservasi) {
                 throw new Exception('Reservasi belum disetujui atau data eksemplar tidak ditemukan.');
@@ -262,7 +298,8 @@ class Reservasi
             );
             $stmt->bind_param('i', $idAnggota);
             $stmt->execute();
-            $activeCount = (int) $stmt->get_result()->fetch_assoc()['active_count'];
+            $activeRow = $this->fetchAssocFromStmt($stmt);
+            $activeCount = (int) ($activeRow['active_count'] ?? 0);
 
             if ($activeCount >= 3) {
                 throw new Exception('Batas maksimal peminjaman adalah 3 buku.');
