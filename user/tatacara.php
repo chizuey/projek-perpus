@@ -43,7 +43,7 @@
 <div class="container-21" ><p class="text-wrapper-13" > Sistem akan menampilkan informasi tanggal pengembalian buku.</p></div></div>
 <div class="container-27" ><div class="background-border" ><div class="overlay-shadow" ></div>
 <div class="text-wrapper-14" >10</div></div>
-<div class="container-21" ><p class="jika-semua-data" >&nbsp;&nbsp;Jika semua data sudah benar, petugas menekan klik selesai untuk menyimpan transaksi peminjaman.</p></div></div></div></div>
+<div class="container-21" ><p class="jika-semua-data" >Jika semua data sudah benar, petugas menekan klik selesai untuk menyimpan transaksi peminjaman.</p></div></div></div></div>
 <div class="section-2" ><div class="background" ><img class="background-2" src="../public/img/buku back.png" />
 <div class="div-wrapper-3" ><p class="text-wrapper-7" >II. Tata Cara Pengembalian Buku</p></div></div>
 <div class="container-19" ><div class="container-20" ><div class="background-border" ><div class="overlay-shadow" ></div>
