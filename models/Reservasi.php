@@ -22,7 +22,7 @@ class Reservasi
                     r.id_reservasi,
                     r.tanggal_reservasi,
                     r.status,
-                    r.id_eksemplar,
+                   e.id_eksemplar,
                     a.id_anggota,
                     a.nim,
                     a.nama as nama_anggota,
@@ -34,10 +34,9 @@ class Reservasi
                 FROM reservasi r
                 JOIN anggota a ON r.id_anggota = a.id_anggota
                 JOIN buku    b ON r.id_buku    = b.id_buku
-                LEFT JOIN eksemplar e ON r.id_eksemplar = e.id_eksemplar
-                LEFT JOIN admin adm ON r.id_admin = adm.id_admin
-                WHERE 1=1';
-
+              LEFT JOIN eksemplar e ON b.id_buku = e.id_buku -- Hubungkan eksemplar lewat tabel buku (b), bukan r
+              LEFT JOIN admin adm ON r.id_admin = adm.id_admin
+              WHERE 1=1';
         $params = [];
         $types  = '';
 

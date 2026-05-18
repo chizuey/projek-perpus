@@ -36,14 +36,28 @@
 .header-navbar .container {
     width: 100%;
     max-width: 1440px;
-    /* Tinggi dikurangi agar tidak kebesaran */
     height: 52px; 
     margin: 0 auto;
     padding: 0 40px;
     display: grid;
-    /* Grid 3 kolom dengan lebar kiri & kanan yang sama agar menu benar di tengah */
     grid-template-columns: 280px 1fr 280px; 
     align-items: center;
+}
+
+.menu-toggle {
+    display: none;
+    flex-direction: column;
+    cursor: pointer;
+    gap: 5px;
+    z-index: 1100;
+}
+
+.menu-toggle span {
+    width: 25px;
+    height: 3px;
+    background: #0050ad;
+    border-radius: 5px;
+    transition: all 0.3s ease;
 }
 
 .logo-section {
@@ -55,7 +69,6 @@
 }
 
 .logo-gambar {
-    /* Ukuran diperbesar sedikit dari 32px karena kamu bilang logo figma-nya kecil */
     width: 32px; 
     height: 32px;
     object-fit: contain;
@@ -168,6 +181,73 @@
     color: #0050ad;
     box-shadow: 0 4px 12px rgba(0,80,173,0.15);
     transform: translateY(-2px);
+}
+
+@media screen and (max-width: 768px) {
+    .header-navbar .container {
+        /* Ubah layout grid untuk HP: Hamburger - Logo - Profile */
+       display: flex;
+        justify-content: space-between;
+        align-items: center;
+        padding: 0 15px;
+        height: 60px; /* Sedikit lebih tinggi agar tidak sesak */
+    }
+
+    .menu-toggle {
+        display: flex; /* Munculkan hamburger */
+        order: 1;
+    }
+
+    .logo-section {
+       order: 2;
+        /* Menghilangkan margin otomatis agar logo tidak lari ke tengah jika tidak diinginkan */
+        margin: 0; 
+        position: absolute;
+        left: 50%;
+        transform: translateX(-50%);
+    }
+
+    .profile-section {
+        order: 3;
+    }
+
+    /* Menu Navigasi jadi Overlay Melayang */
+    .nav-menu {
+       position: fixed;
+        top: 60px; /* Sesuaikan dengan tinggi container */
+        left: -100%;
+        width: 100%; 
+        height: calc(100vh - 60px);
+        background: #fff;
+        flex-direction: column;
+        justify-content: flex-start;
+        padding: 20px;
+        gap: 5px;
+        transition: 0.3s ease-in-out;
+        z-index: 999;
+    }
+
+    .nav-menu.active {
+        left: 0; /* Geser ke kanan untuk muncul */
+    }
+
+    .nav-link {
+        width: 100%;
+        justify-content: flex-start; /* Link teks rata kiri */
+        padding: 15px;
+        border-bottom: 1px solid #f8fafc;
+    }
+
+    /* Animasi Hamburger jadi X */
+    .menu-toggle.active span:nth-child(1) {
+        transform: translateY(8px) rotate(45deg);
+    }
+    .menu-toggle.active span:nth-child(2) {
+        opacity: 0;
+    }
+    .menu-toggle.active span:nth-child(3) {
+        transform: translateY(-8px) rotate(-45deg);
+    }
 }
 /* ================= FOOTER ================= */
 .footer {
@@ -311,6 +391,8 @@
 }
 
 /* ================= GLOBAL / RESET ================= */
+
+/* =================    BERANDA ================= */
 * {
     margin: 0;
     padding: 0;
@@ -592,7 +674,9 @@ body {
     font-size: 12px;
     color: #64748b;
 }
-/*profile*/
+
+/* ================= PROFILE ================= */
+/* ================= GLOBAL STYLES ================= */
 * {
   margin: 0;
   padding: 0;
@@ -601,11 +685,12 @@ body {
 }
 
 body {
-  background: #f8fbff;
+  background: #ffffff;
 }
 
+/* ================= HERO SECTION ================= */
 .hero-section-profil {
-  background: linear-gradient(180deg, #E2F7FF 0%, var(--surface-light) 100%);
+  background: linear-gradient(180deg, #E2F7FF 0%, var(--surface-light, #ffffff) 100%);
   height: 300px;
   display: flex;
   align-items: center; 
@@ -633,38 +718,45 @@ body {
   font-weight: 600;
   color: #1b2b48;
 }
+
 .hero-subtitle-profil {
-  font-size: 13px;
+  font-size: 14px;
   color: #3b82f6;
+  font-weight: 600;
   margin-top: 5px;
 }
 
+/* ================= MAIN CONTENT AREA ================= */
 .main-content-prof {
-  max-width: 1100px;
-  margin: 60px auto;
-  padding: 20px 20px;
+  max-width: 100%;
+  margin: 50px auto; 
+  padding: 0 100px;   
+  background: #ffffff;
 }
 
+/* ================= ABOUT SECTION (KOTAK PUTIH) ================= */
 .section-about-prof {
+  background: #ffffff;
   display: flex;
-  gap: 80px; 
-  align-items: flex-start;
+  gap: 100px;         
+  align-items: center;
   margin-bottom: 60px;
-  padding: 0 10%; 
-
+  padding: 40px;      
+  border-radius: 12px; 
+  box-shadow: 0 4px 20px rgba(0, 0, 0, 0.04);
 }
 
 .image-box-prof img {
   width: 450px; 
   height: auto;
   object-fit: cover;
-  border-radius: 4px;
-  margin-left: -60px;
+  border-radius: 8px;
+  margin-left: 0;     
 }
 
 .text-box-prof {
   flex: 1;
-  margin-right: -40px;
+  margin-right: 0;   
 }
 
 .title-prof {
@@ -673,7 +765,7 @@ body {
   margin-bottom: 20px;
   color: #000;
   text-transform: uppercase;
-  margin-right: -40px;
+  margin-right: 0;  
 }
 
 .title-prof span {
@@ -688,96 +780,99 @@ body {
   text-align: justify; 
 }
 
+/* ================= VISI & MISI SECTION ================= */
 .section-visi-misi {
-    max-width: 1200px;
-    margin: 60px auto;
-    padding: 0 40px;
+  max-width: 1100px;  
+  margin: 60px auto;
+  padding: 0;    
+  background: transparent !important;    
 }
 
 .visi-misi-header-prof h2 {
-    font-size: 32px;
-    font-weight: 800;
-    margin-bottom: 40px;
-    color: #000;
-    line-height: 1.2;
+  font-size: 32px;
+  font-weight: 800;
+  margin-bottom: 40px;
+  color: #000;
+  line-height: 1.2;
 }
 
 .visi-misi-header-prof span {
-    color: #0050ad;
+  color: #0050ad;
 }
 
 .visi-misi-container {
-    display: flex;
-    flex-direction: row;
-    align-items: flex-start;
-    gap: 50px;
+  display: flex;
+  flex-direction: row;
+  align-items: flex-start;
+  gap: 50px;
 }
 
 .cards-container-prof {
-    display: flex;
-    flex-direction: column; 
-    flex: 1; 
-    gap: 24px;
+  display: flex;
+  flex-direction: column; 
+  flex: 1; 
+  gap: 24px;
 }
 
 .card-prof {
-    background: #f8fafc;
-    border: 1px solid #e5e7eb;
-    border-radius: 12px;
-    padding: 32px;
-    box-shadow: 0 4px 15px rgba(0, 0, 0, 0.05);
+  background: #ffffff; 
+  border: 1px solid #e5e7eb;
+  border-radius: 12px;
+  padding: 32px;
+  box-shadow: 0 4px 15px rgba(0, 0, 0, 0.03);
 }
 
 .card-header-prof {
-    display: flex;
-    align-items: center;
-    gap: 12px;
-    margin-bottom: 16px;
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  margin-bottom: 16px;
 }
 
 .blue-line-prof {
-    width: 32px;
-    height: 4px;
-    background: #0050ad;
-    border-radius: 2px;
+  width: 32px;
+  height: 4px;
+  background: #0050ad;
+  border-radius: 2px;
 }
 
 .card-prof h3 {
-    font-size: 18px;
-    font-weight: 800;
-    color: #0050ad;
-    margin: 0;
-    letter-spacing: 1px;
+  font-size: 18px;
+  font-weight: 800;
+  color: #0050ad;
+  margin: 0;
+  letter-spacing: 1px;
 }
 
 .card-prof p, .misi-list li {
-    font-size: 15px;
-    color: #64748b;
-    line-height: 1.7;
+  font-size: 15px;
+  color: #64748b;
+  line-height: 1.7;
 }
 
 .misi-list {
-    list-style: none; 
-    padding: 0;
-    margin: 0;
+  list-style: none; 
+  padding: 0;
+  margin: 0;
 }
 
 .misi-list li {
-    margin-bottom: 12px;
-    padding-left: 0;
+  margin-bottom: 12px;
+  padding-left: 0;
 }
 
 .visi-image-prof {
-    flex: 1; 
+  flex: 1; 
 }
 
 .visi-image-prof img {
-    width: 100%;
-    height: auto;
-    border-radius: 12px;
-    box-shadow: 10px 10px 0px #e2f7ff; 
-    object-fit: cover;
+  width: 100%;
+  height: auto;
+  border-radius: 12px;
+  box-shadow: 10px 10px 0px #e2f7ff; 
+  object-fit: cover;
 }
+/* ================= LOKASI ================= */
 
 * {
   margin: 0;
@@ -791,8 +886,8 @@ body {
 }
 
 .hero-section-lokasi {
-  background: linear-gradient(180deg, #E2F7FF 0%, var(--surface-light) 100%);
-  height: 300px;
+  background: linear-gradient(180deg, #E2F7FF 0%, var(--surface-light, #ffffff) 100%);
+  height: 350px;
   display: flex;
   align-items: center; 
   justify-content: center;
@@ -803,7 +898,7 @@ body {
 
 .hero-content-lokasi {
   width: 100%;
-  max-width: 1100px;
+  max-width: 1100px; 
   margin: 0 auto;
 }
 
@@ -815,39 +910,21 @@ body {
 }
 
 .hero-title-lokasi {
-  font-size: 28px;
-  font-weight: 600;
+  font-size: 28px;  
+  font-weight: 600; 
   color: #1b2b48;
 }
-.hero-subtitle-lokasi {
-  font-size: 13px;
-  color: #3b82f6;
-  margin-top: 5px;
-}
-.hero-icon-lokasi img {
-    width: 50px;
-    height: 50px;
-    margin-bottom: 10px;
-}
-
-.hero-title-lokasi {
-    font-size: 32px;
-    font-weight: 800;
-    color: #1b2b48;
-}
 
 .hero-subtitle-lokasi {
-    font-size: 14px;
+  font-size: 14px;
     color: #3b82f6;
-    text-transform: uppercase;
     font-weight: 600;
     margin-top: 5px;
 }
-
 /* MAIN CONTENT AREA */
 .main-location-content {
     background-color: #ffffff;
-    padding: 50px 0 100px; /* FIX: hilangkan kiri kanan */
+    padding: 50px 0 100px; 
     display: flex;
     flex-direction: column;
     align-items: center;
