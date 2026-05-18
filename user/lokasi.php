@@ -3,7 +3,6 @@
 <head>
     <meta name="viewport" content="width=device-width, initial-scale=1"/>
     <meta charset="utf-8" />
-    <link rel="stylesheet" href="../public/css/style.css?v=2">
     <link rel="stylesheet" href="/projek-perpus/public/css/style.css?v=<?php echo time(); ?>">
     <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;600;800&display=swap" rel="stylesheet">
     <title>Lokasi Perpustakaan</title>
@@ -26,7 +25,7 @@
         <div class="map-wrapper">
             <div class="map-frame">
                 <iframe 
-                    src="https://www.google.com/maps/embed?pb=!1m18!1m12!1m3!1d3949.423521235!2d113.720613!3d-8.1601!2m3!1f0!2f0!3f0!3m2!1i1024!2i768!4f13.1!3m3!1m2!1s0x0%3A0x0!2zOMKwMDknMzYuNCJTIDExM8KwNDMnMTQuMiJF!5e0!3m2!1sid!2sid!4v1620000000000!5m2!1sid!2sid" 
+                  src="https://www.google.com/maps/embed?pb=!1m18!1m12!1m3!1d3949.421579588801!2d113.72099457320176!3d-8.160210281754225!2m3!1f0!2f0!3f0!3m2!1i1024!2i768!4f13.1!3m3!1m2!1s0x2dd695b624959a65%3A0x5105d01c6db05f6c!2sPerpustakaan%20POLIJE!5e0!3m2!1sid!2sid!4v1779078121521!5m2!1sid!2sid" width="600" height="450" style="border:0;" allowfullscreen="" loading="lazy" referrerpolicy="no-referrer-when-downgrade"
                     width="100%" height="450" style="border:0;" allowfullscreen="" loading="lazy">
                 </iframe>
             </div>

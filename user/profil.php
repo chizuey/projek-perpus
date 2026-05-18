@@ -4,8 +4,6 @@
     <meta name="viewport" content="width=device-width, initial-scale=1"/>
     <meta charset="utf-8" />
     <link rel="stylesheet" href="/projek-perpus/public/css/style.css?v=<?php echo time(); ?>">
-
-    <link rel="stylesheet" href="style.css?v=3">
     <title>Profil Perpustakaan</title>
 </head>
 
@@ -23,6 +21,7 @@
     </div>
 
     <main class="main-content-prof">
+        
         <section class="section-about-prof">
             <div class="image-box-prof">
                 <img src="gambar/perpus.png" alt="Gedung Polije">
@@ -58,10 +57,10 @@
                             <h3>MISI</h3>
                         </div>
                         <ul class="misi-list">
-                            <li>- Meningkatkan pelayanan kepada masyarakat melalui pelayanan prima.</li>
-                            <li>- Mensosialisasikan gemar membaca dan meningkatkan kesadaran masyarakat.</li>
-                            <li>- Meningkatkan partisipasi masyarakat dalam memberdayakan perpustakaan.</li>
-                            <li>- Menjadikan perpustakaan sebagai perpustakaan yang dinamis.</li>
+                            <li>Meningkatkan pelayanan kepada masyarakat melalui pelayanan prima.</li>
+                            <li>Mensosialisasikan gemar membaca dan meningkatkan kesadaran masyarakat.</li>
+                            <li>Meningkatkan partisipasi masyarakat dalam memberdayakan perpustakaan.</li>
+                            <li>Menjadikan perpustakaan sebagai perpustakaan yang dinamis.</li>
                         </ul>
                     </div>
                 </div>
@@ -71,7 +70,8 @@
                 </div>
             </div>
         </section>
-    </main> <?php include 'foot.php'; ?> 
+    </main> 
 
+    <?php include 'foot.php'; ?> 
 </body>
 </html>
