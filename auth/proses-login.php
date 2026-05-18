@@ -1,15 +1,26 @@
 <?php
 session_start();
 
-require_once __DIR__ . '/../vendor/autoload.php';
+require_once __DIR__ . '/../config/app.php';
+
+$autoload = __DIR__ . '/../vendor/autoload.php';
+if (!file_exists($autoload)) {
+    die('Autentikasi gagal: folder vendor belum ada. Upload folder vendor ke hosting atau jalankan composer install.');
+}
+require_once $autoload;
+
+if (!class_exists('Google_Client')) {
+    die('Autentikasi gagal: library Google Client tidak terbaca dari vendor/autoload.php.');
+}
+
 require_once __DIR__ . '/../config.php';
 
 // KONFIGURASI GOOGLE
-$client = new Google\Client();
+$client = new Google_Client();
 
-$client->setClientId('118639840694-uuda9i1n1bc3c216tqufrjirucg3chdv.apps.googleusercontent.com');
-$client->setClientSecret('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');
-$client->setRedirectUri('http://localhost/projek-perpus/auth/proses-login.php');
+$client->setClientId(google_client_id());
+$client->setClientSecret(google_client_secret());
+$client->setRedirectUri(google_redirect_uri());
 
 $client->setHttpClient(
     new \GuzzleHttp\Client([
@@ -29,7 +40,11 @@ $client->addScope("profile");
 
 if (isset($_GET['code'])) {
 
-    $token = $client->fetchAccessTokenWithAuthCode($_GET['code']);
+    try {
+        $token = $client->fetchAccessTokenWithAuthCode($_GET['code']);
+    } catch (Throwable $e) {
+        die("Kesalahan Google: " . $e->getMessage() . "<br>Redirect URI aktif: " . google_redirect_uri());
+    }
 
     // Jika token error
     if (isset($token['error'])) {

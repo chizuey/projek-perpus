@@ -294,39 +294,30 @@ class Buku
     public function searchKoleksi($search = '', $kategori = '', $tahun = '', $page = 1, $perPage = 15)
     {
         $where = [];
-        $params = [];
-        $types = '';
 
         if ($search !== '') {
-            $where[] = "(b.judul LIKE ? OR b.penulis LIKE ?)";
-            $like = '%' . $search . '%';
-            $params[] = $like;
-            $params[] = $like;
-            $types .= 'ss';
+            $like = '%' . $this->conn->real_escape_string($search) . '%';
+            $where[] = "(b.judul LIKE '$like' OR b.penulis LIKE '$like')";
         }
         if ($kategori !== '') {
-            $where[] = "k.nama_kategori = ?";
-            $params[] = $kategori;
-            $types .= 's';
+            $kategori = $this->conn->real_escape_string($kategori);
+            $where[] = "k.nama_kategori = '$kategori'";
         }
         if ($tahun !== '') {
-            $where[] = "b.tahun_terbit = ?";
-            $params[] = $tahun;
-            $types .= 's';
+            $tahun = $this->conn->real_escape_string($tahun);
+            $where[] = "b.tahun_terbit = '$tahun'";
         }
 
         $whereClause = count($where) > 0 ? 'WHERE ' . implode(' AND ', $where) : '';
 
         // Count total
         $countSql = "SELECT COUNT(*) as total FROM buku b LEFT JOIN kategori k ON b.id_kategori = k.id_kategori $whereClause";
-        $stmtCount = $this->conn->prepare($countSql);
-        if ($types !== '') {
-            $stmtCount->bind_param($types, ...$params);
-        }
-        $stmtCount->execute();
-        $total = $stmtCount->get_result()->fetch_assoc()['total'];
+        $countResult = $this->conn->query($countSql);
+        $total = (int)($countResult->fetch_assoc()['total'] ?? 0);
 
         // Fetch page
+        $page = max(1, (int)$page);
+        $perPage = max(1, (int)$perPage);
         $offset = ($page - 1) * $perPage;
         $dataSql = "SELECT b.*, k.nama_kategori,
                            (SELECT COUNT(*) FROM eksemplar WHERE id_buku = b.id_buku AND status = 'tersedia') as stok_tersedia
@@ -335,12 +326,7 @@ class Buku
                     $whereClause
                     ORDER BY b.id_buku DESC
                     LIMIT $perPage OFFSET $offset";
-        $stmtData = $this->conn->prepare($dataSql);
-        if ($types !== '') {
-            $stmtData->bind_param($types, ...$params);
-        }
-        $stmtData->execute();
-        $result = $stmtData->get_result();
+        $result = $this->conn->query($dataSql);
 
         $data = [];
         while ($row = $result->fetch_assoc()) {

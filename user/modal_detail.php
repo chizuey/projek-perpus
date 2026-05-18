@@ -132,7 +132,7 @@ function submitReservasi(event) {
     const formData = new FormData();
     formData.append('id_buku', idBuku);
 
-    fetch('actions/reservasi/create.php', {
+    fetch(new URL('actions/reservasi/create.php', window.location.href), {
         method: 'POST',
         body: formData
     })

@@ -84,15 +84,13 @@ class UserController
 
     private function getActiveReservations($idAnggota)
     {
+        $idAnggota = (int) $idAnggota;
         $sql = 'SELECT r.*, b.judul, b.cover, b.penulis
                 FROM reservasi r
                 JOIN buku b ON r.id_buku = b.id_buku
-                WHERE r.id_anggota = ? AND r.status IN ("menunggu", "disetujui")
+                WHERE r.id_anggota = ' . $idAnggota . ' AND r.status IN ("menunggu", "disetujui")
                 ORDER BY r.tanggal_reservasi DESC';
-        $stmt = $this->conn->prepare($sql);
-        $stmt->bind_param('i', $idAnggota);
-        $stmt->execute();
-        $result = $stmt->get_result();
+        $result = $this->conn->query($sql);
         
         $data = [];
         while ($row = $result->fetch_assoc()) {

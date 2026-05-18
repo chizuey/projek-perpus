@@ -314,26 +314,27 @@ class Reservasi
      */
     public function create(int $idAnggota, int $idBuku): bool
     {
-        $stmt = $this->conn->prepare('SELECT stok_tersedia FROM buku WHERE id_buku = ? LIMIT 1');
-        $stmt->bind_param('i', $idBuku);
-        $stmt->execute();
-        $buku = $stmt->get_result()->fetch_assoc();
+        $idAnggota = (int) $idAnggota;
+        $idBuku = (int) $idBuku;
+
+        $result = $this->conn->query(
+            "SELECT COUNT(*) AS stok_tersedia
+             FROM eksemplar
+             WHERE id_buku = $idBuku AND status = 'tersedia'"
+        );
+        $buku = $result->fetch_assoc();
 
         if (!$buku || (int) $buku['stok_tersedia'] <= 0) {
             throw new Exception('Stok buku tidak tersedia.');
         }
 
         // Cek jumlah buku yang sedang dipinjam
-        $stmt = $this->conn->prepare("SELECT COUNT(*) as active_count FROM detail_peminjaman dp JOIN peminjaman p ON p.id_peminjaman = dp.id_peminjaman WHERE p.id_anggota = ? AND dp.status_pengembalian = 'dipinjam'");
-        $stmt->bind_param('i', $idAnggota);
-        $stmt->execute();
-        $active_count = $stmt->get_result()->fetch_assoc()['active_count'];
+        $result = $this->conn->query("SELECT COUNT(*) as active_count FROM detail_peminjaman dp JOIN peminjaman p ON p.id_peminjaman = dp.id_peminjaman WHERE p.id_anggota = $idAnggota AND dp.status_pengembalian = 'dipinjam'");
+        $active_count = (int)($result->fetch_assoc()['active_count'] ?? 0);
 
         // Cek jumlah buku yang sedang direservasi
-        $stmt = $this->conn->prepare("SELECT COUNT(*) as res_count FROM reservasi WHERE id_anggota = ? AND status IN ('menunggu', 'disetujui')");
-        $stmt->bind_param('i', $idAnggota);
-        $stmt->execute();
-        $reservasi_count = $stmt->get_result()->fetch_assoc()['res_count'];
+        $result = $this->conn->query("SELECT COUNT(*) as res_count FROM reservasi WHERE id_anggota = $idAnggota AND status IN ('menunggu', 'disetujui')");
+        $reservasi_count = (int)($result->fetch_assoc()['res_count'] ?? 0);
 
         $total_buku = $active_count + $reservasi_count + 1;
         if ($total_buku > 3) {
@@ -341,24 +342,20 @@ class Reservasi
         }
 
         // Cek apakah sudah ada reservasi aktif untuk buku yang sama
-        $stmt = $this->conn->prepare(
-            'SELECT id_reservasi FROM reservasi
-             WHERE id_anggota = ? AND id_buku = ? AND status IN ("menunggu", "disetujui")'
+        $result = $this->conn->query(
+            "SELECT id_reservasi FROM reservasi
+             WHERE id_anggota = $idAnggota AND id_buku = $idBuku AND status IN ('menunggu', 'disetujui')"
         );
-        $stmt->bind_param('ii', $idAnggota, $idBuku);
-        $stmt->execute();
-        if ($stmt->get_result()->fetch_assoc()) {
+        if ($result->fetch_assoc()) {
             return false; // Sudah ada reservasi aktif
         }
 
         $today = date('Y-m-d');
-        $stmt = $this->conn->prepare(
-            'INSERT INTO reservasi (id_anggota, id_buku, tanggal_reservasi, status)
-             VALUES (?, ?, ?, "menunggu")'
+        $today = $this->conn->real_escape_string($today);
+        return $this->conn->query(
+            "INSERT INTO reservasi (id_anggota, id_buku, tanggal_reservasi, status)
+             VALUES ($idAnggota, $idBuku, '$today', 'menunggu')"
         );
-        $stmt->bind_param('iis', $idAnggota, $idBuku, $today);
-        $stmt->execute();
-        return $stmt->affected_rows > 0;
     }
 
     private function syncStokBuku(int $idBuku): void
