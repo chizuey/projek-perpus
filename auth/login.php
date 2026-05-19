@@ -1,34 +1,21 @@
 <?php
 session_start();
-require_once __DIR__ . '/../config/app.php';
-
-$autoload = __DIR__ . '/../vendor/autoload.php';
-if (!file_exists($autoload)) {
-    die('Autentikasi gagal: folder vendor belum ada. Upload folder vendor ke hosting atau jalankan composer install.');
-}
-require_once $autoload;
-
-if (!class_exists('Google_Client')) {
-    die('Autentikasi gagal: library Google Client tidak terbaca dari vendor/autoload.php.');
-}
+require_once '../vendor/autoload.php';
+require_once '../config/app.php';
 
 // 1. Inisialisasi Google Client
 $clientID = google_client_id();
 $clientSecret = google_client_secret();
 $redirectUri = google_redirect_uri();
 
-try {
-    $client = new Google_Client();
-    $client->setClientId($clientID);
-    $client->setClientSecret($clientSecret);
-    $client->setRedirectUri($redirectUri);
-    $client->addScope("email");
-    $client->addScope("profile");
+$client = new Google_Client();
+$client->setClientId($clientID);
+$client->setClientSecret($clientSecret);
+$client->setRedirectUri($redirectUri);
+$client->addScope("email");
+$client->addScope("profile");
 
-    $loginUrl = $client->createAuthUrl();
-} catch (Throwable $e) {
-    die('Autentikasi gagal: ' . htmlspecialchars($e->getMessage(), ENT_QUOTES, 'UTF-8'));
-}
+$loginUrl = $client->createAuthUrl(); 
 ?>
 <!DOCTYPE html>
 <html lang="id">

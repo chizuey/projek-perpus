@@ -60,5 +60,5 @@ function google_client_secret(): string
         }
     }
 
-    return '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';
+    return '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';
 }
