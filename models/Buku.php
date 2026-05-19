@@ -18,12 +18,13 @@ class Buku
     public function all()
     {
         $sql = "SELECT buku.*, kategori.nama_kategori,
-                       (SELECT COUNT(*) FROM eksemplar WHERE id_buku = buku.id_buku) as total_eksemplar,
+                       (SELECT COUNT(*) FROM eksemplar WHERE id_buku = buku.id_buku AND status != 'nonaktif') as total_eksemplar,
                        (SELECT COUNT(*) FROM eksemplar WHERE id_buku = buku.id_buku AND status = 'tersedia') as stok_tersedia,
                        (SELECT COUNT(*) FROM eksemplar WHERE id_buku = buku.id_buku AND status = 'dipinjam') as dipinjam,
                        (SELECT COUNT(*) FROM eksemplar WHERE id_buku = buku.id_buku AND status = 'direservasi') as direservasi
                 FROM buku
                 LEFT JOIN kategori ON buku.id_kategori = kategori.id_kategori
+                WHERE buku.status = 'aktif'
                 ORDER BY buku.id_buku DESC";
         $result = $this->conn->query($sql);
         
@@ -47,7 +48,7 @@ class Buku
     public function find($id)
     {
         $sql = "SELECT buku.*, kategori.nama_kategori,
-                       (SELECT COUNT(*) FROM eksemplar WHERE id_buku = buku.id_buku) as total_eksemplar
+                       (SELECT COUNT(*) FROM eksemplar WHERE id_buku = buku.id_buku AND status != 'nonaktif') as total_eksemplar
                 FROM buku
                 LEFT JOIN kategori ON buku.id_kategori = kategori.id_kategori
                 WHERE buku.id_buku = $id";
@@ -115,7 +116,7 @@ class Buku
         $id = (int)$id;
         $sql = "SELECT id_eksemplar, status
                 FROM eksemplar
-                WHERE id_buku = $id
+                WHERE id_buku = $id AND status != 'nonaktif'
                 ORDER BY id_eksemplar ASC";
         $result = $this->conn->query($sql);
 
@@ -154,7 +155,7 @@ class Buku
 
         $deleted = 0;
         foreach ($ids as $idEksemplar) {
-            $sql = "DELETE FROM eksemplar WHERE id_eksemplar = ? AND id_buku = ? AND status = 'tersedia'";
+            $sql = "UPDATE eksemplar SET status = 'nonaktif' WHERE id_eksemplar = ? AND id_buku = ? AND status = 'tersedia'";
             $stmt = $this->conn->prepare($sql);
             $stmt->bind_param("ii", $idEksemplar, $idBuku);
             $stmt->execute();
@@ -171,7 +172,7 @@ class Buku
     public function syncCopy($idBuku)
     {
         $sql = "UPDATE buku
-                SET copy = (SELECT COUNT(*) FROM eksemplar WHERE id_buku = ?),
+                SET copy = (SELECT COUNT(*) FROM eksemplar WHERE id_buku = ? AND status != 'nonaktif'),
                     stok_tersedia = (SELECT COUNT(*) FROM eksemplar WHERE id_buku = ? AND status = 'tersedia')
                 WHERE id_buku = ?";
         $stmt = $this->conn->prepare($sql);
@@ -185,8 +186,19 @@ class Buku
     // ============================================================
     public function delete($id)
     {
-        $sql = "DELETE FROM buku WHERE id_buku = $id";
-        return $this->conn->query($sql);
+        $id = (int)$id;
+        // 1. Ubah status buku menjadi 'nonaktif'
+        $sqlBuku = "UPDATE buku SET status = 'nonaktif' WHERE id_buku = $id";
+        $resBuku = $this->conn->query($sqlBuku);
+
+        // 2. Ubah status semua eksemplar buku ini yang berstatus 'tersedia' menjadi 'nonaktif'
+        $sqlEksemplar = "UPDATE eksemplar SET status = 'nonaktif' WHERE id_buku = $id AND status = 'tersedia'";
+        $this->conn->query($sqlEksemplar);
+
+        // Selaraskan copy count
+        $this->syncCopy($id);
+
+        return $resBuku;
 
     }
 
@@ -245,6 +257,7 @@ class Buku
                         WHERE e.id_buku = b.id_buku) as loan_count
                 FROM buku b
                 LEFT JOIN kategori k ON b.id_kategori = k.id_kategori
+                WHERE b.status = 'aktif'
                 ORDER BY loan_count DESC
                 LIMIT $limit";
         $result = $this->conn->query($sql);
@@ -267,6 +280,7 @@ class Buku
         $sql = "SELECT b.*, k.nama_kategori
                 FROM buku b
                 LEFT JOIN kategori k ON b.id_kategori = k.id_kategori
+                WHERE b.status = 'aktif'
                 ORDER BY b.id_buku DESC
                 LIMIT $limit";
         $result = $this->conn->query($sql);
@@ -285,7 +299,7 @@ class Buku
     // ============================================================
     public function searchKoleksi($search = '', $kategori = '', $tahun = '', $page = 1, $perPage = 15)
     {
-        $where = [];
+        $where = ["b.status = 'aktif'"];
 
         if ($search !== '') {
             $like = '%' . $this->conn->real_escape_string($search) . '%';

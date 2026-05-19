@@ -145,14 +145,14 @@ if (isset($_GET['code'])) {
 |--------------------------------------------------------------------------
 */
 
-if (isset($_POST['login'])) {
+if (isset($_POST['login']) || isset($_POST['login_admin'])) {
 
     $email    = mysqli_real_escape_string($koneksi, $_POST['email']);
     $password = $_POST['password'];
 
     $query_admin = mysqli_query(
         $koneksi,
-        "SELECT * FROM admin WHERE email_admin = '$email' LIMIT 1"
+        "SELECT * FROM admin WHERE email = '$email' LIMIT 1"
     );
 
     if (mysqli_num_rows($query_admin) === 1) {
