@@ -72,7 +72,7 @@ class Reservasi
                 FROM reservasi r
                 JOIN anggota a ON r.id_anggota = a.id_anggota
                 JOIN buku    b ON r.id_buku    = b.id_buku
-              LEFT JOIN eksemplar e ON b.id_buku = e.id_buku -- Hubungkan eksemplar lewat tabel buku (b), bukan r
+              LEFT JOIN eksemplar e ON r.id_eksemplar = e.id_eksemplar
               LEFT JOIN admin adm ON r.id_admin = adm.id_admin
               WHERE 1=1';
         $params = [];
@@ -107,6 +107,7 @@ class Reservasi
             $row['kode_anggota'] = $row['nim']; // Untuk kompatibilitas view lama
             $data[] = $row;
         }
+        $stmt->close();
         return $data;
     }
 
@@ -122,6 +123,7 @@ class Reservasi
         $stmt->bind_param('i', $id);
         $stmt->execute();
         $row = $this->fetchAssocFromStmt($stmt);
+        $stmt->close();
         if ($row) {
             $row['kode_anggota'] = $row['nim'];
         }
@@ -149,6 +151,7 @@ class Reservasi
             $stmt->bind_param('i', $id);
             $stmt->execute();
             $reservasi = $this->fetchAssocFromStmt($stmt);
+            $stmt->close();
 
             if (!$reservasi) {
                 throw new Exception('Reservasi tidak ditemukan atau sudah diproses.');
@@ -165,6 +168,7 @@ class Reservasi
             $stmt->bind_param('i', $idBuku);
             $stmt->execute();
             $eksemplar = $this->fetchAssocFromStmt($stmt);
+            $stmt->close();
 
             if (!$eksemplar) {
                 throw new Exception('Stok tersedia habis. Reservasi belum bisa dikonfirmasi.');
@@ -175,6 +179,7 @@ class Reservasi
             $stmt = $this->conn->prepare('UPDATE eksemplar SET status = "direservasi" WHERE id_eksemplar = ?');
             $stmt->bind_param('i', $idEksemplar);
             $stmt->execute();
+            $stmt->close();
 
             $stmt = $this->conn->prepare(
                 'UPDATE reservasi
@@ -183,6 +188,7 @@ class Reservasi
             );
             $stmt->bind_param('iii', $idAdmin, $idEksemplar, $id);
             $stmt->execute();
+            $stmt->close();
 
             $this->syncStokBuku($idBuku);
             $this->conn->commit();
@@ -210,6 +216,7 @@ class Reservasi
             $stmt->bind_param('i', $id);
             $stmt->execute();
             $reservasi = $this->fetchAssocFromStmt($stmt);
+            $stmt->close();
 
             if (!$reservasi) {
                 throw new Exception('Reservasi tidak ditemukan atau sudah selesai.');
@@ -226,6 +233,7 @@ class Reservasi
                 );
                 $stmt->bind_param('i', $idEksemplar);
                 $stmt->execute();
+                $stmt->close();
             }
 
             $stmt = $this->conn->prepare(
@@ -235,10 +243,12 @@ class Reservasi
             );
             $stmt->bind_param('i', $id);
             $stmt->execute();
+            $affected = $stmt->affected_rows;
+            $stmt->close();
 
             $this->syncStokBuku($idBuku);
             $this->conn->commit();
-            return $stmt->affected_rows > 0;
+            return $affected > 0;
         } catch (Exception $e) {
             $this->conn->rollback();
             throw $e;
@@ -257,7 +267,9 @@ class Reservasi
         );
         $stmt->bind_param('i', $id);
         $stmt->execute();
-        return $stmt->affected_rows > 0;
+        $affected = $stmt->affected_rows;
+        $stmt->close();
+        return $affected > 0;
     }
 
     public function prosesPeminjaman(int $id, int $idAdmin): bool
@@ -275,6 +287,7 @@ class Reservasi
             $stmt->bind_param('i', $id);
             $stmt->execute();
             $reservasi = $this->fetchAssocFromStmt($stmt);
+            $stmt->close();
 
             if (!$reservasi) {
                 throw new Exception('Reservasi belum disetujui atau data eksemplar tidak ditemukan.');
@@ -299,6 +312,7 @@ class Reservasi
             $stmt->bind_param('i', $idAnggota);
             $stmt->execute();
             $activeRow = $this->fetchAssocFromStmt($stmt);
+            $stmt->close();
             $activeCount = (int) ($activeRow['active_count'] ?? 0);
 
             if ($activeCount >= 3) {
@@ -312,6 +326,7 @@ class Reservasi
             $stmt->bind_param('iiss', $idAnggota, $idAdmin, $tanggalPinjam, $batasWaktu);
             $stmt->execute();
             $idPeminjaman = $this->conn->insert_id;
+            $stmt->close();
 
             $stmt = $this->conn->prepare(
                 'INSERT INTO detail_peminjaman (id_peminjaman, id_eksemplar, status_pengembalian)
@@ -319,10 +334,12 @@ class Reservasi
             );
             $stmt->bind_param('ii', $idPeminjaman, $idEksemplar);
             $stmt->execute();
+            $stmt->close();
 
             $stmt = $this->conn->prepare('UPDATE eksemplar SET status = "dipinjam" WHERE id_eksemplar = ? AND status = "direservasi"');
             $stmt->bind_param('i', $idEksemplar);
             $stmt->execute();
+            $stmt->close();
 
             $stmt = $this->conn->prepare(
                 'UPDATE reservasi
@@ -331,6 +348,7 @@ class Reservasi
             );
             $stmt->bind_param('ii', $idAdmin, $id);
             $stmt->execute();
+            $stmt->close();
 
             $this->syncStokBuku($idBuku);
             $this->conn->commit();
@@ -398,12 +416,13 @@ class Reservasi
     {
         $stmt = $this->conn->prepare(
             'UPDATE buku
-             SET copy = (SELECT COUNT(*) FROM eksemplar WHERE id_buku = ?),
+             SET copy = (SELECT COUNT(*) FROM eksemplar WHERE id_buku = ? AND status != \'nonaktif\'),
                  stok_tersedia = (SELECT COUNT(*) FROM eksemplar WHERE id_buku = ? AND status = "tersedia")
              WHERE id_buku = ?'
         );
         $stmt->bind_param('iii', $idBuku, $idBuku, $idBuku);
         $stmt->execute();
+        $stmt->close();
     }
 
     // =========================================================================

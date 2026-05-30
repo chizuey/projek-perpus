@@ -65,6 +65,29 @@ class Peminjaman
     {
         $id_anggota = $this->getAnggotaId($nim, $nama);
         
+        $id_eksemplar_array = array_filter($id_eksemplar_array);
+        $new_count = count($id_eksemplar_array);
+        
+        if ($new_count === 0) {
+            throw new Exception("Tidak ada buku dipilih.");
+        }
+        
+        if ($new_count !== count(array_unique($id_eksemplar_array))) {
+            throw new Exception("Buku dipilih ganda.");
+        }
+        
+        // Cek pinjaman terlambat
+        // $today = date('Y-m-d');
+        // $res_terlambat = $this->conn->query("SELECT COUNT(*) as terlambat_count 
+        //                                      FROM detail_peminjaman dp 
+        //                                      JOIN peminjaman p ON p.id_peminjaman = dp.id_peminjaman 
+        //                                      WHERE p.id_anggota = $id_anggota 
+        //                                      AND dp.status_pengembalian = 'dipinjam' 
+        //                                      AND p.batas_waktu < '$today'");
+        // if ($res_terlambat && $res_terlambat->fetch_assoc()['terlambat_count'] > 0) {
+        //     throw new Exception("Masih memiliki pinjaman terlambat.");
+        // }
+        
         // Cek jumlah buku yang sedang dipinjam
         $res_count = $this->conn->query("SELECT COUNT(*) as active_count 
                                         FROM detail_peminjaman dp 
@@ -75,8 +98,6 @@ class Peminjaman
         // Cek jumlah buku yang sedang direservasi
         $res_reservasi = $this->conn->query("SELECT COUNT(*) as res_count FROM reservasi WHERE id_anggota = $id_anggota AND status IN ('menunggu', 'disetujui')");
         $reservasi_count = $res_reservasi->fetch_assoc()['res_count'];
-        
-        $new_count = count(array_filter($id_eksemplar_array));
         
         if (($active_count + $reservasi_count + $new_count) > 3) {
             throw new Exception("Batas maksimal peminjaman dan reservasi gabungan adalah 3 buku. Saat ini meminjam $active_count buku dan $reservasi_count reservasi aktif.");
@@ -90,32 +111,44 @@ class Peminjaman
         try {
             $sql_header = "INSERT INTO peminjaman (id_anggota, id_admin, tanggal_peminjaman, batas_waktu) VALUES (?, ?, ?, ?)";
             $stmt = $this->conn->prepare($sql_header);
+            if (!$stmt) throw new Exception("Gagal insert/update database.");
             $stmt->bind_param("iiss", $id_anggota, $adminId, $tgl_pinjam, $tgl_jatuh_tempo);
-            $stmt->execute();
+            if (!$stmt->execute()) {
+                throw new Exception("Gagal insert/update database.");
+            }
             $id_peminjaman = $this->conn->insert_id;
 
             $count = 0;
-            foreach ($id_eksemplar_array as $id_eksemplar) {
+            foreach (array_unique($id_eksemplar_array) as $id_eksemplar) {
                 if (empty($id_eksemplar)) continue;
 
                 $res_eks = $this->conn->query("SELECT id_eksemplar, id_buku FROM eksemplar WHERE id_eksemplar = " . (int)$id_eksemplar . " AND status = 'tersedia'");
-                if ($res_eks->num_rows > 0) {
+                if ($res_eks && $res_eks->num_rows > 0) {
                     $eksemplar = $res_eks->fetch_assoc();
 
                     $sql_detail = "INSERT INTO detail_peminjaman (id_peminjaman, id_eksemplar, status_pengembalian) VALUES (?, ?, 'dipinjam')";
                     $stmt_detail = $this->conn->prepare($sql_detail);
+                    if (!$stmt_detail) throw new Exception("Gagal insert/update database.");
                     $stmt_detail->bind_param("ii", $id_peminjaman, $id_eksemplar);
-                    $stmt_detail->execute();
+                    if (!$stmt_detail->execute()) {
+                        throw new Exception("Gagal insert/update database.");
+                    }
 
-                    $this->conn->query("UPDATE eksemplar SET status = 'dipinjam' WHERE id_eksemplar = " . (int)$id_eksemplar);
+                    if (!$this->conn->query("UPDATE eksemplar SET status = 'dipinjam' WHERE id_eksemplar = " . (int)$id_eksemplar)) {
+                        throw new Exception("Gagal insert/update database.");
+                    }
                     $this->syncStokBuku((int)$eksemplar['id_buku']);
                     $count++;
+                } else {
+                    throw new Exception("Buku tidak tersedia.");
                 }
             }
 
             if ($count === 0) throw new Exception("Tidak ada buku yang berhasil dipinjam.");
 
-            $this->conn->commit();
+            if (!$this->conn->commit()) {
+                throw new Exception("Gagal insert/update database.");
+            }
             return true;
         } catch (Exception $e) {
             $this->conn->rollback();
@@ -198,19 +231,13 @@ class Peminjaman
     private function getAnggotaId($nim, $nama)
     {
         $nim = $this->conn->real_escape_string($nim);
-        $res = $this->conn->query("SELECT id_anggota FROM anggota WHERE nim = '$nim'");
+        $nama = $this->conn->real_escape_string($nama);
+        $res = $this->conn->query("SELECT id_anggota FROM anggota WHERE nim = '$nim' AND nama_anggota = '$nama'");
         if ($row = $res->fetch_assoc()) {
             return $row['id_anggota'];
         }
         
-        $dummy_email = $nim . '@student.com';
-        $dummy_pass = password_hash('123456', PASSWORD_DEFAULT);
-        $jurusan_default = '-';
-        $sql = "INSERT INTO anggota (nim, nama, nama_anggota, email, password, jurusan) VALUES (?, ?, ?, ?, ?, ?)";
-        $stmt = $this->conn->prepare($sql);
-        $stmt->bind_param("ssssss", $nim, $nama, $nama, $dummy_email, $dummy_pass, $jurusan_default);
-        $stmt->execute();
-        return $this->conn->insert_id;
+        throw new Exception("Anggota tidak ditemukan.");
     }
 
     public function getMeta($item)
