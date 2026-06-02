@@ -16,7 +16,7 @@
 <div class="div-wrapper-3" ><p class="text-wrapper-7" >I. Tata Cara Peminjaman Buku</p></div></div>
 <div class="container-19" ><div class="container-20" ><div class="background-border" ><div class="overlay-shadow" ></div>
 <div class="text-13" >1</div></div>
-<div class="container-21" ><p class="mahasiswa-datang-ke" >Mahasiswa datang ke&nbsp;&nbsp;perpustakaan untuk meminjam buku dan harus memiliki kartu peminjam.</p></div></div>
+<div class="container-21" ><p class="mahasiswa-datang-ke" >Mahasiswa datang ke  `perpustakaan untuk meminjam buku dan harus memiliki kartu peminjam.</p></div></div>
 <div class="container-20" ><div class="background-border" ><div class="overlay-shadow" ></div>
 <div class="text-14" >2</div></div>
 <div class="container-21" ><p class="text-wrapper-8" >Mahasiswa mencari buku yang ingin dipinjam di rak perpustakaan.</p></div></div>

@@ -449,7 +449,7 @@ button:focus-visible {
 /* ================= HERO ================= */
 .hero {
     padding: 10px 0 50px 0px;
-    background: linear-gradient(180deg, #E2F7FF 0%, var(--surface-light) 100%);
+    background: linear-gradient(180deg, #dbeafe 0%, var(--surface-light) 100%);
 }
 
 .hero-content {
@@ -690,7 +690,7 @@ body {
 
 /* ================= HERO SECTION ================= */
 .hero-section-profil {
-  background: linear-gradient(180deg, #E2F7FF 0%, var(--surface-light, #ffffff) 100%);
+  background: linear-gradient(180deg, #dbeafe 0%, var(--surface-light, #ffffff) 100%);
   height: 300px;
   display: flex;
   align-items: center; 
@@ -731,7 +731,7 @@ body {
   max-width: 100%;
   margin: 50px auto; 
   padding: 0 100px;   
-  background: #ffffff;
+  background: #f8fafc;
 }
 
 /* ================= ABOUT SECTION (KOTAK PUTIH) ================= */
@@ -886,7 +886,7 @@ body {
 }
 
 .hero-section-lokasi {
-  background: linear-gradient(180deg, #E2F7FF 0%, var(--surface-light, #ffffff) 100%);
+  background: linear-gradient(180deg, #dbeafe 0%, var(--surface-light, #ffffff) 100%);
   height: 350px;
   display: flex;
   align-items: center; 
@@ -923,7 +923,7 @@ body {
 }
 /* MAIN CONTENT AREA */
 .main-location-content {
-    background-color: #ffffff;
+    background-color: #f8fafc;
     padding: 50px 0 100px; 
     display: flex;
     flex-direction: column;

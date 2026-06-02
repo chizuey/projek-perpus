@@ -1,5 +1,5 @@
 .panduan-tata-cara {
-  background-color: #f5f7fb;
+  background-color: #f8fafc;
   width: 100vw;
   min-width: 1440px;
   min-height: 2611px;
@@ -43,7 +43,7 @@
   align-items: flex-start;
   padding: 79.29px 0px 80px;
   position: relative;
-  background: linear-gradient(180deg, #E2F7FF 0%, var(--surface-light) 100%);
+  background: linear-gradient(180deg, #dbeafe 0%, var(--surface-light) 100%);
 }
 
 .panduan-tata-cara .container {

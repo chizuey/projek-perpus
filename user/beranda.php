@@ -6,7 +6,6 @@
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <link rel="stylesheet" href="/projek-perpus/public/css/style.css?v=<?php echo time(); ?>">
   <link rel="stylesheet" href="/projek-perpus/public/css/stylekoleksi.css?v=<?php echo time(); ?>">
-
   <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.0/css/all.min.css">
 </head>
 <body>
@@ -22,7 +21,7 @@ $popularBooks = $bukuModel->getPopular(6);
 
 <!-- HERO -->
 <section class="hero">
-    <div class="container hero-content">
+    <div class="container hero-content" data-aos="fade-up" data-aos-delay="100">
         <div class="hero-text">
             <h1>Selamat Datang di <br><span>Perpustakaan Polije</span></h1>
             <p>Temukan berbagai judul dan referensi lainnya
@@ -37,7 +36,7 @@ dan pengetahuan tanpa batas.
         </div>
 
         <div class="hero-image">
-           <img src="../public/img/bg-bku2.png" alt="Gambar Latar Perpustakaan">
+           <img src="../public/img/bg-bku2.png" alt="Gambar Latar Perpustakaan" data-aos="fade-in">
         </div>
     </div>
 </section>
@@ -136,6 +135,7 @@ secara digital.</p>
    <?php endforeach; ?>
     </div> </section> <?php include 'foot.php'; ?>
 <?php include 'modal_detail.php'; ?>
+<script src="projek-perpus/vendor/aos/aos.js"></script>
 
 </body>
 </html>
