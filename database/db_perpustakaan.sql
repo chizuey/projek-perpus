@@ -68,6 +68,7 @@ CREATE TABLE buku (
     id_kategori INT NOT NULL,
     cover VARCHAR(255) DEFAULT NULL,
     stok_tersedia INT NOT NULL DEFAULT 0,
+    status ENUM('aktif', 'nonaktif') NOT NULL DEFAULT 'aktif',
     created_at TIMESTAMP NULL DEFAULT CURRENT_TIMESTAMP,
     updated_at TIMESTAMP NULL DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP,
     FOREIGN KEY (id_kategori) REFERENCES kategori(id_kategori)
@@ -78,7 +79,7 @@ CREATE TABLE buku (
 CREATE TABLE eksemplar (
     id_eksemplar INT AUTO_INCREMENT PRIMARY KEY,
     id_buku INT NOT NULL,
-    status ENUM('tersedia', 'direservasi', 'dipinjam', 'rusak', 'hilang') NOT NULL DEFAULT 'tersedia',
+    status ENUM('tersedia', 'direservasi', 'dipinjam', 'rusak', 'hilang', 'nonaktif') NOT NULL DEFAULT 'tersedia',
     created_at TIMESTAMP NULL DEFAULT CURRENT_TIMESTAMP,
     updated_at TIMESTAMP NULL DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP,
     FOREIGN KEY (id_buku) REFERENCES buku(id_buku)

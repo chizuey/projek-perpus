@@ -47,11 +47,10 @@ if (($_SERVER['REQUEST_METHOD'] ?? 'GET') === 'POST' && ($_POST['aksi'] ?? '') =
     } elseif ($passwordBaru !== $konfirmasiPassword) {
         $error = 'Konfirmasi password tidak sama.';
     } else {
-        $cek = $conn->prepare('SELECT id_admin FROM admin WHERE email = ? LIMIT 1');
-        $cek->bind_param('s', $emailBaru);
-        $cek->execute();
+        $emailCek = $conn->real_escape_string($emailBaru);
+        $cek = $conn->query("SELECT id_admin FROM admin WHERE email = '$emailCek' LIMIT 1");
 
-        if ($cek->get_result()->num_rows > 0) {
+        if ($cek && $cek->num_rows > 0) {
             $error = 'Email admin sudah terdaftar.';
         } else {
             $hash = password_hash($passwordBaru, PASSWORD_DEFAULT);
@@ -70,10 +69,7 @@ if (($_SERVER['REQUEST_METHOD'] ?? 'GET') === 'POST' && ($_POST['aksi'] ?? '') =
     }
 }
 
-$stmt = $conn->prepare('SELECT * FROM admin WHERE id_admin = ? LIMIT 1');
-$stmt->bind_param('i', $adminId);
-$stmt->execute();
-$adminRow = $stmt->get_result()->fetch_assoc() ?: [];
+$adminRow = $conn->query('SELECT * FROM admin WHERE id_admin = ' . (int)$adminId . ' LIMIT 1')->fetch_assoc() ?: [];
 
 $admin = [
     'id' => $adminRow['id_admin'] ?? 'ADM001',

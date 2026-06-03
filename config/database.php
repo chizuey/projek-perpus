@@ -9,6 +9,15 @@ class Database {
     public $conn;
 
     public function __construct() {
+        $hostingConfig = __DIR__ . '/hosting.php';
+        if (file_exists($hostingConfig)) {
+            $config = require $hostingConfig;
+            $this->host = $config['host'] ?? $this->host;
+            $this->user = $config['user'] ?? $this->user;
+            $this->password = $config['password'] ?? $this->password;
+            $this->db = $config['database'] ?? $this->db;
+        }
+
         $this->conn = null;
         mysqli_report(MYSQLI_REPORT_ERROR | MYSQLI_REPORT_STRICT);
 

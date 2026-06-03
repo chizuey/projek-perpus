@@ -101,7 +101,7 @@ extract($bukuController->index(), EXTR_SKIP);
                                     class="btn-table-action"
                                 >
                                     <i class="bi bi-pencil"></i>
-                                    <span>Edit</span>
+                                    <span>Detail</span>
                                 </a>
                                 <button
                                     type="button"

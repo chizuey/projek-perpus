@@ -1,15 +1,16 @@
 <?php
 session_start();
 
-require_once __DIR__ . '/../vendor/autoload.php';
-require_once __DIR__ . '/../config.php';
+require_once '../vendor/autoload.php';
+require_once '../config.php';
+require_once '../config/app.php';
 
 // KONFIGURASI GOOGLE
 $client = new Google\Client();
 
-$client->setClientId('118639840694-uuda9i1n1bc3c216tqufrjirucg3chdv.apps.googleusercontent.com');
-$client->setClientSecret('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');
-$client->setRedirectUri('http://localhost/projek-perpus/auth/proses-login.php');
+$client->setClientId(google_client_id());
+$client->setClientSecret(google_client_secret());
+$client->setRedirectUri(google_redirect_uri());
 
 $client->setHttpClient(
     new \GuzzleHttp\Client([
@@ -87,12 +88,12 @@ if (isset($_GET['code'])) {
     |--------------------------------------------------------------------------
     */
 
- $query = mysqli_query(
+    $query = mysqli_query(
         $koneksi,
-        "SELECT * FROM anggota WHERE email = '$email_db' OR nim = '$nim_db' LIMIT 1"
+        "SELECT * FROM anggota WHERE email = '$email_db' LIMIT 1"
     );
 
-    // Kalau sudah ada (berdasarkan email atau nim)
+    // Kalau sudah ada
     if (mysqli_num_rows($query) > 0) {
 
         $data = mysqli_fetch_assoc($query);
@@ -107,8 +108,8 @@ if (isset($_GET['code'])) {
 
         mysqli_query(
             $koneksi,
-            "INSERT INTO anggota (nama, nama_anggota, nim, email)
-            VALUES ('$nama_db', '$nama_db', '$nim_db', '$email_db')"
+            "INSERT INTO anggota (nama, nim, email)
+            VALUES ('$nama_db', '$nim_db', '$email_db')"
         );
 
         // Ambil akun yang baru dibuat
@@ -119,18 +120,18 @@ if (isset($_GET['code'])) {
 
         $data = mysqli_fetch_assoc($query_baru);
     }
+
     /*
     |--------------------------------------------------------------------------
     | SESSION LOGIN
     |--------------------------------------------------------------------------
     */
 
-    $_SESSION['id_user']    = $data['id_anggota'];
-    $_SESSION['id_anggota'] = $data['id_anggota'];
-    $_SESSION['nama']       = $data['nama'];
-    $_SESSION['nim']        = $data['nim'];
-    $_SESSION['jurusan']    = $data['jurusan'] ?? '';
-    $_SESSION['level']      = 'user';
+    $_SESSION['id_user'] = $data['id_anggota'];
+    $_SESSION['nama']    = $data['nama'];
+    $_SESSION['nim']     = $data['nim'];
+    $_SESSION['jurusan'] = $data['jurusan'] ?? '';
+    $_SESSION['level']   = 'user';
 
     header("Location: ../user/mahasiswa.php");
     exit();
@@ -161,8 +162,7 @@ if (isset($_POST['login']) || isset($_POST['login_admin'])) {
         if (password_verify($password, $data_admin['password'])) {
 
             $_SESSION['id_admin'] = $data_admin['id_admin'];
-            $_SESSION['nama']     = $data_admin['nama'];
-            $_SESSION['jabatan']  = $data_admin['jabatan_admin'] ?? 'Admin Perpustakaan';
+            $_SESSION['nama']     = $data_admin['nama_admin'];
             $_SESSION['level']    = 'admin';
 
             mysqli_query(

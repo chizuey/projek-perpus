@@ -57,7 +57,6 @@ $statusLabel = [
                     'menunggu'   => 'Menunggu',
                     'disetujui'  => 'Disetujui',
                     'dibatalkan' => 'Dibatalkan',
-                    'selesai'    => 'Selesai',
                 ];
                 foreach ($statusOptions as $val => $lbl):
                     $active = ($filterStatus === $val) ? 'active' : '';
@@ -97,7 +96,6 @@ $statusLabel = [
                     <th>Nama Anggota</th>
                     <th>Judul Buku</th>
                     <th>Tgl Reservasi</th>
-                    <th>Kadaluarsa</th>
                     <th>Stok</th>
                     <th>ID Eks</th>
                     <th>Status</th>
@@ -110,6 +108,7 @@ $statusLabel = [
                 <?php foreach ($pageData as $i => $r): ?>
                     <?php
                     $st = $r['status'] ?? 'menunggu';
+                    if ($st === 'selesai' || $st === 'kadaluarsa') continue;
                     $badge = $statusLabel[$st] ?? ['label' => $st, 'class' => 'badge-pending'];
                     ?>
                     <tr>
@@ -118,7 +117,6 @@ $statusLabel = [
                         <td><?= eR($r['nama_anggota'] ?? ''); ?></td>
                         <td><?= eR($r['judul_buku'] ?? ''); ?></td>
                         <td><?= fmtTgl($r['tanggal_reservasi'] ?? ''); ?></td>
-                        <td><?= fmtTgl($r['tanggal_kadaluarsa'] ?? ''); ?></td>
                         <td><?= (int)($r['stok_tersedia'] ?? 0); ?></td>
                         <td><?= !empty($r['id_eksemplar']) ? (int)$r['id_eksemplar'] : '-'; ?></td>
                         <td>
@@ -192,7 +190,7 @@ $statusLabel = [
                 <?php endforeach; ?>
             <?php else: ?>
                 <tr>
-                    <td colspan="11" class="empty-row">
+                    <td colspan="10" class="empty-row">
                         <?= $search !== '' || $filterStatus !== ''
                             ? 'Tidak ada data yang cocok dengan filter.'
                             : 'Belum ada data reservasi.'; ?>

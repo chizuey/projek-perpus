@@ -6,6 +6,7 @@
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <link rel="stylesheet" href="/projek-perpus/public/css/style.css?v=<?php echo time(); ?>">
   <link rel="stylesheet" href="/projek-perpus/public/css/stylekoleksi.css?v=<?php echo time(); ?>">
+
   <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.0/css/all.min.css">
 </head>
 <body>
@@ -70,6 +71,13 @@ diskusi.</p>
 mudah, cepat, dan terintegrasi
 secara digital.</p>
    </div>
+
+   
+   <!-- <div class="feature-card">
+        <div class="icon-box blue"><img src="gambar/koleksi.png"></div>
+        <h3>Koleksi Buku</h3>
+        <p>Tersedia berbagai macam judul buku cetak dari berbagai kategori untuk mendukung referensi belajar Anda.</p>
+   </div> -->
 </section>
 
 <!-- KOLEKSI TERBARU -->

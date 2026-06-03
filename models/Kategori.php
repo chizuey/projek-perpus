@@ -29,11 +29,9 @@ class Kategori
 
     public function find($id)
     {
-        $sql = "SELECT * FROM kategori WHERE id_kategori = ? LIMIT 1";
-        $stmt = $this->conn->prepare($sql);
-        $stmt->bind_param("i", $id);
-        $stmt->execute();
-        return $stmt->get_result()->fetch_assoc();
+        $id = (int)$id;
+        $sql = "SELECT * FROM kategori WHERE id_kategori = $id LIMIT 1";
+        return $this->conn->query($sql)->fetch_assoc();
     }
 
     public function create($nama)

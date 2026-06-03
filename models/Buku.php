@@ -18,12 +18,13 @@ class Buku
     public function all()
     {
         $sql = "SELECT buku.*, kategori.nama_kategori,
-                       (SELECT COUNT(*) FROM eksemplar WHERE id_buku = buku.id_buku) as total_eksemplar,
+                       (SELECT COUNT(*) FROM eksemplar WHERE id_buku = buku.id_buku AND status != 'nonaktif') as total_eksemplar,
                        (SELECT COUNT(*) FROM eksemplar WHERE id_buku = buku.id_buku AND status = 'tersedia') as stok_tersedia,
                        (SELECT COUNT(*) FROM eksemplar WHERE id_buku = buku.id_buku AND status = 'dipinjam') as dipinjam,
                        (SELECT COUNT(*) FROM eksemplar WHERE id_buku = buku.id_buku AND status = 'direservasi') as direservasi
                 FROM buku
                 LEFT JOIN kategori ON buku.id_kategori = kategori.id_kategori
+                WHERE buku.status = 'aktif'
                 ORDER BY buku.id_buku DESC";
         $result = $this->conn->query($sql);
         
@@ -47,7 +48,7 @@ class Buku
     public function find($id)
     {
         $sql = "SELECT buku.*, kategori.nama_kategori,
-                       (SELECT COUNT(*) FROM eksemplar WHERE id_buku = buku.id_buku) as total_eksemplar
+                       (SELECT COUNT(*) FROM eksemplar WHERE id_buku = buku.id_buku AND status != 'nonaktif') as total_eksemplar
                 FROM buku
                 LEFT JOIN kategori ON buku.id_kategori = kategori.id_kategori
                 WHERE buku.id_buku = $id";
@@ -112,14 +113,12 @@ class Buku
 
     public function eksemplarByBuku($id)
     {
+        $id = (int)$id;
         $sql = "SELECT id_eksemplar, status
                 FROM eksemplar
-                WHERE id_buku = ?
+                WHERE id_buku = $id AND status != 'nonaktif'
                 ORDER BY id_eksemplar ASC";
-        $stmt = $this->conn->prepare($sql);
-        $stmt->bind_param("i", $id);
-        $stmt->execute();
-        $result = $stmt->get_result();
+        $result = $this->conn->query($sql);
 
         $data = [];
         while ($row = $result->fetch_assoc()) {
@@ -156,7 +155,7 @@ class Buku
 
         $deleted = 0;
         foreach ($ids as $idEksemplar) {
-            $sql = "DELETE FROM eksemplar WHERE id_eksemplar = ? AND id_buku = ? AND status = 'tersedia'";
+            $sql = "UPDATE eksemplar SET status = 'nonaktif' WHERE id_eksemplar = ? AND id_buku = ? AND status = 'tersedia'";
             $stmt = $this->conn->prepare($sql);
             $stmt->bind_param("ii", $idEksemplar, $idBuku);
             $stmt->execute();
@@ -173,7 +172,7 @@ class Buku
     public function syncCopy($idBuku)
     {
         $sql = "UPDATE buku
-                SET copy = (SELECT COUNT(*) FROM eksemplar WHERE id_buku = ?),
+                SET copy = (SELECT COUNT(*) FROM eksemplar WHERE id_buku = ? AND status != 'nonaktif'),
                     stok_tersedia = (SELECT COUNT(*) FROM eksemplar WHERE id_buku = ? AND status = 'tersedia')
                 WHERE id_buku = ?";
         $stmt = $this->conn->prepare($sql);
@@ -187,9 +186,20 @@ class Buku
     // ============================================================
     public function delete($id)
     {
-        // Eksemplar akan terhapus otomatis karena CONSTRAINT ON DELETE CASCADE di database
-        $sql = "DELETE FROM buku WHERE id_buku = $id";
-        return $this->conn->query($sql);
+        $id = (int)$id;
+        // 1. Ubah status buku menjadi 'nonaktif'
+        $sqlBuku = "UPDATE buku SET status = 'nonaktif' WHERE id_buku = $id";
+        $resBuku = $this->conn->query($sqlBuku);
+
+        // 2. Ubah status semua eksemplar buku ini yang berstatus 'tersedia' menjadi 'nonaktif'
+        $sqlEksemplar = "UPDATE eksemplar SET status = 'nonaktif' WHERE id_buku = $id AND status = 'tersedia'";
+        $this->conn->query($sqlEksemplar);
+
+        // Selaraskan copy count
+        $this->syncCopy($id);
+
+        return $resBuku;
+
     }
 
     // ============================================================
@@ -227,17 +237,11 @@ class Buku
     // ============================================================
     public function countByTitle($judul, $exceptId = null)
     {
-        $sql = "SELECT COUNT(*) as total FROM buku WHERE judul = ?";
-        if ($exceptId) $sql .= " AND id_buku != ?";
-        
-        $stmt = $this->conn->prepare($sql);
-        if ($exceptId) {
-            $stmt->bind_param("si", $judul, $exceptId);
-        } else {
-            $stmt->bind_param("s", $judul);
-        }
-        $stmt->execute();
-        $row = $stmt->get_result()->fetch_assoc();
+        $judul = $this->conn->real_escape_string($judul);
+        $sql = "SELECT COUNT(*) as total FROM buku WHERE judul = '$judul'";
+        if ($exceptId) $sql .= " AND id_buku != " . (int)$exceptId;
+
+        $row = $this->conn->query($sql)->fetch_assoc();
         return $row['total'];
     }
 
@@ -253,6 +257,7 @@ class Buku
                         WHERE e.id_buku = b.id_buku) as loan_count
                 FROM buku b
                 LEFT JOIN kategori k ON b.id_kategori = k.id_kategori
+                WHERE b.status = 'aktif'
                 ORDER BY loan_count DESC
                 LIMIT $limit";
         $result = $this->conn->query($sql);
@@ -275,6 +280,7 @@ class Buku
         $sql = "SELECT b.*, k.nama_kategori
                 FROM buku b
                 LEFT JOIN kategori k ON b.id_kategori = k.id_kategori
+                WHERE b.status = 'aktif'
                 ORDER BY b.id_buku DESC
                 LIMIT $limit";
         $result = $this->conn->query($sql);
@@ -293,40 +299,31 @@ class Buku
     // ============================================================
     public function searchKoleksi($search = '', $kategori = '', $tahun = '', $page = 1, $perPage = 15)
     {
-        $where = [];
-        $params = [];
-        $types = '';
+        $where = ["b.status = 'aktif'"];
 
         if ($search !== '') {
-            $where[] = "(b.judul LIKE ? OR b.penulis LIKE ?)";
-            $like = '%' . $search . '%';
-            $params[] = $like;
-            $params[] = $like;
-            $types .= 'ss';
+            $like = '%' . $this->conn->real_escape_string($search) . '%';
+            $where[] = "(b.judul LIKE '$like' OR b.penulis LIKE '$like')";
         }
         if ($kategori !== '') {
-            $where[] = "k.nama_kategori = ?";
-            $params[] = $kategori;
-            $types .= 's';
+            $kategori = $this->conn->real_escape_string($kategori);
+            $where[] = "k.nama_kategori = '$kategori'";
         }
         if ($tahun !== '') {
-            $where[] = "b.tahun_terbit = ?";
-            $params[] = $tahun;
-            $types .= 's';
+            $tahun = $this->conn->real_escape_string($tahun);
+            $where[] = "b.tahun_terbit = '$tahun'";
         }
 
         $whereClause = count($where) > 0 ? 'WHERE ' . implode(' AND ', $where) : '';
 
         // Count total
         $countSql = "SELECT COUNT(*) as total FROM buku b LEFT JOIN kategori k ON b.id_kategori = k.id_kategori $whereClause";
-        $stmtCount = $this->conn->prepare($countSql);
-        if ($types !== '') {
-            $stmtCount->bind_param($types, ...$params);
-        }
-        $stmtCount->execute();
-        $total = $stmtCount->get_result()->fetch_assoc()['total'];
+        $countResult = $this->conn->query($countSql);
+        $total = (int)($countResult->fetch_assoc()['total'] ?? 0);
 
         // Fetch page
+        $page = max(1, (int)$page);
+        $perPage = max(1, (int)$perPage);
         $offset = ($page - 1) * $perPage;
         $dataSql = "SELECT b.*, k.nama_kategori,
                            (SELECT COUNT(*) FROM eksemplar WHERE id_buku = b.id_buku AND status = 'tersedia') as stok_tersedia
@@ -335,12 +332,7 @@ class Buku
                     $whereClause
                     ORDER BY b.id_buku DESC
                     LIMIT $perPage OFFSET $offset";
-        $stmtData = $this->conn->prepare($dataSql);
-        if ($types !== '') {
-            $stmtData->bind_param($types, ...$params);
-        }
-        $stmtData->execute();
-        $result = $stmtData->get_result();
+        $result = $this->conn->query($dataSql);
 
         $data = [];
         while ($row = $result->fetch_assoc()) {

@@ -1,11 +1,12 @@
 <?php
 session_start();
-require_once __DIR__ . '/../vendor/autoload.php';
+require_once '../vendor/autoload.php';
+require_once '../config/app.php';
 
 // 1. Inisialisasi Google Client
-$clientID = '118639840694-uuda9i1n1bc3c216tqufrjirucg3chdv.apps.googleusercontent.com';
-$clientSecret = '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';
-$redirectUri = 'http://localhost/projek-perpus/auth/proses-login.php';
+$clientID = google_client_id();
+$clientSecret = google_client_secret();
+$redirectUri = google_redirect_uri();
 
 $client = new Google_Client();
 $client->setClientId($clientID);
