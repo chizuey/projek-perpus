@@ -38,11 +38,17 @@
 </div>
 
 <script>
+let modalDetailHideTimer = null;
 
 function bukaPopup(idBuku, judul, kategori, img, deskripsi, stok) {
     const modal = document.getElementById('modalDetail');
 
     if (modal) {
+        if (modalDetailHideTimer) {
+            clearTimeout(modalDetailHideTimer);
+            modalDetailHideTimer = null;
+        }
+
         // 1. Isi data ke dalam elemen popup (dengan pengecekan elemen agar tidak crash)
         const elId = document.getElementById('popIdBuku');
         const elTitle = document.getElementById('popTitle');
@@ -92,7 +98,17 @@ function bukaPopup(idBuku, judul, kategori, img, deskripsi, stok) {
 
         // 4. Tampilkan Popup dengan animasi (Pastikan display flex/block sesuai CSS-mu)
         modal.style.display = 'flex';
+        modal.classList.remove('modal-animated');
+        void modal.offsetWidth;
         modal.classList.add('modal-animated');
+
+        const modalContent = modal.querySelector('.modal-content-animated');
+        if (modalContent) {
+            modalContent.classList.remove('modal-content-animated');
+            void modalContent.offsetWidth;
+            modalContent.classList.add('modal-content-animated');
+        }
+
         document.body.style.overflow = 'hidden';
     }
 }
@@ -100,9 +116,14 @@ function bukaPopup(idBuku, judul, kategori, img, deskripsi, stok) {
 function tutupPopup() {
     const modal = document.getElementById('modalDetail');
     if (modal) {
+        if (modalDetailHideTimer) {
+            clearTimeout(modalDetailHideTimer);
+        }
+
         modal.classList.remove('modal-animated');
-        setTimeout(() => {
+        modalDetailHideTimer = setTimeout(() => {
             modal.style.display = 'none';
+            modalDetailHideTimer = null;
         }, 300);
         document.body.style.overflow = 'auto';
     }

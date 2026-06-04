@@ -234,8 +234,8 @@
    STAGGER ANIMATIONS (untuk list items)
    ============================================ */
 
-.animate-stagger > * {
-    animation: fadeInUp 0.6s ease-out backwards;
+.animate-stagger > *:not([data-aos]) {
+    animation: fadeInUp 0.6s ease-out both;
 }
 
 .animate-stagger > *:nth-child(1) {
@@ -260,6 +260,22 @@
 
 .animate-stagger > *:nth-child(6) {
     animation-delay: 0.6s;
+}
+
+.animate-stagger > *:nth-child(7) {
+    animation-delay: 0.7s;
+}
+
+.animate-stagger > *:nth-child(8) {
+    animation-delay: 0.8s;
+}
+
+.animate-stagger > *:nth-child(9) {
+    animation-delay: 0.9s;
+}
+
+.animate-stagger > *:nth-child(n+10) {
+    animation-delay: 1s;
 }
 
 /* ============================================
