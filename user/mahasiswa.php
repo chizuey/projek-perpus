@@ -30,10 +30,12 @@ $jurusan_tampil = $profile['jurusan'];
     <title>Profil Mahasiswa - Perpustakaan Polije</title>
     <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
     <link rel="stylesheet" href="../public/css/mahasiswa.css">
+    <link rel="stylesheet" href="../public/css/animations.css?v=<?php echo time(); ?>">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/aos/2.3.4/aos.css">
 </head>
 <body>
 
-      <div style="display: flex; align-items: center; gap: 12px; margin-bottom: 20px;">
+      <div style="display: flex; align-items: center; gap: 12px; margin-bottom: 20px;" data-aos="fade-down">
     <a href="beranda.php" style="display: flex; align-items: center; justify-content: center; width: 35px; height: 35px; border: 1px solid #ddd; border-radius: 8px; text-decoration: none; color: #333;">
         <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
             <path d="M15 18l-6-6 6-6"></path>
@@ -42,7 +44,7 @@ $jurusan_tampil = $profile['jurusan'];
     <h2 style="margin: 0; font-size: 24px; font-weight: bold;">Profil Mahasiswa</h2>
 </div>
 
-    <div class="profile-card">
+    <div class="profile-card" data-aos="fade-up" data-aos-delay="200">
         <div class="avatar-placeholder">
             <svg width="45" height="45" viewBox="0 0 24 24" fill="#94a3b8">
                 <path d="M12 12c2.21 0 4-1.79 4-4s-1.79-4-4-4-4 1.79-4 4 1.79 4 4 4zm0 2c-2.67 0-8 1.34-8 4v2h16v-2c0-2.66-5.33-4-8-4z"/>
@@ -68,7 +70,7 @@ $jurusan_tampil = $profile['jurusan'];
     </div>
 
     <div class="grid-sections" style="margin-top: 25px;">
-        <div class="section-card">
+        <div class="section-card" data-aos="fade-up" data-aos-delay="300">
             <h3>Buku yang Dipinjam</h3>
             <?php if (empty($activeLoans)): ?>
                 <p style="font-size: 13px; color: var(--text-muted); text-align: center; margin-top: 20px;">Anda tidak sedang meminjam buku.</p>
@@ -101,7 +103,7 @@ $jurusan_tampil = $profile['jurusan'];
             <?php endif; ?>
         </div>
 
-        <div class="section-card">
+        <div class="section-card" data-aos="fade-up" data-aos-delay="400">
             <h3>Reservasi Buku</h3>
             <?php if (empty($activeReservations)): ?>
                 <p style="font-size: 13px; color: var(--text-muted); text-align: center; margin-top: 20px;">Anda belum melakukan reservasi buku.</p>
@@ -130,9 +132,9 @@ $jurusan_tampil = $profile['jurusan'];
         </div>
     </div>
 
-    <h3>Riwayat Peminjaman</h3>
-    <div class="stats-grid">
-        <div class="stat-card">
+    <h3 data-aos="fade-up" data-aos-delay="500">Riwayat Peminjaman</h3>
+    <div class="stats-grid animate-stagger">
+        <div class="stat-card" data-aos="fade-up">
             <div class="stat-icon" style="background: #eff6ff; color: #3b82f6;">📘</div>
             <div class="stat-info">
                 <span class="label">Total Buku Dipinjam</span>
@@ -140,7 +142,7 @@ $jurusan_tampil = $profile['jurusan'];
                 <span class="desc">Riwayat semua peminjaman</span>
             </div>
         </div>
-        <div class="stat-card">
+        <div class="stat-card" data-aos="fade-up">
             <div class="stat-icon" style="background: #fff7ed; color: #f59e0b;">⏰</div>
             <div class="stat-info">
                 <span class="label">Riwayat Keterlambatan</span>
@@ -214,5 +216,16 @@ $jurusan_tampil = $profile['jurusan'];
 </div>
 
 <div style="margin-bottom: 50px;"></div>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/aos/2.3.4/aos.min.js"></script>
+<script>
+  // Initialize AOS (Animate On Scroll)
+  AOS.init({
+    duration: 800,
+    easing: 'ease-in-out',
+    once: true,
+    mirror: false,
+    offset: 100
+  });
+</script>
 </body>
 </html>

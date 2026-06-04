@@ -713,16 +713,6 @@ body {
 
 /* ================= HERO SECTION ================= */
 .hero-section-profil {
-<<<<<<< HEAD
-  background: linear-gradient(180deg, #dbeafe 0%, var(--surface-light, #ffffff) 100%);
-  height: 300px;
-  display: flex;
-  align-items: center; 
-  justify-content: center;
-  text-align: center;
-  padding: 0 20px; 
-  box-sizing: border-box;
-=======
     background: linear-gradient(180deg, #E2F7FF 0%, var(--surface-light, #ffffff) 100%);
     height: 300px;
     display: flex;
@@ -731,7 +721,6 @@ body {
     text-align: center;
     padding: 0 20px;
     box-sizing: border-box;
->>>>>>> c719c4dbc449b544ad68f1f388f2d4511c39d1c2
 }
 
 .hero-content-profil {
@@ -754,19 +743,18 @@ body {
 }
 
 .hero-subtitle-profil {
-<<<<<<< HEAD
-  font-size: 14px;
-  color: #3b82f6;
-  font-weight: 600;
-  margin-top: 5px;
+    font-size: 14px;
+    color: #3b82f6;
+    font-weight: 600;
+    margin-top: 5px;
 }
 
 /* ================= MAIN CONTENT AREA ================= */
 .main-content-prof {
-  max-width: 100%;
-  margin: 50px auto; 
-  padding: 0 100px;   
-  background: #f8fafc;
+    max-width: 100%;
+    margin: 50px auto;
+    padding: 0 100px;
+    background: #ffffff;
 }
 
 /* ================= ABOUT SECTION (KOTAK PUTIH) ================= */
@@ -951,10 +939,7 @@ body {
 }
 
 .hero-subtitle-lokasi {
-  font-size: 14px;
-=======
     font-size: 14px;
->>>>>>> c719c4dbc449b544ad68f1f388f2d4511c39d1c2
     color: #3b82f6;
     font-weight: 600;
     margin-top: 5px;
@@ -1160,13 +1145,8 @@ body {
 
 /* MAIN CONTENT AREA */
 .main-location-content {
-<<<<<<< HEAD
-    background-color: #f8fafc;
-    padding: 50px 0 100px; 
-=======
     background-color: #ffffff;
     padding: 50px 0 100px;
->>>>>>> c719c4dbc449b544ad68f1f388f2d4511c39d1c2
     display: flex;
     flex-direction: column;
     align-items: center;

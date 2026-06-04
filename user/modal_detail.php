@@ -1,5 +1,5 @@
 <div class="bd-modal-overlay" id="modalDetail" style="display: none;">
-    <div class="bd-modal-content">
+    <div class="bd-modal-content modal-content-animated">
         <header class="bd-header">
             <div class="bd-back-btn" onclick="tutupPopup()">
                 <i class="fas fa-chevron-left"></i>
@@ -90,8 +90,9 @@ function bukaPopup(idBuku, judul, kategori, img, deskripsi, stok) {
             }
         }
 
-        // 4. Tampilkan Popup (Pastikan display flex/block sesuai CSS-mu)
+        // 4. Tampilkan Popup dengan animasi (Pastikan display flex/block sesuai CSS-mu)
         modal.style.display = 'flex';
+        modal.classList.add('modal-animated');
         document.body.style.overflow = 'hidden';
     }
 }
@@ -99,7 +100,10 @@ function bukaPopup(idBuku, judul, kategori, img, deskripsi, stok) {
 function tutupPopup() {
     const modal = document.getElementById('modalDetail');
     if (modal) {
-        modal.style.display = 'none';
+        modal.classList.remove('modal-animated');
+        setTimeout(() => {
+            modal.style.display = 'none';
+        }, 300);
         document.body.style.overflow = 'auto';
     }
 }

@@ -6,8 +6,9 @@
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <link rel="stylesheet" href="/projek-perpus/public/css/style.css?v=<?php echo time(); ?>">
   <link rel="stylesheet" href="/projek-perpus/public/css/stylekoleksi.css?v=<?php echo time(); ?>">
-
+  <link rel="stylesheet" href="/projek-perpus/public/css/animations.css?v=<?php echo time(); ?>">
   <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.0/css/all.min.css">
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/aos/2.3.4/aos.css">
 </head>
 <body>
 
@@ -44,19 +45,19 @@ dan pengetahuan tanpa batas.
 
 <!-- FEATURES -->
 <section class="container features">
-   <div class="feature-card">
+   <div class="feature-card" data-aos="fade-up" data-aos-delay="100">
         <div class="icon-box blue"><img src="gambar/koleksi.png"></div>
         <h3>Koleksi Buku</h3>
         <p>Tersedia berbagai macam judul buku cetak dari berbagai kategori untuk mendukung referensi belajar Anda.</p>
    </div>
 
-   <div class="feature-card">
+   <div class="feature-card" data-aos="fade-up" data-aos-delay="200">
         <div class="icon-box blue"><img src="gambar/akses.png"></div>
         <h3>Akses Katalog</h3>
         <p>Cari dan temukan berbagai koleksi buku dengan mudah melalui sistem digital.</p>
    </div>
 
-   <div class="feature-card">
+   <div class="feature-card" data-aos="fade-up" data-aos-delay="300">
         <div class="icon-box blue"><img src="gambar/wifi.png"></div>
         <h3>Fasilitas Nyaman</h3>
         <p>Ruang baca tenang dilengkapi
@@ -64,29 +65,22 @@ WiFi kecepatan tinggi dan area
 diskusi.</p>
    </div>
 
-   <div class="feature-card">
+   <div class="feature-card" data-aos="fade-up" data-aos-delay="400">
         <div class="icon-box blue"><img src="gambar/layanan.png"></div>
         <h3>Peminjaman Mudah</h3>
         <p>Sistem peminjaman buku yang
 mudah, cepat, dan terintegrasi
 secara digital.</p>
    </div>
-
-   
-   <!-- <div class="feature-card">
-        <div class="icon-box blue"><img src="gambar/koleksi.png"></div>
-        <h3>Koleksi Buku</h3>
-        <p>Tersedia berbagai macam judul buku cetak dari berbagai kategori untuk mendukung referensi belajar Anda.</p>
-   </div> -->
 </section>
 
 <!-- KOLEKSI TERBARU -->
 <section class="container book-section">
-    <div class="section-header">
+    <div class="section-header" data-aos="fade-up">
         <h2>Koleksi Terbaru</h2>
     </div>
 
-    <div class="book-grid">
+    <div class="book-grid animate-stagger">
         <?php foreach ($newestBooks as $b): 
             $id_pop    = (int)($b['id'] ?? $b['id_buku'] ?? 0);
             $titel_pop = addslashes(htmlspecialchars($b['judul']));
@@ -97,7 +91,7 @@ secara digital.</p>
             // Tambahkan ini untuk mengambil data stok dari database
             $stok_new  = (int)($b['stok_tersedia'] ?? 0); 
         ?>
-            <div class="book-card" style="cursor: pointer;" 
+            <div class="book-card hover-lift" data-aos="fade-up" style="cursor: pointer;" 
                  onclick="bukaPopup(<?= $id_pop ?>, '<?= $titel_pop ?>', '<?= $kat_pop ?>', '<?= $img_pop ?>', '<?= $desk_pop ?>', <?= $stok_new ?>)">
                 <div class="book-cover">
                     <img src="../<?= !empty($b['cover']) ? htmlspecialchars($b['cover']) : 'user/gambar/buku.png'; ?>" alt="<?= htmlspecialchars($b['judul']); ?>">
@@ -114,36 +108,46 @@ secara digital.</p>
 
 <!-- TERPOPULER -->
 <section class="container book-section">
-    <div class="section-header">
+    <div class="section-header" data-aos="fade-up">
         <h2>Buku Terpopuler</h2>
-        
     </div>
 
- <div class="book-grid">
-    <?php foreach ($popularBooks as $b): 
-        $id_pop    = (int)($b['id'] ?? $b['id_buku'] ?? 0);
-        $titel_pop = addslashes(htmlspecialchars($b['judul']));
-        $kat_pop   = htmlspecialchars($b['kategori'] ?? 'Umum');
-        $desk_pop  = addslashes(htmlspecialchars($b['deskripsi'] ?? 'Tidak ada deskripsi.'));
-        $img_pop   = !empty($b['cover']) ? '../' . htmlspecialchars($b['cover']) : 'user/gambar/buku.png';
-        
-        // Tetap ambil data stok untuk dikirim ke fungsi popup
-        $stok_pop  = (int)($b['stok_tersedia'] ?? 0); 
-    ?>
-        <div class="book-card" style="cursor: pointer;" 
-             onclick="bukaPopup(<?= $id_pop ?>, '<?= $titel_pop ?>', '<?= $kat_pop ?>', '<?= $img_pop ?>', '<?= $desk_pop ?>', <?= $stok_pop ?>)">
-            <div class="book-cover">
-                <img src="../<?= !empty($b['cover']) ? htmlspecialchars($b['cover']) : 'user/gambar/buku.png'; ?>" alt="<?= htmlspecialchars($b['judul']); ?>">
-            </div>
-            <div class="book-info">
-                <h4><?= htmlspecialchars($b['judul']); ?></h4>
-                <p><?= htmlspecialchars($b['penulis']); ?></p>
+    <div class="book-grid animate-stagger">
+        <?php foreach ($popularBooks as $b): 
+            $id_pop    = (int)($b['id'] ?? $b['id_buku'] ?? 0);
+            $titel_pop = addslashes(htmlspecialchars($b['judul']));
+            $kat_pop   = htmlspecialchars($b['kategori'] ?? 'Umum');
+            $desk_pop  = addslashes(htmlspecialchars($b['deskripsi'] ?? 'Tidak ada deskripsi.'));
+            $img_pop   = !empty($b['cover']) ? '../' . htmlspecialchars($b['cover']) : 'user/gambar/buku.png';
+            
+            // Tetap ambil data stok untuk dikirim ke fungsi popup
+            $stok_pop  = (int)($b['stok_tersedia'] ?? 0); 
+        ?>
+            <div class="book-card hover-lift" data-aos="fade-up" style="cursor: pointer;" 
+                 onclick="bukaPopup(<?= $id_pop ?>, '<?= $titel_pop ?>', '<?= $kat_pop ?>', '<?= $img_pop ?>', '<?= $desk_pop ?>', <?= $stok_pop ?>)">
+                <div class="book-cover">
+                    <img src="../<?= !empty($b['cover']) ? htmlspecialchars($b['cover']) : 'user/gambar/buku.png'; ?>" alt="<?= htmlspecialchars($b['judul']); ?>">
                 </div>
-        </div>
-   <?php endforeach; ?>
-    </div> </section> <?php include 'foot.php'; ?>
+                <div class="book-info">
+                    <h4><?= htmlspecialchars($b['judul']); ?></h4>
+                    <p><?= htmlspecialchars($b['penulis']); ?></p>
+                </div>
+            </div>
+        <?php endforeach; ?>
+    </div>
+</section> <?php include 'foot.php'; ?>
 <?php include 'modal_detail.php'; ?>
-<script src="projek-perpus/vendor/aos/aos.js"></script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/aos/2.3.4/aos.min.js"></script>
+<script>
+  // Initialize AOS (Animate On Scroll)
+  AOS.init({
+    duration: 800,
+    easing: 'ease-in-out',
+    once: true,
+    mirror: false,
+    offset: 100
+  });
+</script>
 
 </body>
 </html>

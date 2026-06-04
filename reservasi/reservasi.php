@@ -10,13 +10,15 @@ $data = [
 <head>
     <title>Perpustakaan</title>
     <link rel="stylesheet" href="stylereservasi.css">
+    <link rel="stylesheet" href="../public/css/animations.css?v=<?php echo time(); ?>">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/aos/2.3.4/aos.css">
 </head>
 <body>
 
 <div class="container">
 
     <!-- Sidebar -->
-    <div class="sidebar">
+    <div class="sidebar" data-aos="fade-right">
         <h2>ADMIN</h2>
         <ul>
             <li class="active">Dashboard</li>
@@ -28,11 +30,11 @@ $data = [
 
     <!-- Main -->
     <div class="main">
-        <div class="header">
+        <div class="header" data-aos="fade-down">
             <h2>PERPUSTAKAAN POLIJE</h2>
         </div>
 
-        <div class="content">
+        <div class="content" data-aos="fade-up">
             <h3>Reservasi Buku</h3>
 
             <table>
@@ -46,7 +48,7 @@ $data = [
                 </tr>
 
                 <?php foreach($data as $d): ?>
-                <tr>
+                <tr data-aos="fade-up">
                     <td><?= $d['nim'] ?></td>
                     <td><?= $d['nama'] ?></td>
                     <td><?= $d['buku'] ?></td>
@@ -68,5 +70,16 @@ $data = [
 
 </div>
 
+<script src="https://cdnjs.cloudflare.com/ajax/libs/aos/2.3.4/aos.min.js"></script>
+<script>
+  // Initialize AOS (Animate On Scroll)
+  AOS.init({
+    duration: 800,
+    easing: 'ease-in-out',
+    once: true,
+    mirror: false,
+    offset: 100
+  });
+</script>
 </body>
 </html>

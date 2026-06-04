@@ -4,8 +4,8 @@
     <meta name="viewport" content="width=device-width, initial-scale=1"/>
     <meta charset="utf-8" />
     <link rel="stylesheet" href="../public/css/style.css?v=<?php echo time(); ?>">
-
-    <link rel="stylesheet" href="style.css?v=3">
+    <link rel="stylesheet" href="../public/css/animations.css?v=<?php echo time(); ?>">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/aos/2.3.4/aos.css">
     <title>Profil Perpustakaan</title>
 </head>
 
@@ -13,22 +13,22 @@
     <?php include 'navbar.php'; ?>
 
     <div class="hero-section-profil">
-        <div class="hero-content-profil">
-            <div class="hero-icon-profil">
+        <div class="hero-content-profil" data-aos="fade-down">
+            <div class="hero-icon-profil" data-aos="zoom-in" data-aos-delay="200">
                 <img src="gambar/prof.png" alt="Icon Profil">
             </div>
-            <h1 class="hero-title-profil">Profil</h1>
-            <p class="hero-subtitle-profil">Perpustakaan POLIJE</p>
+            <h1 class="hero-title-profil" data-aos="fade-up" data-aos-delay="300">Profil</h1>
+            <p class="hero-subtitle-profil" data-aos="fade-up" data-aos-delay="400">Perpustakaan POLIJE</p>
         </div>
     </div>
 
     <main class="main-content-prof">
         
-        <section class="section-about-prof">
-            <div class="image-box-prof">
+        <section class="section-about-prof" data-aos="fade-up">
+            <div class="image-box-prof" data-aos="fade-right" data-aos-delay="100">
                 <img src="gambar/perpus.png" alt="Gedung Polije">
             </div>
-            <div class="text-box-prof">
+            <div class="text-box-prof" data-aos="fade-left" data-aos-delay="100">
                 <h2 class="title-prof">UPT. <span>Perpustakaan POLIJE</span></h2>
                 <div class="description-prof">
                     <p>UPT. Perpustakaan Politeknik Negeri Jember adalah Perpustakaan Sentral yang dimiliki oleh Politeknik Negeri Jember. Letaknya yang strategis berada tepat disamping gedung utama mudah dijangkau bagi pengguna.</p>
@@ -38,14 +38,14 @@
             </div>
         </section>
 
-        <section class="section-visi-misi">
-            <div class="visi-misi-header-prof">
+        <section class="section-visi-misi" data-aos="fade-up">
+            <div class="visi-misi-header-prof" data-aos="fade-down">
                 <h2>Visi & Misi <br><span>Perpustakaan POLIJE</span></h2>
             </div>
 
             <div class="visi-misi-container">
-                <div class="cards-container-prof">
-                    <div class="card-prof">
+                <div class="cards-container-prof animate-stagger">
+                    <div class="card-prof hover-lift" data-aos="fade-up" data-aos-delay="100">
                         <div class="card-header-prof">
                             <div class="blue-line-prof"></div>
                             <h3>VISI</h3>
@@ -53,7 +53,7 @@
                         <p>Menjadikan perpustakaan sebagai wahana Pendidikan, Penelitian, Pelestarian, Informasi, dan Rekreasi (P3IR).</p>
                     </div>
 
-                    <div class="card-prof">
+                    <div class="card-prof hover-lift" data-aos="fade-up" data-aos-delay="200">
                         <div class="card-header-prof">
                             <div class="blue-line-prof"></div>
                             <h3>MISI</h3>
@@ -67,13 +67,24 @@
                     </div>
                 </div>
 
-                <div class="visi-image-prof">
+                <div class="visi-image-prof" data-aos="fade-left" data-aos-delay="300">
                     <img src="gambar/perpus2.png" alt="Foto Perpustakaan Polije">
                 </div>
             </div>
         </section>
     </main> 
 
-    <?php include 'foot.php'; ?> 
+    <?php include 'foot.php'; ?>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/aos/2.3.4/aos.min.js"></script>
+    <script>
+      // Initialize AOS (Animate On Scroll)
+      AOS.init({
+        duration: 800,
+        easing: 'ease-in-out',
+        once: true,
+        mirror: false,
+        offset: 100
+      });
+    </script>
 </body>
 </html>

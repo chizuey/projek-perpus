@@ -39,7 +39,9 @@ $hasActiveFilter = ($search !== '' || $kategori !== '' || $tahun !== '');
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Koleksi - Perpustakaan Polije</title>
     <link rel="stylesheet" href="../public/css/style.css?v=6">
+    <link rel="stylesheet" href="../public/css/animations.css?v=<?= time(); ?>">
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.0/css/all.min.css">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/aos/2.3.4/aos.css">
     <link rel="stylesheet" href="../public/css/stylekoleksi.css?v=<?= time(); ?>">
 </head>
 <body>
@@ -47,16 +49,16 @@ $hasActiveFilter = ($search !== '' || $kategori !== '' || $tahun !== '');
 
 <div class="koleksi-page">
     <div class="hero-section-koleksi">
-        <div class="hero-content-koleksi">
-            <div class="hero-icon-koleksi">
+        <div class="hero-content-koleksi" data-aos="fade-down">
+            <div class="hero-icon-koleksi" data-aos="zoom-in" data-aos-delay="200">
                 <img src="../public/img/Books.png" alt="Icon Koleksi">
             </div>
-            <h1 class="hero-title-koleksi">Koleksi Buku</h1>
-            <p class="hero-subtitle-koleksi">Perpustakaan POLIJE</p>
+            <h1 class="hero-title-koleksi" data-aos="fade-up" data-aos-delay="300">Koleksi Buku</h1>
+            <p class="hero-subtitle-koleksi" data-aos="fade-up" data-aos-delay="400">Perpustakaan POLIJE</p>
         </div>
     </div>
 
-    <div class="koleksi-header">
+    <div class="koleksi-header" data-aos="fade-up">
         <form method="get" action="koleksi.php" class="koleksi-search-wrapper">
             <?php if ($kategori !== ''): ?>
                 <input type="hidden" name="kategori" value="<?= htmlspecialchars($kategori); ?>">
@@ -96,13 +98,13 @@ $hasActiveFilter = ($search !== '' || $kategori !== '' || $tahun !== '');
     </div>
 
     <div class="koleksi-grid-wrapper">
-        <div class="koleksi-info">
+        <div class="koleksi-info" data-aos="fade-up">
             Menampilkan <strong><?= count($books); ?></strong> dari <strong><?= $total; ?></strong> buku
         </div>
 
-        <div class="koleksi-grid">
+        <div class="koleksi-grid animate-stagger">
             <?php if (empty($books)): ?>
-                <div class="koleksi-empty">
+                <div class="koleksi-empty" data-aos="fade-up">
                     <i class="fas fa-book-open"></i>
                     <p>Tidak ada buku ditemukan.</p>
                 </div>
@@ -116,7 +118,7 @@ $hasActiveFilter = ($search !== '' || $kategori !== '' || $tahun !== '');
     $img_pop   = !empty($b['cover']) ? '../' . htmlspecialchars($b['cover']) : '../user/gambar/buku.png';
     $stok_pop = (int)($b['stok_tersedia'] ?? 0); 
 ?>
-    <div class="koleksi-card" style="cursor: pointer;" onclick="bukaPopup(<?= $id_pop ?>, '<?= $titel_pop ?>', '<?= $kat_pop ?>', '<?= $img_pop ?>', '<?= $desk_pop ?>', <?= $stok_pop ?>)">
+    <div class="koleksi-card hover-lift" data-aos="fade-up" style="cursor: pointer;" onclick="bukaPopup(<?= $id_pop ?>, '<?= $titel_pop ?>', '<?= $kat_pop ?>', '<?= $img_pop ?>', '<?= $desk_pop ?>', <?= $stok_pop ?>)">
         <div class="koleksi-card-cover">
             <img src="../<?= !empty($b['cover']) ? htmlspecialchars($b['cover']) : 'user/gambar/buku.png'; ?>" alt="<?= htmlspecialchars($b['judul']); ?>">
         </div>
@@ -198,6 +200,17 @@ function applyFilters() {
     
     window.location.href = 'koleksi.php?' + newParams.toString();
 }
+</script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/aos/2.3.4/aos.min.js"></script>
+<script>
+  // Initialize AOS (Animate On Scroll)
+  AOS.init({
+    duration: 800,
+    easing: 'ease-in-out',
+    once: true,
+    mirror: false,
+    offset: 100
+  });
 </script>
 </body>
 </html>

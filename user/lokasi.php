@@ -3,8 +3,9 @@
 <head>
     <meta name="viewport" content="width=device-width, initial-scale=1"/>
     <meta charset="utf-8" />
-    <link rel="stylesheet" href="../public/css/style.css?v=2">
     <link rel="stylesheet" href="../public/css/style.css?v=<?php echo time(); ?>">
+    <link rel="stylesheet" href="../public/css/animations.css?v=<?php echo time(); ?>">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/aos/2.3.4/aos.css">
     <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;600;800&display=swap" rel="stylesheet">
     <title>Lokasi Perpustakaan</title>
 </head>
@@ -13,24 +14,24 @@
     <?php include 'navbar.php'; ?>
 
     <div class="hero-section-lokasi">
-        <div class="hero-content-lokasi">
-            <div class="hero-icon-lokasi">
+        <div class="hero-content-lokasi" data-aos="fade-down">
+            <div class="hero-icon-lokasi" data-aos="zoom-in" data-aos-delay="200">
                 <img src="gambar/lakasi.png" alt="Icon Profil">
             </div>
-            <h1 class="hero-title-lokasi">Lokasi & Jam Kerja</h1>
-            <p class="hero-subtitle-lokasi">Perpustakaan POLIJE</p>
+            <h1 class="hero-title-lokasi" data-aos="fade-up" data-aos-delay="300">Lokasi & Jam Kerja</h1>
+            <p class="hero-subtitle-lokasi" data-aos="fade-up" data-aos-delay="400">Perpustakaan POLIJE</p>
         </div>
     </div>
 
     <section class="main-location-content">
-        <div class="map-wrapper">
-            <div class="map-frame">
+        <div class="map-wrapper" data-aos="fade-up">
+            <div class="map-frame" data-aos="zoom-in" data-aos-delay="200">
                 <iframe 
                   src="https://www.google.com/maps/embed?pb=!1m18!1m12!1m3!1d3949.421579588801!2d113.72099457320176!3d-8.160210281754225!2m3!1f0!2f0!3f0!3m2!1i1024!2i768!4f13.1!3m3!1m2!1s0x2dd695b624959a65%3A0x5105d01c6db05f6c!2sPerpustakaan%20POLIJE!5e0!3m2!1sid!2sid!4v1779078121521!5m2!1sid!2sid" width="600" height="450" style="border:0;" allowfullscreen="" loading="lazy" referrerpolicy="no-referrer-when-downgrade"
                     width="100%" height="450" style="border:0;" allowfullscreen="" loading="lazy">
                 </iframe>
             </div>
-            <div class="map-label">
+            <div class="map-label" data-aos="fade-left" data-aos-delay="300">
                 <img src="../public/img/lakasi.png" alt="Pin">
                 <h2>Google Map</h2>
             </div>
@@ -38,7 +39,7 @@
 
         <hr class="section-divider">
 
-        <div class="operational-card">
+        <div class="operational-card" data-aos="fade-up" data-aos-delay="400">
             <div class="card-top">
                 <div class="clock-icon-bg">
                     <svg width="20" height="20" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
@@ -50,32 +51,32 @@
                 <span class="tag-label">Umum</span>
             </div>
 
-            <div class="schedule-grid">
-                <div class="day-col holiday">
+            <div class="schedule-grid animate-stagger">
+                <div class="day-col holiday" data-aos="fade-up">
                     <span class="label-day">Minggu</span>
                     <span class="val-time">Tutup</span>
                 </div>
-                <div class="day-col">
+                <div class="day-col" data-aos="fade-up">
                     <span class="label-day">Senin</span>
                     <span class="val-time">08.00 - 16.00</span>
                 </div>
-                <div class="day-col">
+                <div class="day-col" data-aos="fade-up">
                     <span class="label-day">Selasa</span>
                     <span class="val-time">08.00 - 16.00</span>
                 </div>
-                <div class="day-col">
+                <div class="day-col" data-aos="fade-up">
                     <span class="label-day">Rabu</span>
                     <span class="val-time">08.00 - 16.00</span>
                 </div>
-                <div class="day-col">
+                <div class="day-col" data-aos="fade-up">
                     <span class="label-day">Kamis</span>
                     <span class="val-time">08.00 - 16.00</span>
                 </div>
-                <div class="day-col">
+                <div class="day-col" data-aos="fade-up">
                     <span class="label-day">Jumat</span>
                     <span class="val-time">08.00 - 16.30</span>
                 </div>
-                <div class="day-col active holiday">
+                <div class="day-col active holiday" data-aos="fade-up">
                     <span class="label-day">Sabtu</span>
                     <span class="val-time">Tutup</span>
                 </div>
@@ -84,5 +85,16 @@
     </section>
 
     <?php include 'foot.php'; ?>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/aos/2.3.4/aos.min.js"></script>
+    <script>
+      // Initialize AOS (Animate On Scroll)
+      AOS.init({
+        duration: 800,
+        easing: 'ease-in-out',
+        once: true,
+        mirror: false,
+        offset: 100
+      });
+    </script>
 </body>
 </html>
