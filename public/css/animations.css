@@ -349,6 +349,19 @@
     transform: none;
 }
 
+[data-aos]:not(.aos-init) {
+    opacity: 1 !important;
+    transform: none !important;
+}
+
+.hero [data-aos],
+.hero-section-koleksi [data-aos],
+.hero-section-profil [data-aos],
+.hero-section-lokasi [data-aos] {
+    opacity: 1 !important;
+    transform: none !important;
+}
+
 /* ============================================
    CARD ANIMATIONS
    ============================================ */

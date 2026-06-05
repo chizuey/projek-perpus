@@ -14,8 +14,19 @@ function dashScalar(mysqli $conn, string $sql): int
     return (int) array_values($row ?: [0])[0];
 }
 
-$total_buku = dashScalar($conn, "SELECT COUNT(*) FROM buku WHERE status = 'aktif'");
-$tersedia = dashScalar($conn, "SELECT COALESCE(SUM(stok_tersedia), 0) FROM buku WHERE status = 'aktif'");
+function dashColumnExists(mysqli $conn, string $table, string $column): bool
+{
+    $safeTable = preg_replace('/[^a-zA-Z0-9_]/', '', $table);
+    $safeColumn = $conn->real_escape_string($column);
+    $result = $conn->query("SHOW COLUMNS FROM `$safeTable` LIKE '$safeColumn'");
+
+    return $result && $result->num_rows > 0;
+}
+
+$activeBookWhere = dashColumnExists($conn, 'buku', 'status') ? " WHERE status = 'aktif'" : '';
+
+$total_buku = dashScalar($conn, "SELECT COUNT(*) FROM buku$activeBookWhere");
+$tersedia = dashScalar($conn, "SELECT COALESCE(SUM(stok_tersedia), 0) FROM buku$activeBookWhere");
 $dipinjam = dashScalar($conn, "SELECT COUNT(*) FROM detail_peminjaman WHERE status_pengembalian = 'dipinjam'");
 $terlambat = dashScalar($conn, "SELECT COUNT(*)
     FROM detail_peminjaman dp

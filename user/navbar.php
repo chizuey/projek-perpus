@@ -1,4 +1,3 @@
-<nav class="header-navbar">
 <?php 
 // Pastikan session sudah dimulai
 if (session_status() === PHP_SESSION_NONE) {
@@ -27,6 +26,7 @@ if (isset($_SESSION['id_user'])) {
     $link_profil = $base . "../auth/login.php";
 }
 ?>
+<nav class="header-navbar">
     <div class="container">
 
         <div class="logo-section">

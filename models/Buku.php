@@ -5,10 +5,56 @@ require_once __DIR__ . '/../config/database.php';
 class Buku
 {
     private $conn;
+    private $columnExistsCache = [];
+    private $enumValueExistsCache = [];
 
     public function __construct()
     {
         $this->conn = (new Database())->getConnection();
+    }
+
+    private function columnExists($table, $column)
+    {
+        $key = $table . '.' . $column;
+        if (!array_key_exists($key, $this->columnExistsCache)) {
+            $safeTable = preg_replace('/[^a-zA-Z0-9_]/', '', $table);
+            $safeColumn = $this->conn->real_escape_string($column);
+            $result = $this->conn->query("SHOW COLUMNS FROM `$safeTable` LIKE '$safeColumn'");
+            $this->columnExistsCache[$key] = $result && $result->num_rows > 0;
+        }
+
+        return $this->columnExistsCache[$key];
+    }
+
+    private function enumValueExists($table, $column, $value)
+    {
+        $key = $table . '.' . $column . '.' . $value;
+        if (!array_key_exists($key, $this->enumValueExistsCache)) {
+            $safeTable = preg_replace('/[^a-zA-Z0-9_]/', '', $table);
+            $safeColumn = $this->conn->real_escape_string($column);
+            $result = $this->conn->query("SHOW COLUMNS FROM `$safeTable` LIKE '$safeColumn'");
+            $row = $result ? $result->fetch_assoc() : null;
+            $type = strtolower((string)($row['Type'] ?? ''));
+
+            $this->enumValueExistsCache[$key] = strpos($type, "'" . strtolower($value) . "'") !== false;
+        }
+
+        return $this->enumValueExistsCache[$key];
+    }
+
+    private function activeBookWhere($alias = 'buku')
+    {
+        return $this->columnExists('buku', 'status') ? "WHERE $alias.status = 'aktif'" : '';
+    }
+
+    private function activeBookCondition($alias = 'b')
+    {
+        return $this->columnExists('buku', 'status') ? "$alias.status = 'aktif'" : '1=1';
+    }
+
+    private function activeEksemplarCondition($alias = 'eksemplar')
+    {
+        return $this->enumValueExists('eksemplar', 'status', 'nonaktif') ? "$alias.status != 'nonaktif'" : '1=1';
     }
 
     // ============================================================
@@ -17,14 +63,17 @@ class Buku
     // ============================================================
     public function all()
     {
+        $activeBookWhere = $this->activeBookWhere('buku');
+        $activeEksemplarCondition = $this->activeEksemplarCondition('eksemplar');
+
         $sql = "SELECT buku.*, kategori.nama_kategori,
-                       (SELECT COUNT(*) FROM eksemplar WHERE id_buku = buku.id_buku AND status != 'nonaktif') as total_eksemplar,
+                       (SELECT COUNT(*) FROM eksemplar WHERE id_buku = buku.id_buku AND $activeEksemplarCondition) as total_eksemplar,
                        (SELECT COUNT(*) FROM eksemplar WHERE id_buku = buku.id_buku AND status = 'tersedia') as stok_tersedia,
                        (SELECT COUNT(*) FROM eksemplar WHERE id_buku = buku.id_buku AND status = 'dipinjam') as dipinjam,
                        (SELECT COUNT(*) FROM eksemplar WHERE id_buku = buku.id_buku AND status = 'direservasi') as direservasi
                 FROM buku
                 LEFT JOIN kategori ON buku.id_kategori = kategori.id_kategori
-                WHERE buku.status = 'aktif'
+                $activeBookWhere
                 ORDER BY buku.id_buku DESC";
         $result = $this->conn->query($sql);
         
@@ -47,8 +96,10 @@ class Buku
     // ============================================================
     public function find($id)
     {
+        $activeEksemplarCondition = $this->activeEksemplarCondition('eksemplar');
+
         $sql = "SELECT buku.*, kategori.nama_kategori,
-                       (SELECT COUNT(*) FROM eksemplar WHERE id_buku = buku.id_buku AND status != 'nonaktif') as total_eksemplar
+                       (SELECT COUNT(*) FROM eksemplar WHERE id_buku = buku.id_buku AND $activeEksemplarCondition) as total_eksemplar
                 FROM buku
                 LEFT JOIN kategori ON buku.id_kategori = kategori.id_kategori
                 WHERE buku.id_buku = $id";
@@ -114,9 +165,11 @@ class Buku
     public function eksemplarByBuku($id)
     {
         $id = (int)$id;
+        $activeEksemplarCondition = $this->activeEksemplarCondition('eksemplar');
+
         $sql = "SELECT id_eksemplar, status
                 FROM eksemplar
-                WHERE id_buku = $id AND status != 'nonaktif'
+                WHERE id_buku = $id AND $activeEksemplarCondition
                 ORDER BY id_eksemplar ASC";
         $result = $this->conn->query($sql);
 
@@ -154,8 +207,12 @@ class Buku
         }
 
         $deleted = 0;
+        $canSoftDeleteEksemplar = $this->enumValueExists('eksemplar', 'status', 'nonaktif');
+
         foreach ($ids as $idEksemplar) {
-            $sql = "UPDATE eksemplar SET status = 'nonaktif' WHERE id_eksemplar = ? AND id_buku = ? AND status = 'tersedia'";
+            $sql = $canSoftDeleteEksemplar
+                ? "UPDATE eksemplar SET status = 'nonaktif' WHERE id_eksemplar = ? AND id_buku = ? AND status = 'tersedia'"
+                : "DELETE FROM eksemplar WHERE id_eksemplar = ? AND id_buku = ? AND status = 'tersedia'";
             $stmt = $this->conn->prepare($sql);
             $stmt->bind_param("ii", $idEksemplar, $idBuku);
             $stmt->execute();
@@ -171,8 +228,10 @@ class Buku
 
     public function syncCopy($idBuku)
     {
+        $activeEksemplarCondition = $this->activeEksemplarCondition('eksemplar');
+
         $sql = "UPDATE buku
-                SET copy = (SELECT COUNT(*) FROM eksemplar WHERE id_buku = ? AND status != 'nonaktif'),
+                SET copy = (SELECT COUNT(*) FROM eksemplar WHERE id_buku = ? AND $activeEksemplarCondition),
                     stok_tersedia = (SELECT COUNT(*) FROM eksemplar WHERE id_buku = ? AND status = 'tersedia')
                 WHERE id_buku = ?";
         $stmt = $this->conn->prepare($sql);
@@ -187,16 +246,27 @@ class Buku
     public function delete($id)
     {
         $id = (int)$id;
-        // 1. Ubah status buku menjadi 'nonaktif'
-        $sqlBuku = "UPDATE buku SET status = 'nonaktif' WHERE id_buku = $id";
-        $resBuku = $this->conn->query($sqlBuku);
+        $canSoftDeleteBook = $this->columnExists('buku', 'status');
+        $canSoftDeleteEksemplar = $this->enumValueExists('eksemplar', 'status', 'nonaktif');
 
-        // 2. Ubah status semua eksemplar buku ini yang berstatus 'tersedia' menjadi 'nonaktif'
-        $sqlEksemplar = "UPDATE eksemplar SET status = 'nonaktif' WHERE id_buku = $id AND status = 'tersedia'";
-        $this->conn->query($sqlEksemplar);
+        if ($canSoftDeleteBook) {
+            // 1. Ubah status buku menjadi 'nonaktif'
+            $sqlBuku = "UPDATE buku SET status = 'nonaktif' WHERE id_buku = $id";
+            $resBuku = $this->conn->query($sqlBuku);
 
-        // Selaraskan copy count
-        $this->syncCopy($id);
+            // 2. Jika skema eksemplar mendukung, sembunyikan juga eksemplar tersedia
+            if ($canSoftDeleteEksemplar) {
+                $sqlEksemplar = "UPDATE eksemplar SET status = 'nonaktif' WHERE id_buku = $id AND status = 'tersedia'";
+                $this->conn->query($sqlEksemplar);
+            }
+
+            // Selaraskan copy count
+            $this->syncCopy($id);
+
+            return $resBuku;
+        }
+
+        $resBuku = $this->conn->query("DELETE FROM buku WHERE id_buku = $id");
 
         return $resBuku;
 
@@ -251,13 +321,15 @@ class Buku
     // ============================================================
     public function getPopular($limit = 6)
     {
+        $activeBookWhere = $this->activeBookWhere('b');
+
         $sql = "SELECT b.*, k.nama_kategori, 
                        (SELECT COUNT(*) FROM eksemplar e 
                         JOIN detail_peminjaman dp ON e.id_eksemplar = dp.id_eksemplar 
                         WHERE e.id_buku = b.id_buku) as loan_count
                 FROM buku b
                 LEFT JOIN kategori k ON b.id_kategori = k.id_kategori
-                WHERE b.status = 'aktif'
+                $activeBookWhere
                 ORDER BY loan_count DESC
                 LIMIT $limit";
         $result = $this->conn->query($sql);
@@ -277,10 +349,12 @@ class Buku
     // ============================================================
     public function getNewest($limit = 6)
     {
+        $activeBookWhere = $this->activeBookWhere('b');
+
         $sql = "SELECT b.*, k.nama_kategori
                 FROM buku b
                 LEFT JOIN kategori k ON b.id_kategori = k.id_kategori
-                WHERE b.status = 'aktif'
+                $activeBookWhere
                 ORDER BY b.id_buku DESC
                 LIMIT $limit";
         $result = $this->conn->query($sql);
@@ -299,7 +373,7 @@ class Buku
     // ============================================================
     public function searchKoleksi($search = '', $kategori = '', $tahun = '', $page = 1, $perPage = 15)
     {
-        $where = ["b.status = 'aktif'"];
+        $where = [$this->activeBookCondition('b')];
 
         if ($search !== '') {
             $like = '%' . $this->conn->real_escape_string($search) . '%';
